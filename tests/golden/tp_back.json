@@ -1,0 +1,83 @@
+{
+  "schema_version": 1,
+  "mode": "dry_run",
+  "transport_performed": false,
+  "requested_device": "chassis",
+  "plan": {
+    "family": "alien_fx_api_v4",
+    "validation": "mapping_derived_unvalidated",
+    "assignments": [
+      {
+        "target": "touchpad",
+        "logical_id": 0,
+        "encoded_id": null,
+        "color": {
+          "r": 10,
+          "g": 11,
+          "b": 12
+        },
+        "color_hex": "#0a0b0c",
+        "validation": "mapping_derived_unvalidated"
+      },
+      {
+        "target": "back",
+        "logical_id": 2,
+        "encoded_id": null,
+        "color": {
+          "r": 10,
+          "g": 11,
+          "b": 12
+        },
+        "color_hex": "#0a0b0c",
+        "validation": "mapping_derived_unvalidated"
+      }
+    ],
+    "assumptions": [
+      {
+        "name": "exact_touchpad_observed_execution",
+        "state": "exact_touchpad_static_red_live_validated",
+        "detail": "Touchpad/haptic logical ID 0 has one exact static #ff0000 record on Alienware m16 R2 BIOS 1.21.0 with AW-ELC 187c:0551: remove/start/set_color/finish_play each transferred 33 bytes once and the touchpad was visually confirmed red."
+      },
+      {
+        "name": "exact_back_observed_execution",
+        "state": "exact_back_static_red_live_validated",
+        "detail": "Back/chassis logical ID 2 has one separate exact static #ff0000 record on Alienware m16 R2 BIOS 1.21.0 with AW-ELC 187c:0551: remove/start/set_color/finish_play each transferred 33 bytes once and only rear lighting was confirmed red."
+      },
+      {
+        "name": "unvalidated_assignments",
+        "state": "mapping_derived_unvalidated",
+        "detail": "Power logical ID 4 remains mapping-derived and unvalidated for ordinary static/address semantics. Any touchpad or back color other than #ff0000, and every other mode, firmware, or model assignment, is also unvalidated; no readback, persistence, automatic restore, or broader compatibility is claimed."
+      }
+    ],
+    "steps": [
+      {
+        "name": "remove",
+        "transfer": "usb_output",
+        "caller_buffer_length": 33,
+        "on_wire_length": 33,
+        "payload_hex": "03210004ffff000000000000000000000000000000000000000000000000000000"
+      },
+      {
+        "name": "start",
+        "transfer": "usb_output",
+        "caller_buffer_length": 33,
+        "on_wire_length": 33,
+        "payload_hex": "03210001ffff000000000000000000000000000000000000000000000000000000"
+      },
+      {
+        "name": "set_color",
+        "transfer": "usb_output",
+        "caller_buffer_length": 33,
+        "on_wire_length": 33,
+        "payload_hex": "03270a0b0c00020002000000000000000000000000000000000000000000000000"
+      },
+      {
+        "name": "finish_play",
+        "transfer": "usb_output",
+        "caller_buffer_length": 33,
+        "on_wire_length": 33,
+        "payload_hex": "03210003ffff000000000000000000000000000000000000000000000000000000"
+      }
+    ]
+  }
+}

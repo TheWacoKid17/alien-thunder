@@ -1,0 +1,11 @@
+[Desktop Entry]
+Type=Application
+Name=AlienFX Studio
+GenericName=Iluminação RGB do teclado
+Comment=Cores por tecla, efeitos e perfis de iluminação do Alienware m16 R2
+Exec=@BIN@
+Icon=input-keyboard
+Terminal=false
+Categories=Settings;HardwareSettings;Qt;
+Keywords=rgb;teclado;alienware;alienfx;led;iluminação;cores;
+StartupNotify=true

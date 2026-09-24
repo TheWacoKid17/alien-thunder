@@ -1,0 +1,1118 @@
+{
+  "schema_version": 1,
+  "mode": "dry_run",
+  "transport_performed": false,
+  "requested_device": "keyboard",
+  "plan": {
+    "family": "alien_fx_api_v5",
+    "validation": "mapping_derived_unvalidated",
+    "assignments": [
+      {
+        "target": "escape",
+        "logical_id": 0,
+        "encoded_id": 1,
+        "color": {
+          "r": 16,
+          "g": 32,
+          "b": 48
+        },
+        "color_hex": "#102030",
+        "validation": "mapping_derived_unvalidated"
+      },
+      {
+        "target": "f1",
+        "logical_id": 1,
+        "encoded_id": 2,
+        "color": {
+          "r": 16,
+          "g": 32,
+          "b": 48
+        },
+        "color_hex": "#102030",
+        "validation": "mapping_derived_unvalidated"
+      },
+      {
+        "target": "f2",
+        "logical_id": 2,
+        "encoded_id": 3,
+        "color": {
+          "r": 16,
+          "g": 32,
+          "b": 48
+        },
+        "color_hex": "#102030",
+        "validation": "mapping_derived_unvalidated"
+      },
+      {
+        "target": "f3",
+        "logical_id": 3,
+        "encoded_id": 4,
+        "color": {
+          "r": 16,
+          "g": 32,
+          "b": 48
+        },
+        "color_hex": "#102030",
+        "validation": "mapping_derived_unvalidated"
+      },
+      {
+        "target": "f4",
+        "logical_id": 4,
+        "encoded_id": 5,
+        "color": {
+          "r": 16,
+          "g": 32,
+          "b": 48
+        },
+        "color_hex": "#102030",
+        "validation": "mapping_derived_unvalidated"
+      },
+      {
+        "target": "f5",
+        "logical_id": 5,
+        "encoded_id": 6,
+        "color": {
+          "r": 16,
+          "g": 32,
+          "b": 48
+        },
+        "color_hex": "#102030",
+        "validation": "mapping_derived_unvalidated"
+      },
+      {
+        "target": "f6",
+        "logical_id": 6,
+        "encoded_id": 7,
+        "color": {
+          "r": 16,
+          "g": 32,
+          "b": 48
+        },
+        "color_hex": "#102030",
+        "validation": "mapping_derived_unvalidated"
+      },
+      {
+        "target": "f7",
+        "logical_id": 7,
+        "encoded_id": 8,
+        "color": {
+          "r": 16,
+          "g": 32,
+          "b": 48
+        },
+        "color_hex": "#102030",
+        "validation": "mapping_derived_unvalidated"
+      },
+      {
+        "target": "f8",
+        "logical_id": 8,
+        "encoded_id": 9,
+        "color": {
+          "r": 16,
+          "g": 32,
+          "b": 48
+        },
+        "color_hex": "#102030",
+        "validation": "mapping_derived_unvalidated"
+      },
+      {
+        "target": "f9",
+        "logical_id": 9,
+        "encoded_id": 10,
+        "color": {
+          "r": 16,
+          "g": 32,
+          "b": 48
+        },
+        "color_hex": "#102030",
+        "validation": "mapping_derived_unvalidated"
+      },
+      {
+        "target": "f10",
+        "logical_id": 10,
+        "encoded_id": 11,
+        "color": {
+          "r": 16,
+          "g": 32,
+          "b": 48
+        },
+        "color_hex": "#102030",
+        "validation": "mapping_derived_unvalidated"
+      },
+      {
+        "target": "f11",
+        "logical_id": 11,
+        "encoded_id": 12,
+        "color": {
+          "r": 16,
+          "g": 32,
+          "b": 48
+        },
+        "color_hex": "#102030",
+        "validation": "mapping_derived_unvalidated"
+      },
+      {
+        "target": "f12",
+        "logical_id": 12,
+        "encoded_id": 13,
+        "color": {
+          "r": 16,
+          "g": 32,
+          "b": 48
+        },
+        "color_hex": "#102030",
+        "validation": "mapping_derived_unvalidated"
+      },
+      {
+        "target": "home",
+        "logical_id": 13,
+        "encoded_id": 14,
+        "color": {
+          "r": 16,
+          "g": 32,
+          "b": 48
+        },
+        "color_hex": "#102030",
+        "validation": "mapping_derived_unvalidated"
+      },
+      {
+        "target": "end",
+        "logical_id": 14,
+        "encoded_id": 15,
+        "color": {
+          "r": 16,
+          "g": 32,
+          "b": 48
+        },
+        "color_hex": "#102030",
+        "validation": "mapping_derived_unvalidated"
+      },
+      {
+        "target": "delete",
+        "logical_id": 15,
+        "encoded_id": 16,
+        "color": {
+          "r": 16,
+          "g": 32,
+          "b": 48
+        },
+        "color_hex": "#102030",
+        "validation": "mapping_derived_unvalidated"
+      },
+      {
+        "target": "mute",
+        "logical_id": 16,
+        "encoded_id": 17,
+        "color": {
+          "r": 16,
+          "g": 32,
+          "b": 48
+        },
+        "color_hex": "#102030",
+        "validation": "mapping_derived_unvalidated"
+      },
+      {
+        "target": "volume-down",
+        "logical_id": 17,
+        "encoded_id": 18,
+        "color": {
+          "r": 16,
+          "g": 32,
+          "b": 48
+        },
+        "color_hex": "#102030",
+        "validation": "mapping_derived_unvalidated"
+      },
+      {
+        "target": "volume-up",
+        "logical_id": 18,
+        "encoded_id": 19,
+        "color": {
+          "r": 16,
+          "g": 32,
+          "b": 48
+        },
+        "color_hex": "#102030",
+        "validation": "mapping_derived_unvalidated"
+      },
+      {
+        "target": "mic-mute",
+        "logical_id": 19,
+        "encoded_id": 20,
+        "color": {
+          "r": 16,
+          "g": 32,
+          "b": 48
+        },
+        "color_hex": "#102030",
+        "validation": "mapping_derived_unvalidated"
+      },
+      {
+        "target": "grave",
+        "logical_id": 20,
+        "encoded_id": 21,
+        "color": {
+          "r": 16,
+          "g": 32,
+          "b": 48
+        },
+        "color_hex": "#102030",
+        "validation": "mapping_derived_unvalidated"
+      },
+      {
+        "target": "1",
+        "logical_id": 21,
+        "encoded_id": 22,
+        "color": {
+          "r": 16,
+          "g": 32,
+          "b": 48
+        },
+        "color_hex": "#102030",
+        "validation": "mapping_derived_unvalidated"
+      },
+      {
+        "target": "2",
+        "logical_id": 22,
+        "encoded_id": 23,
+        "color": {
+          "r": 16,
+          "g": 32,
+          "b": 48
+        },
+        "color_hex": "#102030",
+        "validation": "mapping_derived_unvalidated"
+      },
+      {
+        "target": "3",
+        "logical_id": 23,
+        "encoded_id": 24,
+        "color": {
+          "r": 16,
+          "g": 32,
+          "b": 48
+        },
+        "color_hex": "#102030",
+        "validation": "mapping_derived_unvalidated"
+      },
+      {
+        "target": "4",
+        "logical_id": 24,
+        "encoded_id": 25,
+        "color": {
+          "r": 16,
+          "g": 32,
+          "b": 48
+        },
+        "color_hex": "#102030",
+        "validation": "mapping_derived_unvalidated"
+      },
+      {
+        "target": "5",
+        "logical_id": 25,
+        "encoded_id": 26,
+        "color": {
+          "r": 16,
+          "g": 32,
+          "b": 48
+        },
+        "color_hex": "#102030",
+        "validation": "mapping_derived_unvalidated"
+      },
+      {
+        "target": "6",
+        "logical_id": 26,
+        "encoded_id": 27,
+        "color": {
+          "r": 16,
+          "g": 32,
+          "b": 48
+        },
+        "color_hex": "#102030",
+        "validation": "mapping_derived_unvalidated"
+      },
+      {
+        "target": "7",
+        "logical_id": 27,
+        "encoded_id": 28,
+        "color": {
+          "r": 16,
+          "g": 32,
+          "b": 48
+        },
+        "color_hex": "#102030",
+        "validation": "mapping_derived_unvalidated"
+      },
+      {
+        "target": "8",
+        "logical_id": 28,
+        "encoded_id": 29,
+        "color": {
+          "r": 16,
+          "g": 32,
+          "b": 48
+        },
+        "color_hex": "#102030",
+        "validation": "mapping_derived_unvalidated"
+      },
+      {
+        "target": "9",
+        "logical_id": 29,
+        "encoded_id": 30,
+        "color": {
+          "r": 16,
+          "g": 32,
+          "b": 48
+        },
+        "color_hex": "#102030",
+        "validation": "mapping_derived_unvalidated"
+      },
+      {
+        "target": "0",
+        "logical_id": 30,
+        "encoded_id": 31,
+        "color": {
+          "r": 16,
+          "g": 32,
+          "b": 48
+        },
+        "color_hex": "#102030",
+        "validation": "mapping_derived_unvalidated"
+      },
+      {
+        "target": "minus",
+        "logical_id": 31,
+        "encoded_id": 32,
+        "color": {
+          "r": 16,
+          "g": 32,
+          "b": 48
+        },
+        "color_hex": "#102030",
+        "validation": "mapping_derived_unvalidated"
+      },
+      {
+        "target": "equal",
+        "logical_id": 32,
+        "encoded_id": 33,
+        "color": {
+          "r": 16,
+          "g": 32,
+          "b": 48
+        },
+        "color_hex": "#102030",
+        "validation": "mapping_derived_unvalidated"
+      },
+      {
+        "target": "backspace",
+        "logical_id": 34,
+        "encoded_id": 35,
+        "color": {
+          "r": 16,
+          "g": 32,
+          "b": 48
+        },
+        "color_hex": "#102030",
+        "validation": "mapping_derived_unvalidated"
+      },
+      {
+        "target": "tab",
+        "logical_id": 40,
+        "encoded_id": 41,
+        "color": {
+          "r": 16,
+          "g": 32,
+          "b": 48
+        },
+        "color_hex": "#102030",
+        "validation": "mapping_derived_unvalidated"
+      },
+      {
+        "target": "q",
+        "logical_id": 42,
+        "encoded_id": 43,
+        "color": {
+          "r": 16,
+          "g": 32,
+          "b": 48
+        },
+        "color_hex": "#102030",
+        "validation": "mapping_derived_unvalidated"
+      },
+      {
+        "target": "w",
+        "logical_id": 43,
+        "encoded_id": 44,
+        "color": {
+          "r": 16,
+          "g": 32,
+          "b": 48
+        },
+        "color_hex": "#102030",
+        "validation": "mapping_derived_unvalidated"
+      },
+      {
+        "target": "e",
+        "logical_id": 44,
+        "encoded_id": 45,
+        "color": {
+          "r": 16,
+          "g": 32,
+          "b": 48
+        },
+        "color_hex": "#102030",
+        "validation": "mapping_derived_unvalidated"
+      },
+      {
+        "target": "r",
+        "logical_id": 45,
+        "encoded_id": 46,
+        "color": {
+          "r": 16,
+          "g": 32,
+          "b": 48
+        },
+        "color_hex": "#102030",
+        "validation": "mapping_derived_unvalidated"
+      },
+      {
+        "target": "t",
+        "logical_id": 46,
+        "encoded_id": 47,
+        "color": {
+          "r": 16,
+          "g": 32,
+          "b": 48
+        },
+        "color_hex": "#102030",
+        "validation": "mapping_derived_unvalidated"
+      },
+      {
+        "target": "y",
+        "logical_id": 47,
+        "encoded_id": 48,
+        "color": {
+          "r": 16,
+          "g": 32,
+          "b": 48
+        },
+        "color_hex": "#102030",
+        "validation": "mapping_derived_unvalidated"
+      },
+      {
+        "target": "u",
+        "logical_id": 48,
+        "encoded_id": 49,
+        "color": {
+          "r": 16,
+          "g": 32,
+          "b": 48
+        },
+        "color_hex": "#102030",
+        "validation": "mapping_derived_unvalidated"
+      },
+      {
+        "target": "i",
+        "logical_id": 49,
+        "encoded_id": 50,
+        "color": {
+          "r": 16,
+          "g": 32,
+          "b": 48
+        },
+        "color_hex": "#102030",
+        "validation": "mapping_derived_unvalidated"
+      },
+      {
+        "target": "o",
+        "logical_id": 50,
+        "encoded_id": 51,
+        "color": {
+          "r": 16,
+          "g": 32,
+          "b": 48
+        },
+        "color_hex": "#102030",
+        "validation": "mapping_derived_unvalidated"
+      },
+      {
+        "target": "p",
+        "logical_id": 51,
+        "encoded_id": 52,
+        "color": {
+          "r": 16,
+          "g": 32,
+          "b": 48
+        },
+        "color_hex": "#102030",
+        "validation": "mapping_derived_unvalidated"
+      },
+      {
+        "target": "left-bracket",
+        "logical_id": 52,
+        "encoded_id": 53,
+        "color": {
+          "r": 16,
+          "g": 32,
+          "b": 48
+        },
+        "color_hex": "#102030",
+        "validation": "mapping_derived_unvalidated"
+      },
+      {
+        "target": "right-bracket",
+        "logical_id": 53,
+        "encoded_id": 54,
+        "color": {
+          "r": 16,
+          "g": 32,
+          "b": 48
+        },
+        "color_hex": "#102030",
+        "validation": "mapping_derived_unvalidated"
+      },
+      {
+        "target": "backslash",
+        "logical_id": 55,
+        "encoded_id": 56,
+        "color": {
+          "r": 16,
+          "g": 32,
+          "b": 48
+        },
+        "color_hex": "#102030",
+        "validation": "mapping_derived_unvalidated"
+      },
+      {
+        "target": "caps-lock",
+        "logical_id": 60,
+        "encoded_id": 61,
+        "color": {
+          "r": 16,
+          "g": 32,
+          "b": 48
+        },
+        "color_hex": "#102030",
+        "validation": "mapping_derived_unvalidated"
+      },
+      {
+        "target": "a",
+        "logical_id": 62,
+        "encoded_id": 63,
+        "color": {
+          "r": 16,
+          "g": 32,
+          "b": 48
+        },
+        "color_hex": "#102030",
+        "validation": "mapping_derived_unvalidated"
+      },
+      {
+        "target": "s",
+        "logical_id": 63,
+        "encoded_id": 64,
+        "color": {
+          "r": 16,
+          "g": 32,
+          "b": 48
+        },
+        "color_hex": "#102030",
+        "validation": "mapping_derived_unvalidated"
+      },
+      {
+        "target": "d",
+        "logical_id": 64,
+        "encoded_id": 65,
+        "color": {
+          "r": 16,
+          "g": 32,
+          "b": 48
+        },
+        "color_hex": "#102030",
+        "validation": "mapping_derived_unvalidated"
+      },
+      {
+        "target": "f",
+        "logical_id": 65,
+        "encoded_id": 66,
+        "color": {
+          "r": 16,
+          "g": 32,
+          "b": 48
+        },
+        "color_hex": "#102030",
+        "validation": "mapping_derived_unvalidated"
+      },
+      {
+        "target": "g",
+        "logical_id": 66,
+        "encoded_id": 67,
+        "color": {
+          "r": 16,
+          "g": 32,
+          "b": 48
+        },
+        "color_hex": "#102030",
+        "validation": "mapping_derived_unvalidated"
+      },
+      {
+        "target": "h",
+        "logical_id": 67,
+        "encoded_id": 68,
+        "color": {
+          "r": 16,
+          "g": 32,
+          "b": 48
+        },
+        "color_hex": "#102030",
+        "validation": "mapping_derived_unvalidated"
+      },
+      {
+        "target": "j",
+        "logical_id": 68,
+        "encoded_id": 69,
+        "color": {
+          "r": 16,
+          "g": 32,
+          "b": 48
+        },
+        "color_hex": "#102030",
+        "validation": "mapping_derived_unvalidated"
+      },
+      {
+        "target": "k",
+        "logical_id": 69,
+        "encoded_id": 70,
+        "color": {
+          "r": 16,
+          "g": 32,
+          "b": 48
+        },
+        "color_hex": "#102030",
+        "validation": "mapping_derived_unvalidated"
+      },
+      {
+        "target": "l",
+        "logical_id": 70,
+        "encoded_id": 71,
+        "color": {
+          "r": 16,
+          "g": 32,
+          "b": 48
+        },
+        "color_hex": "#102030",
+        "validation": "mapping_derived_unvalidated"
+      },
+      {
+        "target": "semicolon",
+        "logical_id": 71,
+        "encoded_id": 72,
+        "color": {
+          "r": 16,
+          "g": 32,
+          "b": 48
+        },
+        "color_hex": "#102030",
+        "validation": "mapping_derived_unvalidated"
+      },
+      {
+        "target": "apostrophe",
+        "logical_id": 72,
+        "encoded_id": 73,
+        "color": {
+          "r": 16,
+          "g": 32,
+          "b": 48
+        },
+        "color_hex": "#102030",
+        "validation": "mapping_derived_unvalidated"
+      },
+      {
+        "target": "enter",
+        "logical_id": 74,
+        "encoded_id": 75,
+        "color": {
+          "r": 16,
+          "g": 32,
+          "b": 48
+        },
+        "color_hex": "#102030",
+        "validation": "mapping_derived_unvalidated"
+      },
+      {
+        "target": "left-shift",
+        "logical_id": 80,
+        "encoded_id": 81,
+        "color": {
+          "r": 16,
+          "g": 32,
+          "b": 48
+        },
+        "color_hex": "#102030",
+        "validation": "mapping_derived_unvalidated"
+      },
+      {
+        "target": "z",
+        "logical_id": 83,
+        "encoded_id": 84,
+        "color": {
+          "r": 16,
+          "g": 32,
+          "b": 48
+        },
+        "color_hex": "#102030",
+        "validation": "mapping_derived_unvalidated"
+      },
+      {
+        "target": "x",
+        "logical_id": 84,
+        "encoded_id": 85,
+        "color": {
+          "r": 16,
+          "g": 32,
+          "b": 48
+        },
+        "color_hex": "#102030",
+        "validation": "mapping_derived_unvalidated"
+      },
+      {
+        "target": "c",
+        "logical_id": 85,
+        "encoded_id": 86,
+        "color": {
+          "r": 16,
+          "g": 32,
+          "b": 48
+        },
+        "color_hex": "#102030",
+        "validation": "mapping_derived_unvalidated"
+      },
+      {
+        "target": "v",
+        "logical_id": 86,
+        "encoded_id": 87,
+        "color": {
+          "r": 16,
+          "g": 32,
+          "b": 48
+        },
+        "color_hex": "#102030",
+        "validation": "mapping_derived_unvalidated"
+      },
+      {
+        "target": "b",
+        "logical_id": 87,
+        "encoded_id": 88,
+        "color": {
+          "r": 16,
+          "g": 32,
+          "b": 48
+        },
+        "color_hex": "#102030",
+        "validation": "mapping_derived_unvalidated"
+      },
+      {
+        "target": "n",
+        "logical_id": 88,
+        "encoded_id": 89,
+        "color": {
+          "r": 16,
+          "g": 32,
+          "b": 48
+        },
+        "color_hex": "#102030",
+        "validation": "mapping_derived_unvalidated"
+      },
+      {
+        "target": "m",
+        "logical_id": 89,
+        "encoded_id": 90,
+        "color": {
+          "r": 16,
+          "g": 32,
+          "b": 48
+        },
+        "color_hex": "#102030",
+        "validation": "mapping_derived_unvalidated"
+      },
+      {
+        "target": "comma",
+        "logical_id": 90,
+        "encoded_id": 91,
+        "color": {
+          "r": 16,
+          "g": 32,
+          "b": 48
+        },
+        "color_hex": "#102030",
+        "validation": "mapping_derived_unvalidated"
+      },
+      {
+        "target": "period",
+        "logical_id": 91,
+        "encoded_id": 92,
+        "color": {
+          "r": 16,
+          "g": 32,
+          "b": 48
+        },
+        "color_hex": "#102030",
+        "validation": "mapping_derived_unvalidated"
+      },
+      {
+        "target": "slash",
+        "logical_id": 92,
+        "encoded_id": 93,
+        "color": {
+          "r": 16,
+          "g": 32,
+          "b": 48
+        },
+        "color_hex": "#102030",
+        "validation": "mapping_derived_unvalidated"
+      },
+      {
+        "target": "right-shift",
+        "logical_id": 94,
+        "encoded_id": 95,
+        "color": {
+          "r": 16,
+          "g": 32,
+          "b": 48
+        },
+        "color_hex": "#102030",
+        "validation": "mapping_derived_unvalidated"
+      },
+      {
+        "target": "left-ctrl",
+        "logical_id": 100,
+        "encoded_id": 101,
+        "color": {
+          "r": 16,
+          "g": 32,
+          "b": 48
+        },
+        "color_hex": "#102030",
+        "validation": "mapping_derived_unvalidated"
+      },
+      {
+        "target": "fn",
+        "logical_id": 101,
+        "encoded_id": 102,
+        "color": {
+          "r": 16,
+          "g": 32,
+          "b": 48
+        },
+        "color_hex": "#102030",
+        "validation": "mapping_derived_unvalidated"
+      },
+      {
+        "target": "left-meta",
+        "logical_id": 102,
+        "encoded_id": 103,
+        "color": {
+          "r": 16,
+          "g": 32,
+          "b": 48
+        },
+        "color_hex": "#102030",
+        "validation": "mapping_derived_unvalidated"
+      },
+      {
+        "target": "left-alt",
+        "logical_id": 104,
+        "encoded_id": 105,
+        "color": {
+          "r": 16,
+          "g": 32,
+          "b": 48
+        },
+        "color_hex": "#102030",
+        "validation": "mapping_derived_unvalidated"
+      },
+      {
+        "target": "space",
+        "logical_id": 106,
+        "encoded_id": 107,
+        "color": {
+          "r": 16,
+          "g": 32,
+          "b": 48
+        },
+        "color_hex": "#102030",
+        "validation": "mapping_derived_unvalidated"
+      },
+      {
+        "target": "win-lock",
+        "logical_id": 109,
+        "encoded_id": 110,
+        "color": {
+          "r": 16,
+          "g": 32,
+          "b": 48
+        },
+        "color_hex": "#102030",
+        "validation": "mapping_derived_unvalidated"
+      },
+      {
+        "target": "right-alt",
+        "logical_id": 111,
+        "encoded_id": 112,
+        "color": {
+          "r": 16,
+          "g": 32,
+          "b": 48
+        },
+        "color_hex": "#102030",
+        "validation": "mapping_derived_unvalidated"
+      },
+      {
+        "target": "right-ctrl",
+        "logical_id": 112,
+        "encoded_id": 113,
+        "color": {
+          "r": 16,
+          "g": 32,
+          "b": 48
+        },
+        "color_hex": "#102030",
+        "validation": "mapping_derived_unvalidated"
+      },
+      {
+        "target": "arrow-up",
+        "logical_id": 114,
+        "encoded_id": 115,
+        "color": {
+          "r": 16,
+          "g": 32,
+          "b": 48
+        },
+        "color_hex": "#102030",
+        "validation": "mapping_derived_unvalidated"
+      },
+      {
+        "target": "arrow-left",
+        "logical_id": 133,
+        "encoded_id": 134,
+        "color": {
+          "r": 16,
+          "g": 32,
+          "b": 48
+        },
+        "color_hex": "#102030",
+        "validation": "mapping_derived_unvalidated"
+      },
+      {
+        "target": "arrow-down",
+        "logical_id": 134,
+        "encoded_id": 135,
+        "color": {
+          "r": 16,
+          "g": 32,
+          "b": 48
+        },
+        "color_hex": "#102030",
+        "validation": "mapping_derived_unvalidated"
+      },
+      {
+        "target": "arrow-right",
+        "logical_id": 135,
+        "encoded_id": 136,
+        "color": {
+          "r": 16,
+          "g": 32,
+          "b": 48
+        },
+        "color_hex": "#102030",
+        "validation": "mapping_derived_unvalidated"
+      }
+    ],
+    "assumptions": [
+      {
+        "name": "transport_not_executed",
+        "state": "mapping_derived_unvalidated",
+        "detail": "64-byte HID feature transfers are modeled only; no device I/O occurs."
+      }
+    ],
+    "steps": [
+      {
+        "name": "reset",
+        "transfer": "hid_feature_write",
+        "caller_buffer_length": 64,
+        "on_wire_length": 64,
+        "payload_hex": "cc940000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000"
+      },
+      {
+        "name": "query_status",
+        "transfer": "hid_feature_write",
+        "caller_buffer_length": 64,
+        "on_wire_length": 64,
+        "payload_hex": "cc930000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000"
+      },
+      {
+        "name": "read_status",
+        "transfer": "hid_feature_read_intent",
+        "caller_buffer_length": 64,
+        "on_wire_length": 64,
+        "payload_hex": "cc000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000"
+      },
+      {
+        "name": "set_color",
+        "transfer": "hid_feature_write",
+        "caller_buffer_length": 64,
+        "on_wire_length": 64,
+        "payload_hex": "cc8c02000110203002102030031020300410203005102030061020300710203008102030091020300a1020300b1020300c1020300d1020300e1020300f102030"
+      },
+      {
+        "name": "set_color",
+        "transfer": "hid_feature_write",
+        "caller_buffer_length": 64,
+        "on_wire_length": 64,
+        "payload_hex": "cc8c0200101020301110203012102030131020301410203015102030161020301710203018102030191020301a1020301b1020301c1020301d1020301e102030"
+      },
+      {
+        "name": "set_color",
+        "transfer": "hid_feature_write",
+        "caller_buffer_length": 64,
+        "on_wire_length": 64,
+        "payload_hex": "cc8c02001f102030201020302110203023102030291020302b1020302c1020302d1020302e1020302f1020303010203031102030321020303310203034102030"
+      },
+      {
+        "name": "set_color",
+        "transfer": "hid_feature_write",
+        "caller_buffer_length": 64,
+        "on_wire_length": 64,
+        "payload_hex": "cc8c02003510203036102030381020303d1020303f10203040102030411020304210203043102030441020304510203046102030471020304810203049102030"
+      },
+      {
+        "name": "set_color",
+        "transfer": "hid_feature_write",
+        "caller_buffer_length": 64,
+        "on_wire_length": 64,
+        "payload_hex": "cc8c02004b102030511020305410203055102030561020305710203058102030591020305a1020305b1020305c1020305d1020305f1020306510203066102030"
+      },
+      {
+        "name": "set_color",
+        "transfer": "hid_feature_write",
+        "caller_buffer_length": 64,
+        "on_wire_length": 64,
+        "payload_hex": "cc8c020067102030691020306b1020306e1020307010203071102030731020308610203087102030881020300000000000000000000000000000000000000000"
+      },
+      {
+        "name": "loop",
+        "transfer": "hid_feature_write",
+        "caller_buffer_length": 64,
+        "on_wire_length": 64,
+        "payload_hex": "cc8c1300000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000"
+      },
+      {
+        "name": "update",
+        "transfer": "hid_feature_write",
+        "caller_buffer_length": 64,
+        "on_wire_length": 64,
+        "payload_hex": "cc8b01ff000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000"
+      }
+    ]
+  }
+}

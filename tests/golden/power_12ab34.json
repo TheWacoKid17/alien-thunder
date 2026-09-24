@@ -1,0 +1,323 @@
+{
+  "schema_version": 1,
+  "command": "power_profile",
+  "mode": "dry_run",
+  "profile_kind": "power_state_profile",
+  "power_profile": true,
+  "transport_performed": false,
+  "controller": "187c:0551",
+  "power_logical_id": 4,
+  "validation": "mapping_derived_unvalidated",
+  "color": "#12ab34",
+  "color_applies_to": [
+    "ac",
+    "dc"
+  ],
+  "states": [
+    {
+      "id": 91,
+      "name": "ac_sleep",
+      "packet_count": 6
+    },
+    {
+      "id": 92,
+      "name": "ac_on",
+      "packet_count": 5
+    },
+    {
+      "id": 93,
+      "name": "charging",
+      "packet_count": 6
+    },
+    {
+      "id": 94,
+      "name": "battery_sleep",
+      "packet_count": 6
+    },
+    {
+      "id": 95,
+      "name": "battery_on",
+      "packet_count": 5
+    },
+    {
+      "id": 96,
+      "name": "battery_critical",
+      "packet_count": 5
+    }
+  ],
+  "packet_count": 34,
+  "plan": {
+    "family": "alien_fx_api_v4",
+    "validation": "mapping_derived_unvalidated",
+    "assignments": [
+      {
+        "target": "power",
+        "logical_id": 4,
+        "encoded_id": null,
+        "color": {
+          "r": 18,
+          "g": 171,
+          "b": 52
+        },
+        "color_hex": "#12ab34",
+        "validation": "mapping_derived_unvalidated"
+      }
+    ],
+    "assumptions": [
+      {
+        "name": "power_id_mapping",
+        "state": "mapping_derived_unvalidated",
+        "detail": "Alienware m16R2 mapping marks Power logical ID 4 with the POWER flag. One exact equal-red profile completed and battery-on was observed red; the other five states and individual state semantics remain visually unvalidated."
+      },
+      {
+        "name": "equal_ac_dc_color",
+        "state": "mapping_derived_unvalidated",
+        "detail": "This first slice intentionally supplies one common color as both upstream AC and battery colors across all six power states."
+      }
+    ],
+    "steps": [
+      {
+        "name": "state_ac_sleep_remove",
+        "transfer": "usb_output",
+        "caller_buffer_length": 33,
+        "on_wire_length": 33,
+        "payload_hex": "03220004005b000000000000000000000000000000000000000000000000000000"
+      },
+      {
+        "name": "state_ac_sleep_start",
+        "transfer": "usb_output",
+        "caller_buffer_length": 33,
+        "on_wire_length": 33,
+        "payload_hex": "03220001005b000000000000000000000000000000000000000000000000000000"
+      },
+      {
+        "name": "state_ac_sleep_color_select",
+        "transfer": "usb_output",
+        "caller_buffer_length": 33,
+        "on_wire_length": 33,
+        "payload_hex": "032301000104000000000000000000000000000000000000000000000000000000"
+      },
+      {
+        "name": "state_ac_sleep_action_1",
+        "transfer": "usb_output",
+        "caller_buffer_length": 33,
+        "on_wire_length": 33,
+        "payload_hex": "03240203e8006412ab340203e8006412ab340203e8006412ab3400000000000000"
+      },
+      {
+        "name": "state_ac_sleep_action_2",
+        "transfer": "usb_output",
+        "caller_buffer_length": 33,
+        "on_wire_length": 33,
+        "payload_hex": "03240203e800640000000000000000000000000000000000000000000000000000"
+      },
+      {
+        "name": "state_ac_sleep_finish",
+        "transfer": "usb_output",
+        "caller_buffer_length": 33,
+        "on_wire_length": 33,
+        "payload_hex": "03220002005b000000000000000000000000000000000000000000000000000000"
+      },
+      {
+        "name": "state_ac_on_remove",
+        "transfer": "usb_output",
+        "caller_buffer_length": 33,
+        "on_wire_length": 33,
+        "payload_hex": "03220004005c000000000000000000000000000000000000000000000000000000"
+      },
+      {
+        "name": "state_ac_on_start",
+        "transfer": "usb_output",
+        "caller_buffer_length": 33,
+        "on_wire_length": 33,
+        "payload_hex": "03220001005c000000000000000000000000000000000000000000000000000000"
+      },
+      {
+        "name": "state_ac_on_color_select",
+        "transfer": "usb_output",
+        "caller_buffer_length": 33,
+        "on_wire_length": 33,
+        "payload_hex": "032301000104000000000000000000000000000000000000000000000000000000"
+      },
+      {
+        "name": "state_ac_on_action_1",
+        "transfer": "usb_output",
+        "caller_buffer_length": 33,
+        "on_wire_length": 33,
+        "payload_hex": "03240003d000fa12ab340203e8006412ab340203e8006412ab3400000000000000"
+      },
+      {
+        "name": "state_ac_on_finish",
+        "transfer": "usb_output",
+        "caller_buffer_length": 33,
+        "on_wire_length": 33,
+        "payload_hex": "03220002005c000000000000000000000000000000000000000000000000000000"
+      },
+      {
+        "name": "state_charging_remove",
+        "transfer": "usb_output",
+        "caller_buffer_length": 33,
+        "on_wire_length": 33,
+        "payload_hex": "03220004005d000000000000000000000000000000000000000000000000000000"
+      },
+      {
+        "name": "state_charging_start",
+        "transfer": "usb_output",
+        "caller_buffer_length": 33,
+        "on_wire_length": 33,
+        "payload_hex": "03220001005d000000000000000000000000000000000000000000000000000000"
+      },
+      {
+        "name": "state_charging_color_select",
+        "transfer": "usb_output",
+        "caller_buffer_length": 33,
+        "on_wire_length": 33,
+        "payload_hex": "032301000104000000000000000000000000000000000000000000000000000000"
+      },
+      {
+        "name": "state_charging_action_1",
+        "transfer": "usb_output",
+        "caller_buffer_length": 33,
+        "on_wire_length": 33,
+        "payload_hex": "03240203e8006412ab340203e8006412ab340203e8006412ab3400000000000000"
+      },
+      {
+        "name": "state_charging_action_2",
+        "transfer": "usb_output",
+        "caller_buffer_length": 33,
+        "on_wire_length": 33,
+        "payload_hex": "03240203e8006412ab340000000000000000000000000000000000000000000000"
+      },
+      {
+        "name": "state_charging_finish",
+        "transfer": "usb_output",
+        "caller_buffer_length": 33,
+        "on_wire_length": 33,
+        "payload_hex": "03220002005d000000000000000000000000000000000000000000000000000000"
+      },
+      {
+        "name": "state_battery_sleep_remove",
+        "transfer": "usb_output",
+        "caller_buffer_length": 33,
+        "on_wire_length": 33,
+        "payload_hex": "03220004005e000000000000000000000000000000000000000000000000000000"
+      },
+      {
+        "name": "state_battery_sleep_start",
+        "transfer": "usb_output",
+        "caller_buffer_length": 33,
+        "on_wire_length": 33,
+        "payload_hex": "03220001005e000000000000000000000000000000000000000000000000000000"
+      },
+      {
+        "name": "state_battery_sleep_color_select",
+        "transfer": "usb_output",
+        "caller_buffer_length": 33,
+        "on_wire_length": 33,
+        "payload_hex": "032301000104000000000000000000000000000000000000000000000000000000"
+      },
+      {
+        "name": "state_battery_sleep_action_1",
+        "transfer": "usb_output",
+        "caller_buffer_length": 33,
+        "on_wire_length": 33,
+        "payload_hex": "03240203e8006412ab340203e8006412ab340203e8006412ab3400000000000000"
+      },
+      {
+        "name": "state_battery_sleep_action_2",
+        "transfer": "usb_output",
+        "caller_buffer_length": 33,
+        "on_wire_length": 33,
+        "payload_hex": "03240203e800640000000000000000000000000000000000000000000000000000"
+      },
+      {
+        "name": "state_battery_sleep_finish",
+        "transfer": "usb_output",
+        "caller_buffer_length": 33,
+        "on_wire_length": 33,
+        "payload_hex": "03220002005e000000000000000000000000000000000000000000000000000000"
+      },
+      {
+        "name": "state_battery_on_remove",
+        "transfer": "usb_output",
+        "caller_buffer_length": 33,
+        "on_wire_length": 33,
+        "payload_hex": "03220004005f000000000000000000000000000000000000000000000000000000"
+      },
+      {
+        "name": "state_battery_on_start",
+        "transfer": "usb_output",
+        "caller_buffer_length": 33,
+        "on_wire_length": 33,
+        "payload_hex": "03220001005f000000000000000000000000000000000000000000000000000000"
+      },
+      {
+        "name": "state_battery_on_color_select",
+        "transfer": "usb_output",
+        "caller_buffer_length": 33,
+        "on_wire_length": 33,
+        "payload_hex": "032301000104000000000000000000000000000000000000000000000000000000"
+      },
+      {
+        "name": "state_battery_on_action_1",
+        "transfer": "usb_output",
+        "caller_buffer_length": 33,
+        "on_wire_length": 33,
+        "payload_hex": "03240003d000fa12ab340203e8006412ab340203e8006412ab3400000000000000"
+      },
+      {
+        "name": "state_battery_on_finish",
+        "transfer": "usb_output",
+        "caller_buffer_length": 33,
+        "on_wire_length": 33,
+        "payload_hex": "03220002005f000000000000000000000000000000000000000000000000000000"
+      },
+      {
+        "name": "state_battery_critical_remove",
+        "transfer": "usb_output",
+        "caller_buffer_length": 33,
+        "on_wire_length": 33,
+        "payload_hex": "032200040060000000000000000000000000000000000000000000000000000000"
+      },
+      {
+        "name": "state_battery_critical_start",
+        "transfer": "usb_output",
+        "caller_buffer_length": 33,
+        "on_wire_length": 33,
+        "payload_hex": "032200010060000000000000000000000000000000000000000000000000000000"
+      },
+      {
+        "name": "state_battery_critical_color_select",
+        "transfer": "usb_output",
+        "caller_buffer_length": 33,
+        "on_wire_length": 33,
+        "payload_hex": "032301000104000000000000000000000000000000000000000000000000000000"
+      },
+      {
+        "name": "state_battery_critical_action_1",
+        "transfer": "usb_output",
+        "caller_buffer_length": 33,
+        "on_wire_length": 33,
+        "payload_hex": "03240103dc006412ab340203e8006412ab340203e8006412ab3400000000000000"
+      },
+      {
+        "name": "state_battery_critical_finish",
+        "transfer": "usb_output",
+        "caller_buffer_length": 33,
+        "on_wire_length": 33,
+        "payload_hex": "032200020060000000000000000000000000000000000000000000000000000000"
+      },
+      {
+        "name": "final_play",
+        "transfer": "usb_output",
+        "caller_buffer_length": 33,
+        "on_wire_length": 33,
+        "payload_hex": "03210005ffff000000000000000000000000000000000000000000000000000000"
+      }
+    ]
+  },
+  "executed_steps": [],
+  "persistence": "unknown_power_profile_state",
+  "state_restore_available": false,
+  "readback_available": false
+}

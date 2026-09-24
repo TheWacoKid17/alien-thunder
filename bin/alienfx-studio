@@ -1,0 +1,14 @@
+#!/usr/bin/python3
+# Lancador do AlienFX Studio (instalado em ~/.local/bin). Usa so o Python do sistema
+# e modulos do pacman (PySide6, python-dbus, python-gobject).
+import os
+import sys
+
+APP = os.path.join(os.path.expanduser("~"), ".local", "share", "alienfx-studio")
+if os.path.isdir(os.path.join(APP, "alienfx_studio")):
+    sys.path.insert(0, APP)
+else:  # executando direto do checkout
+    sys.path.insert(0, os.path.dirname(os.path.dirname(os.path.realpath(__file__))))
+from alienfx_studio.cli import main  # noqa: E402
+
+sys.exit(main())
