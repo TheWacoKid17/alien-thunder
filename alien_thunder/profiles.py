@@ -8,29 +8,21 @@ import re
 import tempfile
 import unicodedata
 
-from . import paths
+from . import effects, paths
 from .i18n import gettext as _
 
 DEFAULT_COLOR = "#ff2900"
-VERSION = 2
+VERSION = 3
 
 DEFAULT_PROFILE = {
     "version": VERSION,
     "name": "New profile",
     "brightness": 100,
     "keyboard": {},
-    "keyboard_effect": {
-        "mode": "static",  # static | hardware | software
-        "effect": "breathing",
-        "color1": "#ff0000",
-        "color2": "#0000ff",
-        "color_mode": 1,
-        "tempo": 5,
-        "speed": 1.0,
-    },
+    "keyboard_effect": {"effect": "static", "speed": 1.0},
     "chassis": {
-        "touchpad": {"effect": "static", "color": DEFAULT_COLOR, "color2": "#000000", "tempo": 100},
-        "logo": {"effect": "static", "color": DEFAULT_COLOR, "color2": "#000000", "tempo": 100},
+        "touchpad": {"effect": "static", "color": DEFAULT_COLOR, "speed": 1.0},
+        "logo": {"effect": "static", "color": DEFAULT_COLOR, "speed": 1.0},
         "power": {"ac": DEFAULT_COLOR, "battery": DEFAULT_COLOR},
     },
 }
@@ -62,8 +54,33 @@ V1_VALUES = {
 }
 
 
+# Version 2 effects could replace the chosen colors (rainbow, spectrum, hardware effects
+# with their own colors). Version 3 effects only dim and brighten, so each old effect
+# becomes the closest one that keeps the colors.
+V2_KEYBOARD = {
+    "breathing": "breathing", "breathing_sw": "breathing", "pulse": "pulse", "morph": "pulse",
+    "side_wave": "wave", "double_wave": "wave", "color_wave": "wave", "rainbow_wave": "wave",
+    "twinkle": "twinkle",
+}
+V2_ZONE = {"static": "static", "off": "off", "pulse": "pulse", "breathing": "breathing",
+           "morph": "breathing", "spectrum": "breathing"}
+
+
 class ProfileError(Exception):
     pass
+
+
+def from_v2(p: dict) -> dict:
+    e = p.get("keyboard_effect") or {}
+    if "mode" in e:
+        effect = "static" if e["mode"] == "static" else V2_KEYBOARD.get(e.get("effect"), "static")
+        p["keyboard_effect"] = {"effect": effect, "speed": e.get("speed", 1.0)}
+    for z in ("touchpad", "logo"):
+        zone = (p.get("chassis") or {}).get(z)
+        if isinstance(zone, dict) and ("tempo" in zone or "color2" in zone):
+            p["chassis"][z] = {"effect": V2_ZONE.get(zone.get("effect"), "static"),
+                               "color": zone.get("color", DEFAULT_COLOR), "speed": 1.0}
+    return p
 
 
 def from_v1(data: dict) -> dict:
@@ -137,7 +154,7 @@ def normalize(p: dict) -> dict:
     """Checks a profile and fills in the defaults."""
     if not isinstance(p, dict):
         raise ProfileError(_("a profile must be a JSON object"))
-    p = from_v1(p)
+    p = from_v2(from_v1(p))
     out = _merge(copy.deepcopy(DEFAULT_PROFILE), {k: v for k, v in p.items() if k != "keyboard"})
     kb = {}
     for k, v in (p.get("keyboard") or {}).items():
@@ -150,16 +167,15 @@ def normalize(p: dict) -> dict:
     out["keyboard"] = dict(sorted(kb.items(), key=lambda kv: int(kv[0])))
     out["brightness"] = max(0, min(100, int(out.get("brightness", 100))))
     e = out["keyboard_effect"]
-    if e["mode"] not in ("static", "hardware", "software"):
-        e["mode"] = "static"
-    e["color1"], e["color2"] = norm_hex(e["color1"]), norm_hex(e["color2"])
-    e["color_mode"] = int(e["color_mode"]) if int(e["color_mode"]) in (1, 2, 3) else 1
-    e["tempo"] = max(0, min(255, int(e["tempo"])))
+    if e["effect"] not in effects.KEYBOARD_EFFECTS:
+        e["effect"] = "static"
     e["speed"] = max(0.1, min(5.0, float(e["speed"])))
     for z in ("touchpad", "logo"):
         zz = out["chassis"][z]
-        zz["color"], zz["color2"] = norm_hex(zz["color"]), norm_hex(zz["color2"])
-        zz["tempo"] = max(0, min(255, int(zz["tempo"])))
+        if zz["effect"] not in effects.ZONE_EFFECTS:
+            zz["effect"] = "static"
+        zz["color"] = norm_hex(zz["color"])
+        zz["speed"] = max(0.1, min(5.0, float(zz["speed"])))
     pw = out["chassis"]["power"]
     pw["ac"], pw["battery"] = norm_hex(pw["ac"]), norm_hex(pw["battery"])
     out["name"] = str(out.get("name") or _("Untitled"))
@@ -313,12 +329,12 @@ def from_legacy(data: dict) -> dict:
 
 
 def _upgrade_files() -> list[str]:
-    """Rewrites version 1 files once, so they stay readable by hand and by older tools."""
+    """Rewrites older files in the current format once, so what's on disk matches what runs."""
     msgs = []
     try:
         with open(paths.CONFIG_FILE, encoding="utf-8") as f:
             raw = json.load(f)
-        if "versao" in raw:
+        if raw.get("version", 1) < VERSION:
             save_config(load_config())
             msgs.append(_("settings upgraded to format %d") % VERSION)
     except (OSError, ValueError):
@@ -326,7 +342,7 @@ def _upgrade_files() -> list[str]:
     for slug, _name in list_profiles():
         try:
             with open(profile_path(slug), encoding="utf-8") as f:
-                if "versao" in json.load(f):
+                if json.load(f).get("version", 1) < VERSION:
                     save(slug, load(slug))
                     msgs.append(_("profile %s upgraded to format %d") % (slug, VERSION))
         except (OSError, ValueError, ProfileError):

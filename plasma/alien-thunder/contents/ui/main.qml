@@ -13,7 +13,7 @@ PlasmoidItem {
 
     // Written every two seconds by the alien-thunder service.
     property var sensors: ({})
-    property var overlay: ({ running: false, locked: false, items: {} })
+    property var overlay: ({ running: false, items: {} })
     property bool serviceDown: false
 
     readonly property url icon: Qt.resolvedUrl("../images/alien-thunder.png")
@@ -94,7 +94,7 @@ PlasmoidItem {
     }
 
     Shell {
-        id: action
+        id: commands
         // Every change is followed by a fresh read, so the switches show what really happened.
         onNewData: (source) => {
             disconnectSource(source)
@@ -215,7 +215,7 @@ PlasmoidItem {
                     icon.name: "preferences-desktop-color"
                     text: i18n("Lighting")
                     onClicked: {
-                        action.run("setsid -f alien-thunder >/dev/null 2>&1")
+                        commands.run("setsid -f alien-thunder >/dev/null 2>&1")
                         root.expanded = false
                     }
                     PlasmaComponents3.ToolTip { text: i18n("Open the keyboard lighting editor") }
@@ -282,7 +282,7 @@ PlasmoidItem {
                 }
                 PlasmaComponents3.Switch {
                     checked: !!root.sensors.gmode
-                    onToggled: action.run("alien-thunder gmode " + (checked ? "on" : "off"))
+                    onToggled: commands.run("alien-thunder gmode " + (checked ? "on" : "off"))
                 }
             }
 
@@ -293,7 +293,7 @@ PlasmoidItem {
                     spacing: 0
                     PlasmaComponents3.Label { text: i18n("Overlay"); font.bold: true }
                     PlasmaComponents3.Label {
-                        text: i18n("Readouts that float above every window, games included. Drag them anywhere, on any screen.")
+                        text: i18n("A bar of readouts above every window, games included. Drag it anywhere, on any screen; its ✕ turns it off.")
                         wrapMode: Text.Wrap
                         opacity: 0.7
                         font.pixelSize: Kirigami.Theme.smallFont.pixelSize
@@ -302,7 +302,7 @@ PlasmoidItem {
                 }
                 PlasmaComponents3.Switch {
                     checked: !!root.overlay.running
-                    onToggled: action.run("alien-thunder overlay " + (checked ? "on" : "off"))
+                    onToggled: commands.run("alien-thunder overlay " + (checked ? "on" : "off"))
                 }
             }
 
@@ -312,11 +312,6 @@ PlasmoidItem {
                 Layout.leftMargin: Kirigami.Units.largeSpacing
                 spacing: 0
 
-                PlasmaComponents3.CheckBox {
-                    text: i18n("Lock in place (clicks pass through)")
-                    checked: !!root.overlay.locked
-                    onToggled: action.run("alien-thunder overlay " + (checked ? "lock" : "unlock"))
-                }
                 Flow {
                     Layout.fillWidth: true
                     spacing: Kirigami.Units.smallSpacing
@@ -325,8 +320,8 @@ PlasmoidItem {
                         delegate: PlasmaComponents3.CheckBox {
                             required property string modelData
                             text: root.label(modelData)
-                            checked: !!(root.overlay.items && root.overlay.items[modelData] && root.overlay.items[modelData].shown)
-                            onToggled: action.run("alien-thunder overlay " + (checked ? "show " : "hide ") + modelData)
+                            checked: !!(root.overlay.items && root.overlay.items[modelData])
+                            onToggled: commands.run("alien-thunder overlay " + (checked ? "show " : "hide ") + modelData)
                         }
                     }
                 }

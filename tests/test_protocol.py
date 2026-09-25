@@ -159,13 +159,11 @@ class Profiles(unittest.TestCase):
                          "logo": {"efeito": "apagado", "cor": "#ff2900", "cor2": "#000000", "tempo": 100},
                          "energia": {"ac": "#ff2900", "bateria": "#00ff00"}}}
         p = profiles.normalize(v1)
-        self.assertEqual(p["version"], 2)
+        self.assertEqual(p["version"], profiles.VERSION)
         self.assertEqual(p["name"], "Devops")
         self.assertEqual(p["brightness"], 80)
         self.assertEqual(p["keyboard"], {"1": "#9900ba", "107": "#fa2800"})
-        self.assertEqual(p["keyboard_effect"]["mode"], "software")
-        self.assertEqual(p["keyboard_effect"]["effect"], "color_wave")
-        self.assertEqual(p["keyboard_effect"]["speed"], 1.5)
+        self.assertEqual(p["keyboard_effect"], {"effect": "wave", "speed": 1.5})
         self.assertEqual(p["chassis"]["touchpad"]["effect"], "pulse")
         self.assertEqual(p["chassis"]["logo"]["effect"], "off")
         self.assertEqual(p["chassis"]["power"], {"ac": "#ff2900", "battery": "#00ff00"})
@@ -176,15 +174,36 @@ class Profiles(unittest.TestCase):
         self.assertEqual(cfg["groups"], {"Minhas": [1, 2]})
         self.assertEqual(cfg["chassis_backend"], "hidraw")
 
-    def test_software_effects(self):
-        base = {0: (255, 0, 0), 107: (0, 255, 0)}
-        for name in effects.SW_EFFECTS:
-            fx = effects.SoftwareEffect(name, base, {"speed": 1.0, "color1_rgb": (0, 0, 255)}, 1.0)
-            for t in (0.0, 0.3, 1.7, 10.0):
+    def test_version_2_file(self):
+        v2 = {"version": 2, "name": "Old", "keyboard": {"1": "#9900ba"},
+              "keyboard_effect": {"mode": "hardware", "effect": "rainbow", "color1": "#ff0000",
+                                  "color2": "#0000ff", "color_mode": 3, "tempo": 5, "speed": 2.0},
+              "chassis": {"touchpad": {"effect": "morph", "color": "#112233", "color2": "#000000", "tempo": 9},
+                          "logo": {"effect": "pulse", "color": "#445566", "color2": "#000000", "tempo": 9}}}
+        p = profiles.normalize(v2)
+        # rainbow painted over the chosen colors; nothing in version 3 does
+        self.assertEqual(p["keyboard_effect"], {"effect": "static", "speed": 2.0})
+        self.assertEqual(p["chassis"]["touchpad"], {"effect": "breathing", "color": "#112233", "speed": 1.0})
+        self.assertEqual(p["chassis"]["logo"], {"effect": "pulse", "color": "#445566", "speed": 1.0})
+        self.assertEqual(p["keyboard"], {"1": "#9900ba"})
+
+    def test_effects_keep_the_colors(self):
+        base = {0: (255, 0, 0), 1: (153, 0, 186), 107: (250, 40, 0), 5: (0, 0, 0)}
+        for name in effects.KEYBOARD_EFFECTS:
+            if name == "static":
+                continue
+            fx = effects.Animation(name, base, 1.0)
+            for t in (0.0, 0.3, 1.7, 2.9, 10.0):
                 fr = fx.frame(t)
-                self.assertTrue(set(layout.AWCC_IDS) <= set(fr))
-                for c in fr.values():
-                    self.assertTrue(all(0 <= x <= 255 for x in c))
+                self.assertEqual(set(fr), set(base), name)
+                for led, c in fr.items():
+                    b = base[led]
+                    if not any(b):
+                        self.assertEqual(c, (0, 0, 0), name)  # an unlit key stays off
+                        continue
+                    f = max(c) / max(b)
+                    for got, want in zip(c, b):  # same hue: every channel scaled by one factor
+                        self.assertLessEqual(abs(got - want * f), 1, (name, t, led, c, b))
                 protocol.kb_static_packets(fr)
 
 
@@ -216,6 +235,24 @@ class GMode(unittest.TestCase):
         eng.state.data["keyboard_hw_effect"] = False
         eng.apply(prof)
         return [a[0] for n, a in eng.kb.calls if n == "static"]
+
+    def test_touchpad_effect_uses_static_packets(self):
+        prof = profiles.normalize({"chassis": {"touchpad": {"effect": "breathing", "color": "#ff2900"},
+                                               "logo": {"effect": "static", "color": "#0000ff"}}})
+        eng = engine.Engine(log=lambda m: None)
+        eng.kb, eng.ch = _Fake(), _Fake()
+        eng.state.data["keyboard_hw_effect"] = False
+        eng.apply(prof)
+        self.assertTrue(eng.animating)
+        eng.sw_t0 -= 2.0  # half a breath later
+        eng.sw_tick()
+        sent = [pk for name, a in eng.ch.calls if name == "send" for pk in a[0]]
+        self.assertGreater(len(sent), 8)
+        for pk in sent:
+            protocol.assert_safe_elc(pk)
+            self.assertNotIn(pk[1], (0x23, 0x24))  # never the controller's own effect actions
+        logo = [pk for pk in sent if pk[1] == 0x27 and 2 in pk[7:7 + pk[6]]]
+        self.assertTrue(all(pk[2:5] == bytes((0, 0, 255)) for pk in logo))  # the static logo never dims
 
     def test_f1_white_only_in_gmode(self):
         prof = profiles.normalize(profiles.from_legacy(golden("devops_legacy_profile.json")["profile"]))

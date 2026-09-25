@@ -96,12 +96,8 @@ msgid "Overlay"
 msgstr "Sobreposição"
 
 #: plasma/alien-thunder/contents/ui/main.qml:296
-msgid "Readouts that float above every window, games included. Drag them anywhere, on any screen."
-msgstr "Mostradores que flutuam acima de todas as janelas, inclusive jogos. Arraste para qualquer lugar, em qualquer tela."
-
-#: plasma/alien-thunder/contents/ui/main.qml:316
-msgid "Lock in place (clicks pass through)"
-msgstr "Travar no lugar (cliques passam através)"
+msgid "A bar of readouts above every window, games included. Drag it anywhere, on any screen; its ✕ turns it off."
+msgstr "Uma barra de mostradores acima de todas as janelas, inclusive jogos. Arraste para qualquer lugar, em qualquer tela; o ✕ dela desliga."
 
 #: plasma/alien-thunder/contents/config/config.qml:6
 msgid "General"

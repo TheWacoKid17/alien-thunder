@@ -21,28 +21,31 @@ def keyboard_colors(profile: dict) -> dict[int, tuple[int, int, int]]:
     return {int(k): _scale(hex_to_rgb(v), f) for k, v in profile["keyboard"].items()}
 
 
-def chassis_zones(profile: dict) -> dict[int, dict]:
+def zone_colors(profile: dict) -> dict[int, tuple[int, int, int]]:
+    """{zone id: color} for the touchpad and the logo, brightness applied; "off" is black."""
     f = profile["brightness"] / 100.0
     out = {}
     for name, zid in ZONES.items():
         z = profile["chassis"][name]
-        out[zid] = {"effect": z["effect"], "color": _scale(hex_to_rgb(z["color"]), f),
-                    "color2": _scale(hex_to_rgb(z["color2"]), f), "tempo": z["tempo"]}
+        out[zid] = (0, 0, 0) if z["effect"] == "off" else _scale(hex_to_rgb(z["color"]), f)
     return out
 
 
-def kb_effect_packet(profile: dict) -> bytes:
+def keyboard_animation(profile: dict) -> effects.Animation | None:
     e = profile["keyboard_effect"]
-    f = profile["brightness"] / 100.0
-    return protocol.kb_effect_packet(e["effect"], e["tempo"], e["color_mode"],
-                                     _scale(hex_to_rgb(e["color1"]), f), _scale(hex_to_rgb(e["color2"]), f))
+    if e["effect"] == "static":
+        return None
+    return effects.Animation(e["effect"], keyboard_colors(profile), e["speed"])
 
 
-def make_sw_effect(profile: dict) -> effects.SoftwareEffect:
-    e = profile["keyboard_effect"]
-    params = dict(e)
-    params["color1_rgb"] = hex_to_rgb(e["color1"])
-    return effects.SoftwareEffect(e["effect"], keyboard_colors(profile), params, profile["brightness"] / 100.0)
+def zone_animations(profile: dict) -> dict[int, effects.Animation]:
+    colors = zone_colors(profile)
+    out = {}
+    for name, zid in ZONES.items():
+        z = profile["chassis"][name]
+        if z["effect"] not in ("static", "off"):
+            out[zid] = effects.Animation(z["effect"], {zid: colors[zid]}, z["speed"])
+    return out
 
 
 class State:
@@ -83,8 +86,11 @@ class Engine:
         self.state = State()
         self.last_kb = None
         self.last_ch = None
-        self.sw: effects.SoftwareEffect | None = None
-        self.sw_t0 = 0.0
+        self.sw: effects.Animation | None = None
+        self.sw_zones: dict[int, effects.Animation] = {}
+        self.zone_base: dict[int, tuple[int, int, int]] = {}
+        self.last_zone_frame = None
+        self.sw_t0 = time.monotonic()
         self.gmode = False
         self.f1: tuple[int, int, int] | None = None
 
@@ -93,55 +99,65 @@ class Engine:
             return colors
         return {**colors, gmode.F1_LED: self.f1}
 
-    # ------------------------------------------------------------ partes
+    @property
+    def animating(self) -> bool:
+        return self.sw is not None or bool(self.sw_zones)
+
+    # ------------------------------------------------------------ parts
     def invalidate(self):
-        self.last_kb = self.last_ch = None
+        self.last_kb = self.last_ch = self.last_zone_frame = None
         self.kb.close()
         self.ch.close()
 
     def _apply_keyboard(self, profile: dict):
-        e = profile["keyboard_effect"]
-        mode = e["mode"]
         with hw.hw_lock():
-            if mode == "hardware":
-                self.sw = None
-                self.kb.hw_effect(kb_effect_packet(profile))
-                if not self.state.data["keyboard_hw_effect"]:
-                    self.state.data["keyboard_hw_effect"] = True
-                    self.state.save()
-                self.log(f"keyboard: hardware effect '{e['effect']}'")
-                return
+            # Earlier versions could leave a hardware effect running on the keyboard's
+            # controller, and it would paint over the per-key colors until switched off.
             if self.state.data["keyboard_hw_effect"]:
                 self.kb.effect_off()
                 self.state.data["keyboard_hw_effect"] = False
                 self.state.save()
                 self.log("keyboard: hardware effect off")
-            if mode == "software":
-                self.sw = make_sw_effect(profile)
-                self.sw_t0 = time.monotonic()
-                self.kb.static(self._overlay(self.sw.frame(0.0)))
-                self.log(f"keyboard: software effect '{e['effect']}'")
+            self.sw = keyboard_animation(profile)
+            if self.sw is not None:
+                self.kb.static(self._overlay(self.sw.frame(time.monotonic() - self.sw_t0)))
+                self.log(f"keyboard: effect '{self.sw.name}'")
             else:
-                self.sw = None
                 colors = self._overlay(keyboard_colors(profile))
                 self.kb.static(colors)
                 self.log(f"keyboard: {len(colors)} LEDs set")
 
     def _apply_chassis(self, profile: dict, backend: str):
-        zones = chassis_zones(profile)
+        colors = zone_colors(profile)
         if backend == "alienrgb":
+            self.sw_zones = {}
             for name, zid in ZONES.items():
-                z = zones[zid]
-                if z["effect"] not in ("static", "off"):
-                    self.log(f"{name}: alienrgb can't do the '{z['effect']}' effect; using a fixed color")
-                color = (0, 0, 0) if z["effect"] == "off" else z["color"]
-                self.alienrgb.set_zone(ALIENRGB_TARGET[name], profiles.rgb_to_hex(color))
+                if profile["chassis"][name]["effect"] not in ("static", "off"):
+                    self.log(f"{name}: effects need the hidraw backend; using a fixed color")
+                self.alienrgb.set_zone(ALIENRGB_TARGET[name], profiles.rgb_to_hex(colors[zid]))
             self.log("chassis: set through alienrgb")
             return
-        with hw.hw_lock():
-            self.ch.send(protocol.elc_zone_packets(zones))
+        # The controller's own chassis effects never worked here, so animated zones are
+        # redrawn frame by frame with the same static-color packets that do.
+        self.zone_base = colors
+        self.sw_zones = zone_animations(profile)
+        self._send_zones(self._zone_frame(time.monotonic() - self.sw_t0))
+        self.log("chassis: touchpad and logo set"
+                 + (f" (effects: {', '.join(a.name for a in self.sw_zones.values())})" if self.sw_zones else ""))
+
+    def _zone_frame(self, t: float) -> dict[int, tuple[int, int, int]]:
+        frame = dict(self.zone_base)
+        for zid, anim in self.sw_zones.items():
+            frame.update(anim.frame(t))
+        return frame
+
+    def _send_zones(self, frame: dict[int, tuple[int, int, int]], lock_timeout: float = 10.0):
+        if frame == self.last_zone_frame:
+            return
+        with hw.hw_lock(timeout=lock_timeout):
+            self.ch.send(protocol.elc_zone_packets({z: {"effect": "static", "color": c} for z, c in frame.items()}))
             self.ch.wait_ready()
-        self.log("chassis: touchpad and logo set")
+        self.last_zone_frame = frame
 
     def _apply_power(self, profile: dict, backend: str, force: bool):
         pw = profile["chassis"]["power"]
@@ -169,7 +185,7 @@ class Engine:
         """
         profile = profiles.normalize(profile)
         errors = []
-        # G-Mode paints F1 white over the profile; a hardware effect animates the whole keyboard and ignores it.
+        # G-Mode paints F1 white over the profile, effects included.
         self.f1 = _scale(gmode.WHITE, profile["brightness"] / 100.0) if self.gmode else None
         kb_key = json.dumps([profile["keyboard"], profile["keyboard_effect"], profile["brightness"], self.gmode],
                             sort_keys=True)
@@ -185,6 +201,7 @@ class Engine:
         if force or ch_key != self.last_ch:
             try:
                 self.last_ch = None
+                self.last_zone_frame = None
                 self._apply_chassis(profile, backend)
                 self.last_ch = ch_key
             except hw.DeviceError as e:
@@ -201,12 +218,14 @@ class Engine:
         self._apply_power(profiles.normalize(profile), backend, force=True)
 
     def sw_tick(self):
-        """Sends one frame of the software effect; the daemon's timer calls this."""
-        if self.sw is None:
-            return
-        frame = self._overlay(self.sw.frame(time.monotonic() - self.sw_t0))
-        with hw.hw_lock(timeout=0.5):
-            self.kb.static(frame, retries=2)
+        """Sends one frame of whatever is animated; the daemon's timer calls this."""
+        t = time.monotonic() - self.sw_t0
+        if self.sw is not None:
+            frame = self._overlay(self.sw.frame(t))
+            with hw.hw_lock(timeout=0.5):
+                self.kb.static(frame, retries=2)
+        if self.sw_zones:
+            self._send_zones(self._zone_frame(t), lock_timeout=0.5)
 
     def close(self):
         self.kb.close()

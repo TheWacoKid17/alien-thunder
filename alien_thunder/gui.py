@@ -11,14 +11,14 @@ import time
 from PySide6.QtCore import QPointF, QRect, QRectF, QSize, Qt, QTimer, Signal
 from PySide6.QtGui import (QAction, QBrush, QColor, QFont, QIcon, QPainter, QPainterPath, QPalette,
                            QPen)
-from PySide6.QtWidgets import (QAbstractItemView, QApplication, QButtonGroup, QCheckBox,
+from PySide6.QtWidgets import (QAbstractItemView, QApplication, QCheckBox,
                                QColorDialog, QComboBox, QDialog, QDialogButtonBox, QFormLayout,
                                QGridLayout, QGroupBox, QHBoxLayout, QInputDialog, QLabel,
                                QListWidget, QListWidgetItem, QMainWindow, QMessageBox, QPushButton,
-                               QRadioButton, QRubberBand, QScrollArea, QSizePolicy, QSlider,
+                               QRubberBand, QScrollArea, QSizePolicy, QSlider,
                                QSpinBox, QTabWidget, QToolButton, QVBoxLayout, QWidget)
 
-from . import effects, engine, gmode, hw, layout, profiles, protocol
+from . import effects, engine, gmode, hw, layout, profiles
 from .i18n import gettext as _
 from .i18n import ngettext
 
@@ -502,74 +502,43 @@ class MainWindow(QMainWindow):
     def _tab_effects(self):
         w = QWidget()
         v = QVBoxLayout(w)
-        g = QGroupBox(_("Keyboard effect"))
-        gl = QVBoxLayout(g)
-        self.rb_mode = QButtonGroup(self)
-        for i, (key, text) in enumerate((("static", _("Static (per-key colors)")),
-                                         ("hardware", _("Hardware effect (no CPU use)")),
-                                         ("software", _("Software effect (runs in the service)")))):
-            rb = QRadioButton(text)
-            rb.setProperty("mode", key)
-            self.rb_mode.addButton(rb, i)
-            gl.addWidget(rb)
-        self.rb_mode.idToggled.connect(self.on_effect_mode)
-        form = QFormLayout()
-        self.cb_effect = QComboBox()
-        self.cb_effect.currentIndexChanged.connect(self.on_effect_param)
-        form.addRow(_("Effect:"), self.cb_effect)
-        self.btn_ec1 = ColorButton("#ff0000", _("Effect color 1"))
-        self.btn_ec1.colorChanged.connect(self.on_effect_param)
-        form.addRow(_("Color 1:"), self.btn_ec1)
-        self.btn_ec2 = ColorButton("#0000ff", _("Effect color 2"))
-        self.btn_ec2.colorChanged.connect(self.on_effect_param)
-        form.addRow(_("Color 2:"), self.btn_ec2)
-        self.cb_cmode = QComboBox()
-        for k, t in protocol.KB_COLOR_MODES.items():
-            self.cb_cmode.addItem(_(t), k)
-        self.cb_cmode.currentIndexChanged.connect(self.on_effect_param)
-        form.addRow(_("Colors:"), self.cb_cmode)
-        self.sl_tempo = QSlider(Qt.Horizontal)
-        self.sl_tempo.setRange(0, 255)
-        self.sl_tempo.setToolTip(_("The controller's tempo byte (0–255)"))
-        self.sl_tempo.valueChanged.connect(self.on_effect_param)
-        form.addRow(_("Tempo:"), self.sl_tempo)
-        self.sl_speed = QSlider(Qt.Horizontal)
-        self.sl_speed.setRange(1, 50)
-        self.sl_speed.valueChanged.connect(self.on_effect_param)
-        form.addRow(_("Speed:"), self.sl_speed)
-        gl.addLayout(form)
-        self.lbl_effect_note = QLabel()
-        self.lbl_effect_note.setWordWrap(True)
-        self.lbl_effect_note.setStyleSheet("color:#999;")
-        gl.addWidget(self.lbl_effect_note)
-        v.addWidget(g)
+        note = QLabel(_("Effects only change how bright each light is; the colors stay the ones you picked. "
+                        "The background service draws them at %d fps.") % self.cfg["fps"])
+        note.setWordWrap(True)
+        note.setStyleSheet("color:#999;")
+        v.addWidget(note)
+        self.fx_widgets = {}
+        for zone, title, choices in (("keyboard", _("Keyboard"), effects.KEYBOARD_EFFECTS),
+                                     ("touchpad", _("Touchpad"), effects.ZONE_EFFECTS),
+                                     ("logo", _("Alien head (logo on the lid)"), effects.ZONE_EFFECTS)):
+            g = QGroupBox(title)
+            f = QFormLayout(g)
+            cb = QComboBox()
+            for k, name in choices.items():
+                cb.addItem(_(name), k)
+            sl = QSlider(Qt.Horizontal)
+            sl.setRange(1, 50)
+            f.addRow(_("Effect:"), cb)
+            f.addRow(_("Speed:"), sl)
+            cb.currentIndexChanged.connect(lambda *_a, z=zone: self.on_fx_changed(z))
+            sl.valueChanged.connect(lambda *_a, z=zone: self.on_fx_changed(z))
+            self.fx_widgets[zone] = (cb, sl)
+            v.addWidget(g)
         v.addStretch(1)
         return w
 
     def _tab_chassis(self):
         w = QWidget()
         v = QVBoxLayout(w)
-        self.zone_widgets = {}
-        for zone, title in (("touchpad", _("Touchpad")), ("logo", _("Logo (Alienhead on the lid)"))):
-            g = QGroupBox(title)
-            f = QFormLayout(g)
-            cb = QComboBox()
-            for k, t in protocol.CHASSIS_EFFECTS.items():
-                cb.addItem(_(t), k)
-            c1 = ColorButton("#ff2900", _("%s: color") % title)
-            c2 = ColorButton("#000000", _("%s: color 2") % title)
-            sl = QSlider(Qt.Horizontal)
-            sl.setRange(1, 255)
-            sl.setToolTip(_("Transition tempo (the controller's byte, 1–255)"))
-            f.addRow(_("Effect:"), cb)
-            f.addRow(_("Color:"), c1)
-            f.addRow(_("Color 2 (morph):"), c2)
-            f.addRow(_("Tempo:"), sl)
-            for wdg, sig in ((cb, cb.currentIndexChanged), (c1, c1.colorChanged), (c2, c2.colorChanged),
-                             (sl, sl.valueChanged)):
-                sig.connect(lambda *_a, z=zone: self.on_zone_changed(z))
-            self.zone_widgets[zone] = (cb, c1, c2, sl)
-            v.addWidget(g)
+        g = QGroupBox(_("Colors"))
+        f = QFormLayout(g)
+        self.zone_color = {}
+        for zone, title in (("touchpad", _("Touchpad")), ("logo", _("Alien head (logo on the lid)"))):
+            c = ColorButton("#ff2900", title)
+            c.colorChanged.connect(lambda *_a, z=zone: self.on_zone_color_changed(z))
+            f.addRow(title + ":", c)
+            self.zone_color[zone] = c
+        v.addWidget(g)
         g = QGroupBox(_("Power button"))
         f = QFormLayout(g)
         self.btn_pw_ac = ColorButton("#ff2900", _("Power button when plugged in"))
@@ -676,21 +645,12 @@ class MainWindow(QMainWindow):
                         self.kb.colors[k.id] = QColor(p["keyboard"][str(led)])
         self.sl_bright.setValue(p["brightness"])
         self.lbl_bright.setText(f"{p['brightness']}%")
-        e = p["keyboard_effect"]
-        modes = ["static", "hardware", "software"]
-        self.rb_mode.button(modes.index(e["mode"])).setChecked(True)
-        self._fill_effect_combo(e["mode"], e["effect"])
-        self.btn_ec1.setColor(e["color1"])
-        self.btn_ec2.setColor(e["color2"])
-        self.cb_cmode.setCurrentIndex(self.cb_cmode.findData(e["color_mode"]))
-        self.sl_tempo.setValue(e["tempo"])
-        self.sl_speed.setValue(int(round(e["speed"] * 10)))
-        for zone, (cb, c1, c2, sl) in self.zone_widgets.items():
-            z = p["chassis"][zone]
-            cb.setCurrentIndex(max(0, cb.findData(z["effect"])))
-            c1.setColor(z["color"])
-            c2.setColor(z["color2"])
-            sl.setValue(max(1, z["tempo"]))
+        for zone, (cb, sl) in self.fx_widgets.items():
+            fx = p["keyboard_effect"] if zone == "keyboard" else p["chassis"][zone]
+            cb.setCurrentIndex(max(0, cb.findData(fx["effect"])))
+            sl.setValue(int(round(fx["speed"] * 10)))
+        for zone, c in self.zone_color.items():
+            c.setColor(p["chassis"][zone]["color"])
         self.btn_pw_ac.setColor(p["chassis"]["power"]["ac"])
         self.btn_pw_bat.setColor(p["chassis"]["power"]["battery"])
         self._loading = False
@@ -849,9 +809,6 @@ class MainWindow(QMainWindow):
             self.kb.colors[kid] = QColor(c)
         if recent:
             self._push_recent(c)
-        if self.profile["keyboard_effect"]["mode"] == "hardware":
-            self.statusBar().showMessage(_("Note: a hardware effect is on; per-key colors show in Static "
-                                           "mode or with the software effects"), 6000)
         self.kb.update()
         self.changed()
 
@@ -940,84 +897,30 @@ class MainWindow(QMainWindow):
         self.changed()
 
     # ------------------------------------------------------------ effects
-    def _fill_effect_combo(self, mode, current=None):
-        self.cb_effect.blockSignals(True)
-        self.cb_effect.clear()
-        if mode == "hardware":
-            for k, (_t, name) in protocol.KB_HW_EFFECTS.items():
-                self.cb_effect.addItem(_(name), k)
-        elif mode == "software":
-            for k, name in effects.SW_EFFECTS.items():
-                self.cb_effect.addItem(_(name), k)
-        idx = self.cb_effect.findData(current)
-        self.cb_effect.setCurrentIndex(max(0, idx))
-        self.cb_effect.blockSignals(False)
-
-    def on_effect_mode(self, bid, checked):
-        if not checked:
-            return
-        mode = self.rb_mode.button(bid).property("mode")
-        if not self._loading:
-            self._fill_effect_combo(mode, self.profile["keyboard_effect"].get("effect"))
-            self.profile["keyboard_effect"]["mode"] = mode
-            if self.cb_effect.count():
-                self.profile["keyboard_effect"]["effect"] = self.cb_effect.currentData()
-            self.changed()
-        self._update_effect_ui()
-
-    def on_effect_param(self, *_a):
+    def on_fx_changed(self, zone):
         if self._loading:
             return
-        e = self.profile["keyboard_effect"]
-        if self.cb_effect.count():
-            e["effect"] = self.cb_effect.currentData()
-        e["color1"] = self.btn_ec1.color()
-        e["color2"] = self.btn_ec2.color()
-        e["color_mode"] = self.cb_cmode.currentData()
-        e["tempo"] = self.sl_tempo.value()
-        e["speed"] = self.sl_speed.value() / 10.0
+        cb, sl = self.fx_widgets[zone]
+        fx = self.profile["keyboard_effect"] if zone == "keyboard" else self.profile["chassis"][zone]
+        fx.update(effect=cb.currentData(), speed=sl.value() / 10.0)
         self._update_effect_ui()
         self.changed()
 
     def _update_effect_ui(self):
-        e = self.profile["keyboard_effect"]
-        mode = e["mode"]
-        hwm, swm = mode == "hardware", mode == "software"
-        self.cb_effect.setEnabled(hwm or swm)
-        self.btn_ec1.setEnabled(hwm or (swm and e["effect"] in ("color_wave", "twinkle")))
-        self.btn_ec2.setEnabled(hwm and e["color_mode"] == 2)
-        self.cb_cmode.setEnabled(hwm)
-        self.sl_tempo.setEnabled(hwm)
-        self.sl_speed.setEnabled(swm)
-        if hwm:
-            note = _("The keyboard's own controller runs this effect (no CPU). Ported from alienfx-tools, "
-                     "so check that it looks right. The per-key colors are kept and come back in Static mode.")
-            self.kb.banner = _("Hardware effect: %s (preview shows the per-key colors)") % self.cb_effect.currentText()
-        elif swm:
-            note = _("Drawn by the background service at %d fps (low CPU use). "
-                     "The preview beside it is animated.") % self.cfg["fps"]
-            self.kb.banner = ""
-        else:
-            note = _("Each key uses the color set in the Colors tab.")
-            self.kb.banner = ""
-        self.lbl_effect_note.setText(note)
         self._restart_anim()
         self.kb.update()
 
     def _restart_anim(self):
-        e = self.profile["keyboard_effect"]
-        if e["mode"] == "software":
-            try:
-                self.anim_fx = engine.make_sw_effect(profiles.normalize(self.profile))
-            except (ValueError, profiles.ProfileError):
-                self.anim_fx = None
-            if self.anim_fx:
-                self.anim_t0 = time.monotonic()
-                self.anim_timer.setInterval(int(1000 / self.cfg["fps"]))
-                self.anim_timer.start()
-                return
+        try:
+            self.anim_fx = engine.keyboard_animation(profiles.normalize(self.profile))
+        except (ValueError, profiles.ProfileError):
+            self.anim_fx = None
+        if self.anim_fx:
+            self.anim_t0 = time.monotonic()
+            self.anim_timer.setInterval(int(1000 / self.cfg["fps"]))
+            self.anim_timer.start()
+            return
         self.anim_timer.stop()
-        self.anim_fx = None
         self.kb.preview = None
 
     def _animate(self):
@@ -1034,12 +937,10 @@ class MainWindow(QMainWindow):
         self.kb.update()
 
     # ------------------------------------------------------------ chassis
-    def on_zone_changed(self, zone):
+    def on_zone_color_changed(self, zone):
         if self._loading:
             return
-        cb, c1, c2, sl = self.zone_widgets[zone]
-        z = self.profile["chassis"][zone]
-        z.update(efeito=cb.currentData(), cor=c1.color(), cor2=c2.color(), tempo=sl.value())
+        self.profile["chassis"][zone]["color"] = self.zone_color[zone].color()
         self.changed()
 
     def on_power_changed(self, *_a):

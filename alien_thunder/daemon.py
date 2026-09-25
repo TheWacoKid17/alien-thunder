@@ -141,7 +141,7 @@ class Daemon(dbus.service.Object):
 
     # ------------------------------------------------------------ software effects
     def update_sw(self):
-        if self.engine.sw is not None and not self.sleeping:
+        if self.engine.animating and not self.sleeping:
             if not self.sw_id:
                 interval = int(1000 / self.cfg["fps"])
                 self.sw_id = GLib.timeout_add(interval, self._sw_tick)
@@ -154,7 +154,7 @@ class Daemon(dbus.service.Object):
             self.sw_id = 0
 
     def _sw_tick(self):
-        if self.engine.sw is None or self.sleeping:
+        if not self.engine.animating or self.sleeping:
             self.sw_id = 0
             return False
         try:
@@ -408,7 +408,9 @@ class Daemon(dbus.service.Object):
             "active_profile": profiles.active_slug(),
             "applying": prof["name"] if prof else None,
             "override": self.override["kind"] if self.override else None,
-            "software_effect": self.engine.sw.name if self.engine.sw else None,
+            "software_effect": ", ".join(
+                ([self.engine.sw.name] if self.engine.sw else []) + [a.name for a in self.engine.sw_zones.values()]
+            ) or None,
             "fps": self.cfg["fps"],
             "gmode": self.engine.gmode,
             "power_profile": self.power_profile,

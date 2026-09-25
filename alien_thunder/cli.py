@@ -18,8 +18,8 @@ alien-thunder status             service and device status
 alien-thunder power [profile]    write the power button colors now
 alien-thunder gmode [on|off|toggle]
                                  G-Mode, the same as Fn+F1; with no argument, show it
-alien-thunder overlay [on|off|lock|unlock|show ITEM|hide ITEM|status]
-                                 the floating readouts
+alien-thunder overlay [on|off|show ITEM|hide ITEM|status]
+                                 the floating readout bar
 alien-thunder import-windows [--list | --id N ...]
                                  import AWCC presets from /mnt/windows
 alien-thunder daemon             the service (started by systemd --user)""")

@@ -20,8 +20,8 @@ DB_GLOB = "/mnt/windows/Users/*/AppData/Local/Alienware/Alienware Command Center
 KB_DEVICE = "0x1102_AdvKB0xD2B1"
 ELC_DEVICE = "0x11020x0551"
 
-# AWCC Animation.ID -> keyboard hardware effect (the closest one)
-KB_ANIM = {7: ("breathing", 1), 8: ("morph", 3), 16: ("rainbow", 3), 17: ("bounce", 1)}
+# AWCC Animation.ID -> the closest effect that keeps the colors
+KB_ANIM = {7: "breathing", 8: "pulse", 16: "wave", 17: "wave"}
 
 
 def argb_hex(v: int) -> str:
@@ -67,13 +67,10 @@ def _kb_part(data: dict, prof: dict):
             for led in layout.AWCC_IDS:
                 prof["keyboard"][str(led)] = argb_hex(cols[0])
         elif aid in KB_ANIM:
-            eff, mode = KB_ANIM[aid]
-            e = prof["keyboard_effect"]
-            e.update(mode="hardware", effect=eff, color_mode=mode)
-            if cols:
-                e["color1"] = argb_hex(cols[0])
-            if len(cols) > 1:
-                e["color2"] = argb_hex(cols[1])
+            prof["keyboard_effect"]["effect"] = KB_ANIM[aid]
+            if cols:  # the preset's color, on every key, is what the effect animates
+                for led in layout.AWCC_IDS:
+                    prof["keyboard"][str(led)] = argb_hex(cols[0])
 
 
 def _elc_part(data: dict, prof: dict):
@@ -91,8 +88,7 @@ def _elc_part(data: dict, prof: dict):
                 if acts[0].get("Effect") == 2:
                     z["effect"] = "pulse"
                 elif acts[0].get("Effect") == 1 and len(acts) > 1:
-                    z["effect"] = "morph"
-                    z["color2"] = argb_hex(acts[1]["Color"][0])
+                    z["effect"] = "breathing"
     for p in st.get("PredefinedAnimations") or []:
         pid, cols = p.get("ID"), p.get("Colors") or []
         if not cols:
@@ -104,8 +100,7 @@ def _elc_part(data: dict, prof: dict):
         elif pid == 1:  # Morph
             for led in p.get("LEDs") or []:
                 if led in zones:
-                    prof["chassis"][zones[led]].update(effect="morph", color=argb_hex(cols[0]),
-                                                       color2=argb_hex(cols[1] if len(cols) > 1 else 0))
+                    prof["chassis"][zones[led]].update(effect="breathing", color=argb_hex(cols[0]))
         elif pid == 92:  # AC - Fully Charge
             prof["chassis"]["power"]["ac"] = argb_hex(cols[0])
         elif pid == 95:  # DC - Working
@@ -163,7 +158,7 @@ def _presets_from(src: str) -> list[dict]:
         eff = item["profile"]["keyboard_effect"]
         ch = item["profile"]["chassis"]
         item["summary"] = (_("%d keys") % len(item["profile"]["keyboard"])
-                           + (_(", effect %s") % eff["effect"] if eff["mode"] != "static" else "")
+                           + (_(", effect %s") % eff["effect"] if eff["effect"] != "static" else "")
                            + _(", touchpad %s, logo %s") % (ch["touchpad"]["effect"], ch["logo"]["effect"])
                            + _(" (Windows user: %s)") % item["user"])
         result.append(item)
