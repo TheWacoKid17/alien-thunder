@@ -1,7 +1,7 @@
-"""Importa predefinicoes do Alienware Command Center (particao Windows, somente leitura).
+"""Imports Alienware Command Center presets from the Windows partition, read only.
 
-O FXRepository.db e COPIADO para um diretorio temporario antes de ser lido; nada
-e escrito em /mnt/windows. Usado apenas sob demanda (botao "Importar do Windows").
+FXRepository.db is COPIED to a temporary directory before it's read; nothing is
+written to /mnt/windows. Only runs when asked (the "Import from Windows" button).
 """
 from __future__ import annotations
 
@@ -13,14 +13,15 @@ import sqlite3
 import tempfile
 
 from . import layout, profiles
+from .i18n import gettext as _
 
 DB_GLOB = "/mnt/windows/Users/*/AppData/Local/Alienware/Alienware Command Center/FX/FXRepository.db"
 
 KB_DEVICE = "0x1102_AdvKB0xD2B1"
 ELC_DEVICE = "0x11020x0551"
 
-# Animation.ID do AWCC -> efeito de hardware do teclado (aproximacao)
-KB_ANIM = {7: ("respiracao", 1), 8: ("morph", 3), 16: ("arco_iris", 3), 17: ("ricochete", 1)}
+# AWCC Animation.ID -> keyboard hardware effect (the closest one)
+KB_ANIM = {7: ("breathing", 1), 8: ("morph", 3), 16: ("rainbow", 3), 17: ("bounce", 1)}
 
 
 def argb_hex(v: int) -> str:
@@ -28,7 +29,7 @@ def argb_hex(v: int) -> str:
 
 
 def find_dbs() -> list[str]:
-    """Todos os FXRepository.db (um por usuario do Windows), maiores primeiro."""
+    """Every FXRepository.db (one per Windows user), largest first."""
     return sorted(glob.glob(DB_GLOB), key=lambda p: -os.path.getsize(p))
 
 
@@ -38,7 +39,7 @@ def _user_of(db: str) -> str:
 
 
 def _copy_db(src: str) -> tuple[str, str]:
-    tmp = tempfile.mkdtemp(prefix="alienfx-awcc-")
+    tmp = tempfile.mkdtemp(prefix="alien-thunder-awcc-")
     dst = os.path.join(tmp, "FXRepository.db")
     shutil.copy2(src, dst)
     for ext in ("-wal", "-shm"):
@@ -56,23 +57,23 @@ def _kb_part(data: dict, prof: dict):
             continue
         color = argb_hex(acts[0]["Color"][0])
         for led in seq.get("LEDs") or []:
-            prof["teclado"][str(int(led))] = color
+            prof["keyboard"][str(int(led))] = color
     aid = anim.get("ID")
     pre = st.get("PredefinedAnimations") or []
     if not anim.get("Sequence") and pre:
         aid = pre[0].get("ID")
         cols = pre[0].get("Colors") or []
-        if aid in (4, 19) and cols:  # "Color" / "Static Default Blue": todas as teclas
+        if aid in (4, 19) and cols:  # "Color" / "Static Default Blue": every key
             for led in layout.AWCC_IDS:
-                prof["teclado"][str(led)] = argb_hex(cols[0])
+                prof["keyboard"][str(led)] = argb_hex(cols[0])
         elif aid in KB_ANIM:
             eff, mode = KB_ANIM[aid]
-            e = prof["efeito_teclado"]
-            e.update(modo="hardware", efeito=eff, modo_cor=mode)
+            e = prof["keyboard_effect"]
+            e.update(mode="hardware", effect=eff, color_mode=mode)
             if cols:
-                e["cor1"] = argb_hex(cols[0])
+                e["color1"] = argb_hex(cols[0])
             if len(cols) > 1:
-                e["cor2"] = argb_hex(cols[1])
+                e["color2"] = argb_hex(cols[1])
 
 
 def _elc_part(data: dict, prof: dict):
@@ -84,14 +85,14 @@ def _elc_part(data: dict, prof: dict):
             continue
         for led in seq.get("LEDs") or []:
             if led in zones:
-                z = prof["chassi"][zones[led]]
-                z["cor"] = argb_hex(acts[0]["Color"][0])
-                z["efeito"] = "estatico"
+                z = prof["chassis"][zones[led]]
+                z["color"] = argb_hex(acts[0]["Color"][0])
+                z["effect"] = "static"
                 if acts[0].get("Effect") == 2:
-                    z["efeito"] = "pulso"
+                    z["effect"] = "pulse"
                 elif acts[0].get("Effect") == 1 and len(acts) > 1:
-                    z["efeito"] = "morph"
-                    z["cor2"] = argb_hex(acts[1]["Color"][0])
+                    z["effect"] = "morph"
+                    z["color2"] = argb_hex(acts[1]["Color"][0])
     for p in st.get("PredefinedAnimations") or []:
         pid, cols = p.get("ID"), p.get("Colors") or []
         if not cols:
@@ -99,23 +100,23 @@ def _elc_part(data: dict, prof: dict):
         if pid == 7:  # Breathing
             for led in p.get("LEDs") or []:
                 if led in zones:
-                    prof["chassi"][zones[led]].update(efeito="respiracao", cor=argb_hex(cols[0]))
+                    prof["chassis"][zones[led]].update(effect="breathing", color=argb_hex(cols[0]))
         elif pid == 1:  # Morph
             for led in p.get("LEDs") or []:
                 if led in zones:
-                    prof["chassi"][zones[led]].update(efeito="morph", cor=argb_hex(cols[0]),
-                                                      cor2=argb_hex(cols[1] if len(cols) > 1 else 0))
+                    prof["chassis"][zones[led]].update(effect="morph", color=argb_hex(cols[0]),
+                                                       color2=argb_hex(cols[1] if len(cols) > 1 else 0))
         elif pid == 92:  # AC - Fully Charge
-            prof["chassi"]["energia"]["ac"] = argb_hex(cols[0])
+            prof["chassis"]["power"]["ac"] = argb_hex(cols[0])
         elif pid == 95:  # DC - Working
-            prof["chassi"]["energia"]["bateria"] = argb_hex(cols[0])
+            prof["chassis"]["power"]["battery"] = argb_hex(cols[0])
 
 
 def list_presets(db_paths: list[str] | None = None) -> list[dict]:
-    """[{id, nome, jogo, usuario, resumo, perfil}] das predefinicoes de iluminacao do AWCC."""
+    """[{id, name, game, user, summary, profile}] for each AWCC lighting preset."""
     dbs = db_paths or find_dbs()
     if not dbs:
-        raise FileNotFoundError("FXRepository.db do AWCC não encontrado em /mnt/windows")
+        raise FileNotFoundError(_("AWCC's FXRepository.db wasn't found under /mnt/windows"))
     result = []
     for src in dbs:
         result += _presets_from(src)
@@ -149,21 +150,21 @@ def _presets_from(src: str) -> list[dict]:
         item = out.get(pid)
         if item is None:
             prof = json.loads(json.dumps(profiles.DEFAULT_PROFILE))
-            prof["nome"] = name or game or f"Predefinição {pid}"
-            item = out[pid] = {"id": f"{user}:{pid}", "nome": prof["nome"], "jogo": game or "",
-                               "usuario": user, "perfil": prof}
+            prof["name"] = name or game or _("Preset %d") % pid
+            item = out[pid] = {"id": f"{user}:{pid}", "name": prof["name"], "game": game or "",
+                               "user": user, "profile": prof}
         if dev == KB_DEVICE:
-            _kb_part(data, item["perfil"])
+            _kb_part(data, item["profile"])
         elif dev == ELC_DEVICE:
-            _elc_part(data, item["perfil"])
+            _elc_part(data, item["profile"])
     result = []
     for item in out.values():
-        item["perfil"] = profiles.normalize(item["perfil"])
-        eff = item["perfil"]["efeito_teclado"]
-        ch = item["perfil"]["chassi"]
-        item["resumo"] = (f"{len(item['perfil']['teclado'])} teclas"
-                          + (f", efeito {eff['efeito']}" if eff["modo"] != "estatico" else "")
-                          + f", touchpad {ch['touchpad']['efeito']}, logo {ch['logo']['efeito']}"
-                          + f" (usuário Windows: {item['usuario']})")
+        item["profile"] = profiles.normalize(item["profile"])
+        eff = item["profile"]["keyboard_effect"]
+        ch = item["profile"]["chassis"]
+        item["summary"] = (_("%d keys") % len(item["profile"]["keyboard"])
+                           + (_(", effect %s") % eff["effect"] if eff["mode"] != "static" else "")
+                           + _(", touchpad %s, logo %s") % (ch["touchpad"]["effect"], ch["logo"]["effect"])
+                           + _(" (Windows user: %s)") % item["user"])
         result.append(item)
     return result

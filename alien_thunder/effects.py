@@ -1,7 +1,7 @@
-"""Efeitos de software para o teclado (renderizados pelo daemon, <= 20 fps).
+"""Software keyboard effects, drawn by the daemon at up to 20 fps.
 
-Cada efeito e uma funcao pura: (base, t, params) -> {led: (r, g, b)}.
-`base` sao as cores por tecla do perfil (ja com brilho aplicado).
+Each effect is a pure function: (base, t, params) -> {led: (r, g, b)}.
+`base` is the profile's per-key colors, brightness already applied.
 """
 from __future__ import annotations
 
@@ -10,15 +10,16 @@ import math
 import random
 
 from . import layout
+from .i18n import N_
 
 Rgb = tuple[int, int, int]
 
 SW_EFFECTS = {
-    "respiracao_sw": "Respiração (mantém as cores por tecla)",
-    "onda_arco_iris": "Onda arco-íris",
-    "espectro_sw": "Ciclo de espectro",
-    "onda_cor": "Onda de cor sobre as cores por tecla",
-    "cintilar": "Cintilar (estrelas)",
+    "breathing_sw": N_("Breathing (keeps the per-key colors)"),
+    "rainbow_wave": N_("Rainbow wave"),
+    "spectrum_sw": N_("Spectrum cycle"),
+    "color_wave": N_("Color wave over the per-key colors"),
+    "twinkle": N_("Twinkle (stars)"),
 }
 
 _X = {led: layout.rel_x(led) for led in layout.ALL_LEDS}
@@ -38,18 +39,18 @@ def _mix(a: Rgb, b: Rgb, f: float) -> Rgb:
 
 
 class SoftwareEffect:
-    """Estado de um efeito em execucao (para os que precisam de memoria)."""
+    """A running effect, for the ones that need to remember something between frames."""
 
     def __init__(self, name: str, base: dict[int, Rgb], params: dict, brightness: float):
         if name not in SW_EFFECTS:
-            raise ValueError(f"efeito de software desconhecido: {name}")
+            raise ValueError(f"unknown software effect: {name}")
         self.name = name
         self.params = params
         self.bright = brightness
-        self.speed = max(0.1, min(5.0, float(params.get("velocidade", 1.0))))
-        self.c1 = _scale(params.get("cor1_rgb", (255, 0, 0)), brightness)
+        self.speed = max(0.1, min(5.0, float(params.get("speed", 1.0))))
+        self.c1 = _scale(params.get("color1_rgb", (255, 0, 0)), brightness)
         leds = sorted(set(base) | set(layout.AWCC_IDS)) if base else list(layout.AWCC_IDS)
-        # teclas sem cor no perfil: preto (respiracao) ou cor1
+        # keys the profile leaves uncolored start black
         self.base = {led: base.get(led, (0, 0, 0)) for led in leds}
         self.leds = leds
         self._stars: dict[int, float] = {}
@@ -59,21 +60,21 @@ class SoftwareEffect:
     def frame(self, t: float) -> dict[int, Rgb]:
         return getattr(self, "_" + self.name)(t)
 
-    def _respiracao_sw(self, t):
+    def _breathing_sw(self, t):
         period = 4.0 / self.speed
         f = 0.08 + 0.92 * (0.5 + 0.5 * math.cos(2 * math.pi * t / period))
         return {led: _scale(c, f) for led, c in self.base.items()}
 
-    def _onda_arco_iris(self, t):
+    def _rainbow_wave(self, t):
         shift = t * 0.25 * self.speed
         v = self.bright
         return {led: _hsv(_X[led] * 0.9 - shift, 1.0, v) for led in self.leds}
 
-    def _espectro_sw(self, t):
+    def _spectrum_sw(self, t):
         c = _hsv(t * 0.08 * self.speed, 1.0, self.bright)
         return {led: c for led in self.leds}
 
-    def _onda_cor(self, t):
+    def _color_wave(self, t):
         pos = (t * 0.35 * self.speed) % 1.4 - 0.2
         out = {}
         for led, c in self.base.items():
@@ -82,7 +83,7 @@ class SoftwareEffect:
             out[led] = _mix(_scale(c, 0.35), self.c1, f)
         return out
 
-    def _cintilar(self, t):
+    def _twinkle(self, t):
         dt = 0.05 if self._last_t is None else max(0.0, min(0.5, t - self._last_t))
         self._last_t = t
         decay = 1.6 * self.speed
@@ -90,7 +91,7 @@ class SoftwareEffect:
             self._stars[led] -= decay * dt
             if self._stars[led] <= 0:
                 del self._stars[led]
-        # ~ 3 novas estrelas por segundo * velocidade
+        # about 3 new stars per second, times the speed
         n = self._rng.random() < min(1.0, 3.0 * self.speed * dt) and 1 or 0
         for _ in range(n + (self._rng.random() < 0.5 * self.speed * dt)):
             self._stars[self._rng.choice(self.leds)] = 1.0

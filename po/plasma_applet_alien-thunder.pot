@@ -1,0 +1,119 @@
+# SOME DESCRIPTIVE TITLE.
+# Copyright (C) YEAR THE PACKAGE'S COPYRIGHT HOLDER
+# This file is distributed under the same license as the plasma_applet_alien-thunder package.
+# FIRST AUTHOR <EMAIL@ADDRESS>, YEAR.
+#
+#, fuzzy
+msgid ""
+msgstr ""
+"Project-Id-Version: plasma_applet_alien-thunder\n"
+"Report-Msgid-Bugs-To: \n"
+"POT-Creation-Date: 2026-09-25 15:28-0300\n"
+"PO-Revision-Date: YEAR-MO-DA HO:MI+ZONE\n"
+"Last-Translator: FULL NAME <EMAIL@ADDRESS>\n"
+"Language-Team: LANGUAGE <LL@li.org>\n"
+"Language: \n"
+"MIME-Version: 1.0\n"
+"Content-Type: text/plain; charset=CHARSET\n"
+"Content-Transfer-Encoding: 8bit\n"
+
+#: plasma/alien-thunder/contents/ui/configGeneral.qml:19
+msgid "Show on the panel:"
+msgstr ""
+
+#: plasma/alien-thunder/contents/ui/configGeneral.qml:19
+msgid "CPU temperature"
+msgstr ""
+
+#: plasma/alien-thunder/contents/ui/configGeneral.qml:20
+msgid "GPU temperature"
+msgstr ""
+
+#: plasma/alien-thunder/contents/ui/configGeneral.qml:21
+msgid "CPU fan speed"
+msgstr ""
+
+#: plasma/alien-thunder/contents/ui/configGeneral.qml:22
+msgid "GPU fan speed"
+msgstr ""
+
+#: plasma/alien-thunder/contents/ui/configGeneral.qml:23
+msgid "Memory in use"
+msgstr ""
+
+#: plasma/alien-thunder/contents/ui/main.qml:24
+msgid "CPU"
+msgstr ""
+
+#: plasma/alien-thunder/contents/ui/main.qml:25
+msgid "GPU"
+msgstr ""
+
+#: plasma/alien-thunder/contents/ui/main.qml:26
+msgid "CPU fan"
+msgstr ""
+
+#: plasma/alien-thunder/contents/ui/main.qml:27
+msgid "GPU fan"
+msgstr ""
+
+#: plasma/alien-thunder/contents/ui/main.qml:28
+msgid "RAM"
+msgstr ""
+
+#: plasma/alien-thunder/contents/ui/main.qml:35
+msgctxt "revolutions per minute"
+msgid "rpm"
+msgstr ""
+
+#: plasma/alien-thunder/contents/ui/main.qml:120
+msgid "The alien-thunder service isn't running"
+msgstr ""
+
+#: plasma/alien-thunder/contents/ui/main.qml:122
+msgid "G-Mode is on"
+msgstr ""
+
+#: plasma/alien-thunder/contents/ui/main.qml:122
+msgid "G-Mode is off"
+msgstr ""
+
+#: plasma/alien-thunder/contents/ui/main.qml:216
+msgid "Lighting"
+msgstr ""
+
+#: plasma/alien-thunder/contents/ui/main.qml:221
+msgid "Open the keyboard lighting editor"
+msgstr ""
+
+#: plasma/alien-thunder/contents/ui/main.qml:237
+msgid ""
+"No readings: the alien-thunder service isn't running. Start it with: "
+"systemctl --user start alien-thunder"
+msgstr ""
+
+#: plasma/alien-thunder/contents/ui/main.qml:274
+msgid "G-Mode"
+msgstr ""
+
+#: plasma/alien-thunder/contents/ui/main.qml:276
+msgid "Fans at full speed and the performance power profile. Same as Fn+F1."
+msgstr ""
+
+#: plasma/alien-thunder/contents/ui/main.qml:294
+msgid "Overlay"
+msgstr ""
+
+#: plasma/alien-thunder/contents/ui/main.qml:296
+msgid ""
+"Readouts that float above every window, games included. Drag them anywhere, "
+"on any screen."
+msgstr ""
+
+#: plasma/alien-thunder/contents/ui/main.qml:316
+msgid "Lock in place (clicks pass through)"
+msgstr ""
+
+#: plasma/alien-thunder/contents/config/config.qml:6
+msgid "General"
+msgstr ""

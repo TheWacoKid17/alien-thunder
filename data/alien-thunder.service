@@ -1,0 +1,17 @@
+[Unit]
+Description=Alien Thunder: keeps the Alienware lighting applied, handles G-Mode (Fn+F1) and reads the sensors
+Documentation=https://github.com/cryptoconspiracy/alien-thunder
+After=dbus.socket
+
+[Service]
+Type=dbus
+BusName=io.github.AlienThunder
+ExecStart=%h/.local/bin/alien-thunder daemon
+Restart=on-failure
+RestartSec=3
+Environment=PYTHONUNBUFFERED=1
+Environment=PYTHONDONTWRITEBYTECODE=1
+Nice=5
+
+[Install]
+WantedBy=default.target

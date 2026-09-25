@@ -1,0 +1,15 @@
+{
+    "KPlugin": {
+        "Id": "alien-thunder",
+        "Name": "Alien Thunder",
+        "Description": "CPU and GPU temperature, fan speed and memory for Alienware laptops, with G-Mode and a floating overlay",
+        "Icon": "alien-thunder",
+        "Category": "System Information",
+        "Authors": [{ "Name": "Dan B" }],
+        "License": "MIT",
+        "Version": "1.1",
+        "Website": "https://github.com/cryptoconspiracy/alien-thunder"
+    },
+    "KPackageStructure": "Plasma/Applet",
+    "X-Plasma-API-Minimum-Version": "6.0"
+}

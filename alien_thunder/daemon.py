@@ -1,11 +1,15 @@
-"""Servico de usuario: mantem o perfil ativo aplicado.
+"""The user service. It keeps the active profile on the LEDs and does the rest in the background.
 
-- aplica o perfil ativo ao iniciar (login), com novas tentativas e backoff;
-- reaplica apos suspensao/hibernacao (login1 PrepareForSleep(false), barramento do sistema);
-- reaplica quando config.json ou o arquivo do perfil ativo mudam (GFileMonitor/inotify);
-- reaplica quando o teclado/AW-ELC reaparecem (uevent hidraw via GUdev + checagem a cada 20 s);
-- roda efeitos de software (timer GLib, <= 20 fps) e para limpo em SIGTERM;
-- expoe io.github.AlienFXStudio no barramento de sessao para GUI/CLI.
+- applies the active profile at login, retrying with backoff;
+- applies it again after suspend or hibernate (login1 PrepareForSleep(false), system bus);
+- applies it again when config.json or the active profile's file changes (GFileMonitor);
+- applies it again when the keyboard or the AW-ELC come back (hidraw uevents through
+  GUdev, plus a check every 20 s);
+- runs the software effects (a GLib timer, up to 20 fps) and stops cleanly on SIGTERM;
+- G-Mode: Fn+F1 toggles the performance power profile, and F1 stays white while it's
+  on, whether the switch came from the key or from Plasma's applet (see gmode.py);
+- writes the sensor readings for the panel widget and the overlay every 2 s;
+- serves io.github.AlienThunder on the session bus for the GUI and the CLI.
 """
 from __future__ import annotations
 
@@ -26,11 +30,11 @@ from gi.repository import Gio, GLib  # noqa: E402
 try:
     gi.require_version("GUdev", "1.0")
     from gi.repository import GUdev  # noqa: E402
-except (ValueError, ImportError):  # libgudev ausente: fica so o polling periodico
+except (ValueError, ImportError):  # no libgudev: only the periodic check is left
     GUdev = None
 
 from . import engine as engine_mod  # noqa: E402
-from . import hw, paths, profiles  # noqa: E402
+from . import gmode, hw, paths, profiles, sensors  # noqa: E402
 
 BACKOFF = (1, 2, 3, 5, 8, 13, 20, 30)
 
@@ -45,7 +49,7 @@ class Daemon(dbus.service.Object):
         self.loop = loop
         self.engine = engine_mod.Engine(log=log)
         self.cfg = profiles.load_config()
-        self.override: dict | None = None  # {"tipo": "preview"|"perfil", "perfil": dict, "slug": str|None}
+        self.override: dict | None = None  # {"kind": "preview"|"profile", "profile": dict, "slug": str|None}
         self.retry_id = 0
         self.retry_n = 0
         self.debounce_id = 0
@@ -56,15 +60,22 @@ class Daemon(dbus.service.Object):
         self.devs = self._devs()
         self.monitors = []
         self.udev = None
+        self.system = None
+        self.power_profile = None
+        self.before_gmode = "balanced"
+        self.key_fd = None
+        self.key_watch = 0
+        self.key_error = ""
+        self.sensors = sensors.Sensors()
 
-    # ------------------------------------------------------------ util
+    # ------------------------------------------------------------ helpers
     def _devs(self):
         return (hw.find_keyboard(), hw.find_chassis())
 
     def current(self) -> tuple[dict | None, bool]:
-        """(perfil a aplicar, e_o_perfil_ativo)"""
+        """(profile to apply, whether it is the active one)"""
         if self.override:
-            return self.override["perfil"], False
+            return self.override["profile"], False
         slug = profiles.active_slug()
         if not slug:
             return None, False
@@ -72,10 +83,10 @@ class Daemon(dbus.service.Object):
             return profiles.load(slug), True
         except profiles.ProfileError as e:
             self.last_error = str(e)
-            log(f"erro: {e}")
+            log(f"error: {e}")
             return None, False
 
-    # ------------------------------------------------------------ aplicar
+    # ------------------------------------------------------------ applying
     def apply(self, force: bool = False, reason: str = "") -> bool:
         if self.sleeping:
             return False
@@ -84,12 +95,12 @@ class Daemon(dbus.service.Object):
             self.stop_sw()
             return False
         if reason:
-            log(f"aplicando '{prof['nome']}' ({reason})")
+            log(f"applying '{prof['name']}' ({reason})")
         try:
-            self.engine.apply(prof, power=is_active, force=force, backend=self.cfg["chassi_backend"])
+            self.engine.apply(prof, power=is_active, force=force, backend=self.cfg["chassis_backend"])
         except hw.DeviceError as e:
             self.last_error = str(e)
-            log(f"falha: {e}")
+            log(f"failed: {e}")
             self.schedule_retry()
             self.update_sw()
             return False
@@ -107,11 +118,11 @@ class Daemon(dbus.service.Object):
             return
         delay = BACKOFF[min(self.retry_n, len(BACKOFF) - 1)]
         self.retry_n += 1
-        log(f"nova tentativa em {delay}s")
+        log(f"trying again in {delay}s")
 
         def _cb():
             self.retry_id = 0
-            self.apply(force=False, reason="nova tentativa")
+            self.apply(force=False, reason="retry")
             return False
 
         self.retry_id = GLib.timeout_add_seconds(delay, _cb)
@@ -128,7 +139,7 @@ class Daemon(dbus.service.Object):
 
         self.debounce_id = GLib.timeout_add(delay_ms, _cb)
 
-    # ------------------------------------------------------------ efeitos sw
+    # ------------------------------------------------------------ software effects
     def update_sw(self):
         if self.engine.sw is not None and not self.sleeping:
             if not self.sw_id:
@@ -150,30 +161,30 @@ class Daemon(dbus.service.Object):
             self.engine.sw_tick()
         except hw.DeviceError as e:
             self.last_error = str(e)
-            log(f"efeito de software pausado: {e}")
+            log(f"software effect paused: {e}")
             self.sw_id = 0
             self.engine.invalidate()
             self.schedule_retry()
             return False
         return True
 
-    # ------------------------------------------------------------ eventos
+    # ------------------------------------------------------------ events
     def on_prepare_for_sleep(self, going_down):
         if going_down:
-            log("suspendendo: pausando")
+            log("suspending: pausing")
             self.sleeping = True
             self.stop_sw()
             self.engine.invalidate()
         else:
-            log("retomando da suspensão")
+            log("resuming from suspend")
             self.sleeping = False
             self.engine.invalidate()
             self.retry_n = 0
-            self.schedule_apply(force=True, reason="retorno da suspensão", delay_ms=1500)
+            self.schedule_apply(force=True, reason="back from suspend", delay_ms=1500)
 
     @staticmethod
     def _event_name(gfile, other, event) -> str:
-        # escrita atomica (tmp + rename): o nome final vem em "other"
+        # atomic writes (tmp + rename): the final name comes in "other"
         if event == Gio.FileMonitorEvent.RENAMED and other is not None:
             gfile = other
         return gfile.get_basename() or ""
@@ -189,12 +200,12 @@ class Daemon(dbus.service.Object):
         if name == "config.json":
             old = self.cfg
             self.cfg = profiles.load_config()
-            if old.get("perfil_ativo") != self.cfg.get("perfil_ativo"):
+            if old.get("active_profile") != self.cfg.get("active_profile"):
                 self.override = None
-                self.schedule_apply(False, "perfil ativo alterado")
-            elif old.get("fps") != self.cfg.get("fps") or old.get("chassi_backend") != self.cfg.get("chassi_backend"):
+                self.schedule_apply(False, "active profile changed")
+            elif old.get("fps") != self.cfg.get("fps") or old.get("chassis_backend") != self.cfg.get("chassis_backend"):
                 self.stop_sw()
-                self.schedule_apply(True, "configuração alterada")
+                self.schedule_apply(True, "settings changed")
 
     def on_profiles_changed(self, _mon, gfile, other, event):
         if event not in (Gio.FileMonitorEvent.CHANGES_DONE_HINT, Gio.FileMonitorEvent.CREATED,
@@ -208,13 +219,13 @@ class Daemon(dbus.service.Object):
         if slug == watched:
             if self.override and self.override.get("slug"):
                 try:
-                    self.override["perfil"] = profiles.load(slug)
+                    self.override["profile"] = profiles.load(slug)
                 except profiles.ProfileError:
                     return
-            self.schedule_apply(False, "perfil editado")
+            self.schedule_apply(False, "profile edited")
 
     def on_uevent(self, _client, action, _device):
-        # udev ja aplicou as ACLs (uaccess) quando o evento chega; da um folego mesmo assim
+        # udev has set the uaccess ACLs by the time the event arrives; give it a moment anyway
         if action in ("add", "remove", "bind", "change"):
             GLib.timeout_add(700, self._check_devs)
 
@@ -226,19 +237,95 @@ class Daemon(dbus.service.Object):
             self.engine.invalidate()
             if gained:
                 self.retry_n = 0
-                self.schedule_apply(True, "dispositivo reconectado", delay_ms=800)
+                self.schedule_apply(True, "device reconnected", delay_ms=800)
         return False
 
     def _periodic(self):
-        # rede de seguranca barata caso algum evento de /dev se perca
+        # a cheap safety net in case a /dev event gets lost
         self._check_devs()
+        if self.key_fd is None:
+            self.open_gmode_key()
+        return True
+
+    def _publish_sensors(self):
+        values = self.sensors.read()
+        if any(values[k] is None for k in self.sensors.files):
+            self.sensors.rescan()
+        values["gmode"] = self.engine.gmode
+        try:
+            sensors.publish(values)
+        except OSError as e:
+            log(f"sensors: {e}")
+        return True
+
+    # ------------------------------------------------------------ G-Mode
+    def on_power_profile(self, profile: str | None):
+        if profile is None or profile == self.power_profile:
+            return
+        if profile == gmode.PERFORMANCE and self.power_profile:
+            self.before_gmode = self.power_profile
+        self.power_profile = profile
+        on = profile == gmode.PERFORMANCE
+        if on != self.engine.gmode:
+            self.engine.gmode = on
+            self._publish_sensors()
+            self.schedule_apply(False, "G-Mode on" if on else "G-Mode off", delay_ms=50)
+
+    def on_power_properties(self, iface, changed, _invalidated):
+        if "ActiveProfile" in changed:
+            self.on_power_profile(str(changed["ActiveProfile"]))
+
+    def set_gmode(self, on: bool) -> bool:
+        target = gmode.PERFORMANCE if on else self.before_gmode
+        try:
+            gmode.set_profile(target, self.system)
+        except dbus.exceptions.DBusException as e:
+            self.last_error = f"G-Mode: {e.get_dbus_message()}"
+            log(self.last_error)
+            return self.engine.gmode
+        self.on_power_profile(target)
+        return on
+
+    def open_gmode_key(self):
+        try:
+            self.key_fd = os.open(gmode.KEYBOARD, os.O_RDONLY | os.O_NONBLOCK)
+        except OSError as e:
+            if str(e) != self.key_error:
+                self.key_error = str(e)
+                log(f"G-Mode key unavailable: {e}")
+            return
+        self.key_error = ""
+        self.key_watch = GLib.io_add_watch(self.key_fd, GLib.PRIORITY_DEFAULT,
+                                           GLib.IO_IN | GLib.IO_HUP | GLib.IO_ERR, self._on_key)
+
+    def _on_key(self, fd, cond):
+        data = b""
+        if cond & GLib.IO_IN:
+            try:
+                data = os.read(fd, gmode.EVENT.size * 64)
+            except BlockingIOError:
+                return True
+            except OSError:
+                data = b""
+        if not data:  # the keyboard went away; _periodic opens it again
+            os.close(fd)
+            self.key_fd = None
+            self.key_watch = 0
+            return False
+        if gmode.pressed(data):
+            self.set_gmode(not self.engine.gmode)
         return True
 
     def setup(self):
-        system = dbus.SystemBus()
+        system = self.system = dbus.SystemBus()
         system.add_signal_receiver(self.on_prepare_for_sleep, signal_name="PrepareForSleep",
                                    dbus_interface="org.freedesktop.login1.Manager",
                                    bus_name="org.freedesktop.login1", path="/org/freedesktop/login1")
+        system.add_signal_receiver(self.on_power_properties, signal_name="PropertiesChanged",
+                                   dbus_interface="org.freedesktop.DBus.Properties",
+                                   bus_name=gmode.PP_NAME, path=gmode.PP_PATH)
+        self.on_power_profile(gmode.active_profile(system))
+        self.open_gmode_key()
         if GUdev is not None:
             self.udev = GUdev.Client.new(["hidraw"])
             self.udev.connect("uevent", self.on_uevent)
@@ -248,13 +335,18 @@ class Daemon(dbus.service.Object):
             mon.connect("changed", cb)
             self.monitors.append(mon)
         GLib.timeout_add_seconds(20, self._periodic)
+        self._publish_sensors()
+        GLib.timeout_add_seconds(2, self._publish_sensors)
         for sig in (signal.SIGTERM, signal.SIGINT):
             GLib.unix_signal_add(GLib.PRIORITY_HIGH, sig, self.quit)
-        GLib.idle_add(lambda: (self.apply(force=True, reason="início"), False)[1])
+        GLib.idle_add(lambda: (self.apply(force=True, reason="start"), False)[1])
 
     def quit(self):
-        log("encerrando")
+        log("shutting down")
         self.stop_sw()
+        if self.key_fd is not None:
+            GLib.source_remove(self.key_watch)
+            os.close(self.key_fd)
         self.engine.close()
         self.loop.quit()
         return False
@@ -265,7 +357,7 @@ class Daemon(dbus.service.Object):
         self.cfg = profiles.load_config()
         self.override = None
         self.retry_n = 0
-        return self.apply(force=True, reason="recarregar")
+        return self.apply(force=True, reason="reload")
 
     @dbus.service.method(paths.DBUS_IFACE, in_signature="s", out_signature="b")
     def ApplyProfile(self, slug):
@@ -274,13 +366,13 @@ class Daemon(dbus.service.Object):
         if not slug or slug == profiles.active_slug():
             self.override = None
         else:
-            self.override = {"tipo": "perfil", "slug": slug, "perfil": profiles.load(slug)}
-        return self.apply(force=True, reason="pedido externo")
+            self.override = {"kind": "profile", "slug": slug, "profile": profiles.load(slug)}
+        return self.apply(force=True, reason="external request")
 
     @dbus.service.method(paths.DBUS_IFACE, in_signature="s", out_signature="b")
     def Preview(self, profile_json):
         prof = profiles.normalize(json.loads(str(profile_json)))
-        self.override = {"tipo": "preview", "slug": None, "perfil": prof}
+        self.override = {"kind": "preview", "slug": None, "profile": prof}
         return self.apply(force=False)
 
     @dbus.service.method(paths.DBUS_IFACE, in_signature="", out_signature="b")
@@ -288,32 +380,43 @@ class Daemon(dbus.service.Object):
         if self.override is None:
             return True
         self.override = None
-        return self.apply(force=False, reason="fim da prévia")
+        return self.apply(force=False, reason="preview ended")
 
     @dbus.service.method(paths.DBUS_IFACE, in_signature="s", out_signature="b")
     def WritePower(self, slug):
         prof = profiles.load(str(slug)) if slug else profiles.load(profiles.active_slug())
         try:
-            self.engine.write_power_now(prof, self.cfg["chassi_backend"])
+            self.engine.write_power_now(prof, self.cfg["chassis_backend"])
         except hw.DeviceError as e:
             self.last_error = str(e)
             return False
         return True
+
+    @dbus.service.method(paths.DBUS_IFACE, in_signature="b", out_signature="b")
+    def SetGMode(self, on):
+        return self.set_gmode(bool(on))
+
+    @dbus.service.method(paths.DBUS_IFACE, in_signature="", out_signature="b")
+    def ToggleGMode(self):
+        return self.set_gmode(not self.engine.gmode)
 
     @dbus.service.method(paths.DBUS_IFACE, in_signature="", out_signature="s")
     def Status(self):
         prof, is_active = self.current()
         return json.dumps({
             "pid": os.getpid(),
-            "perfil_ativo": profiles.active_slug(),
-            "aplicando": prof["nome"] if prof else None,
-            "override": self.override["tipo"] if self.override else None,
-            "efeito_software": self.engine.sw.name if self.engine.sw else None,
+            "active_profile": profiles.active_slug(),
+            "applying": prof["name"] if prof else None,
+            "override": self.override["kind"] if self.override else None,
+            "software_effect": self.engine.sw.name if self.engine.sw else None,
             "fps": self.cfg["fps"],
-            "teclado": self.devs[0],
-            "chassi": self.devs[1],
-            "ultimo_erro": self.last_error,
-            "ultimo_sucesso": self.last_ok,
+            "gmode": self.engine.gmode,
+            "power_profile": self.power_profile,
+            "gmode_key": self.key_error or "ok",
+            "keyboard": self.devs[0],
+            "chassis": self.devs[1],
+            "last_error": self.last_error,
+            "last_ok": self.last_ok,
         }, ensure_ascii=False)
 
 
@@ -326,12 +429,12 @@ def main():
     try:
         name = dbus.service.BusName(paths.DBUS_NAME, session, do_not_queue=True)
     except dbus.exceptions.NameExistsException:
-        log("já existe um daemon do AlienFX Studio rodando")
+        log("an Alien Thunder daemon is already running")
         return 1
     d = Daemon(name, loop)
     d.bus_name_ref = name
     d.setup()
-    log("alienfx-studio daemon iniciado")
+    log("alien-thunder daemon started")
     loop.run()
     return 0
 

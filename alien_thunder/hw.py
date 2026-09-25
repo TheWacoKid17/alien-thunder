@@ -1,11 +1,11 @@
-"""Transporte hidraw (espaco de usuario, sem sudo).
+"""hidraw transport, in user space, no sudo.
 
-Teclado 0d62:d2b1: HIDIOCSFEATURE/HIDIOCGFEATURE de 64 bytes (identico ao
-alienfx-perfil comprovado).
-AW-ELC 187c:0551: write() de output report de 33 bytes no hidraw. O descritor HID
-nao tem report id, entao o buffer leva um 0x00 na frente que o kernel remove, e o
-usbhid envia os 33 bytes pelo endpoint interrupt OUT 0x01 -- os mesmos bytes que
-o alienrgb envia via libusb, sem precisar desanexar o driver do kernel.
+Keyboard 0d62:d2b1: 64-byte HIDIOCSFEATURE/HIDIOCGFEATURE, the same as the proven
+alienfx-perfil script.
+AW-ELC 187c:0551: a 33-byte output report written to hidraw. The HID descriptor has no
+report id, so the buffer starts with a 0x00 the kernel strips, and usbhid sends the 33
+bytes over interrupt OUT endpoint 0x01. Those are the same bytes alienrgb sends through
+libusb, without detaching the kernel driver.
 """
 from __future__ import annotations
 
@@ -18,9 +18,10 @@ import time
 from contextlib import contextmanager
 
 from . import paths, protocol
+from .i18n import gettext as _
 
-# ALIENFX_STUDIO_DRYRUN=1: nada e enviado ao hardware (testes / capturas de tela).
-DRYRUN = bool(os.environ.get("ALIENFX_STUDIO_DRYRUN"))
+# ALIEN_THUNDER_DRYRUN=1: nothing reaches the hardware (tests, screenshots).
+DRYRUN = bool(os.environ.get("ALIEN_THUNDER_DRYRUN"))
 DRYRUN_LOG: list[bytes] = []
 
 KB_HID_ID = "00000D62:0000D2B1"
@@ -66,7 +67,7 @@ def find_chassis() -> str | None:
 
 @contextmanager
 def hw_lock(timeout: float = 10.0):
-    """Lock entre processos (daemon, GUI sem daemon, CLI) para nao intercalar pacotes."""
+    """A lock across processes (daemon, GUI without daemon, CLI) so packets don't interleave."""
     os.makedirs(os.path.dirname(paths.LOCK_FILE), exist_ok=True)
     fd = os.open(paths.LOCK_FILE, os.O_RDWR | os.O_CREAT, 0o600)
     try:
@@ -77,7 +78,7 @@ def hw_lock(timeout: float = 10.0):
                 break
             except BlockingIOError:
                 if time.monotonic() > end:
-                    raise DeviceError("outro processo está usando os LEDs (lock ocupado)")
+                    raise DeviceError(_("another process is using the LEDs (lock busy)"))
                 time.sleep(0.02)
         yield
     finally:
@@ -86,7 +87,7 @@ def hw_lock(timeout: float = 10.0):
 
 class _Hidraw:
     finder = staticmethod(lambda: None)
-    what = "dispositivo"
+    what = "device"
 
     def __init__(self):
         self.fd = None
@@ -100,11 +101,11 @@ class _Hidraw:
             return
         path = self.finder()
         if not path:
-            raise DeviceError(f"{self.what} não encontrado")
+            raise DeviceError(_("%s not found") % self.what)
         try:
             self.fd = os.open(path, os.O_RDWR)
         except OSError as e:
-            raise DeviceError(f"{self.what}: sem acesso a {path}: {e.strerror}") from None
+            raise DeviceError(_("%s: no access to %s: %s") % (self.what, path, e.strerror)) from None
         self.path = path
 
     def close(self):
@@ -121,7 +122,7 @@ class _Hidraw:
 
 class KeyboardV5(_Hidraw):
     finder = staticmethod(find_keyboard)
-    what = "teclado 0d62:d2b1 (report 0xcc)"
+    what = "keyboard 0d62:d2b1 (report 0xcc)"
 
     def __init__(self):
         super().__init__()
@@ -137,7 +138,7 @@ class KeyboardV5(_Hidraw):
             fcntl.ioctl(self.fd, HIDIOCSFEATURE(protocol.KB_LEN), buf)
         except OSError as e:
             self.close()
-            raise DeviceError(f"teclado: falha ao enviar ({e.strerror})") from None
+            raise DeviceError(_("keyboard: send failed (%s)") % e.strerror) from None
 
     def _status(self) -> bytes:
         if self.fd == -1:
@@ -148,24 +149,24 @@ class KeyboardV5(_Hidraw):
             n = fcntl.ioctl(self.fd, HIDIOCGFEATURE(protocol.KB_LEN), buf)
         except OSError as e:
             self.close()
-            raise DeviceError(f"teclado: falha ao ler status ({e.strerror})") from None
+            raise DeviceError(_("keyboard: status read failed (%s)") % e.strerror) from None
         return bytes(buf[: n if isinstance(n, int) and n > 0 else 6])
 
     def begin(self, retries: int = 10):
-        """reset + status, esperando sair de WAITUPDATE (como o alienfx-perfil)."""
+        """reset + status, waiting for WAITUPDATE to clear, as alienfx-perfil did."""
         self.open()
-        for _ in range(retries):
+        for _attempt in range(retries):
             self._send(protocol.KB_RESET)
             time.sleep(0.02)
             self._send(protocol.KB_STATUS)
             st = self._status()
             self.last_status = st
             if st[:2] != b"\xcc\x93":
-                raise DeviceError(f"teclado: resposta inesperada {st.hex()}")
+                raise DeviceError(_("keyboard: unexpected reply %s") % st.hex())
             if st[2] != protocol.KB_WAITUPDATE:
                 return st
             time.sleep(0.5)
-        raise DeviceError("teclado ocupado (WAITUPDATE)")
+        raise DeviceError(_("keyboard busy (WAITUPDATE)"))
 
     def static(self, colors: dict[int, tuple[int, int, int]], retries: int = 10):
         pkts = protocol.kb_static_packets(colors)
@@ -186,7 +187,7 @@ class KeyboardV5(_Hidraw):
 
 class ChassisV4(_Hidraw):
     finder = staticmethod(find_chassis)
-    what = "controlador AW-ELC 187c:0551"
+    what = "AW-ELC controller 187c:0551"
 
     def _write(self, pkt: bytes):
         protocol.assert_safe_elc(pkt)
@@ -197,9 +198,9 @@ class ChassisV4(_Hidraw):
             n = os.write(self.fd, b"\x00" + pkt)
         except OSError as e:
             self.close()
-            raise DeviceError(f"chassi: falha ao enviar ({e.strerror})") from None
+            raise DeviceError(_("chassis: send failed (%s)") % e.strerror) from None
         if n != protocol.ELC_LEN + 1:
-            raise DeviceError(f"chassi: escrita curta ({n})")
+            raise DeviceError(_("chassis: short write (%d)") % n)
 
     def status(self) -> bytes:
         if self.fd == -1:
@@ -208,7 +209,7 @@ class ChassisV4(_Hidraw):
         try:
             fcntl.ioctl(self.fd, HIDIOCGINPUT(len(buf)), buf)
         except OSError as e:
-            raise DeviceError(f"chassi: falha ao ler status ({e.strerror})") from None
+            raise DeviceError(_("chassis: status read failed (%s)") % e.strerror) from None
         return bytes(buf[1:])
 
     def wait_ready(self, timeout: float = 2.0) -> bytes:
@@ -232,12 +233,12 @@ class ChassisV4(_Hidraw):
         time.sleep(0.03)
         st = self.status()
         if st[:2] != b"\x83\x20":
-            raise DeviceError(f"chassi: resposta inesperada {st[:8].hex()}")
+            raise DeviceError(_("chassis: unexpected reply %s") % st[:8].hex())
         return f"{st[3]}.{st[4]}.{st[5]}"
 
 
 class AlienrgbChassis:
-    """Modo compativel: usa o binario alienrgb (so cores estaticas)."""
+    """Compatibility mode: drives the alienrgb binary (static colors only)."""
 
     def __init__(self):
         self.exe = None
@@ -246,7 +247,7 @@ class AlienrgbChassis:
         for c in (paths.ALIENRGB_BIN, shutil.which("alienrgb")):
             if c and os.access(c, os.X_OK):
                 return c
-        raise DeviceError("alienrgb não encontrado (~/.local/src/alienrgb/target/release/alienrgb)")
+        raise DeviceError(_("alienrgb not found (~/.local/src/alienrgb/target/release/alienrgb)"))
 
     def set_zone(self, target: str, hexcolor: str):
         if DRYRUN:

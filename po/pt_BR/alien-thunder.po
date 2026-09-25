@@ -1,0 +1,975 @@
+msgid ""
+msgstr ""
+"Project-Id-Version: alien-thunder\n"
+"Language: pt_BR\n"
+"PO-Revision-Date: 2026-09-25 16:00-0300\n"
+"Last-Translator: Dan B\n"
+"Language-Team: Portuguese (Brazil)\n"
+"MIME-Version: 1.0\n"
+"Content-Type: text/plain; charset=UTF-8\n"
+"Content-Transfer-Encoding: 8bit\n"
+"Plural-Forms: nplurals=2; plural=(n > 1);\n"
+
+#: alien_thunder/cli.py:13
+msgid "alien-thunder                    open the lighting editor\nalien-thunder list               list the profiles (* = active)\nalien-thunder set <profile>      make a profile the active one and apply it\nalien-thunder apply [profile]    apply now (default: the active one) without changing it\nalien-thunder status             service and device status\nalien-thunder power [profile]    write the power button colors now\nalien-thunder gmode [on|off|toggle]\n                                 G-Mode, the same as Fn+F1; with no argument, show it\nalien-thunder overlay [on|off|lock|unlock|show ITEM|hide ITEM|status]\n                                 the floating readouts\nalien-thunder import-windows [--list | --id N ...]\n                                 import AWCC presets from /mnt/windows\nalien-thunder daemon             the service (started by systemd --user)"
+msgstr "alien-thunder                    abre o editor de iluminação\nalien-thunder list               lista os perfis (* = ativo)\nalien-thunder set <perfil>       torna o perfil ativo e aplica\nalien-thunder apply [perfil]     aplica agora (padrão: o ativo) sem mudar o ativo\nalien-thunder status             estado do serviço e dos dispositivos\nalien-thunder power [perfil]     grava agora as cores do botão de energia\nalien-thunder gmode [on|off|toggle]\n                                 G-Mode, o mesmo que Fn+F1; sem argumento, mostra o estado\nalien-thunder overlay [on|off|lock|unlock|show ITEM|hide ITEM|status]\n                                 os mostradores flutuantes\nalien-thunder import-windows [--list | --id N ...]\n                                 importa predefinições do AWCC de /mnt/windows\nalien-thunder daemon             o serviço (iniciado pelo systemd --user)"
+
+#: alien_thunder/cli.py:35 alien_thunder/cli.py:99 alien_thunder/cli.py:166
+#, python-format
+msgid "error: %s"
+msgstr "erro: %s"
+
+#: alien_thunder/cli.py:40
+msgid "note: software effects need the service (systemctl --user start alien-thunder)"
+msgstr "aviso: efeitos de software precisam do serviço (systemctl --user start alien-thunder)"
+
+#: alien_thunder/cli.py:54 alien_thunder/cli.py:80
+#, python-format
+msgid "active profile: %s"
+msgstr "perfil ativo: %s"
+
+#: alien_thunder/cli.py:57
+msgid "applied by the service"
+msgstr "aplicado pelo serviço"
+
+#: alien_thunder/cli.py:57
+msgid "the service will try again (see 'status')"
+msgstr "o serviço vai tentar de novo (veja 'status')"
+
+#: alien_thunder/cli.py:66
+msgid "no active profile"
+msgstr "nenhum perfil ativo"
+
+#: alien_thunder/cli.py:70
+#, python-format
+msgid "applied: %s"
+msgstr "aplicado: %s"
+
+#: alien_thunder/cli.py:70
+msgid "failed; the service will try again (see 'status')"
+msgstr "falhou; o serviço vai tentar de novo (veja 'status')"
+
+#: alien_thunder/cli.py:77 alien_thunder/gui.py:1126
+msgid "not found"
+msgstr "não encontrado"
+
+#: alien_thunder/cli.py:78
+#, python-format
+msgid "keyboard (0d62:d2b1): %s"
+msgstr "teclado (0d62:d2b1): %s"
+
+#: alien_thunder/cli.py:79
+#, python-format
+msgid "chassis  (187c:0551): %s"
+msgstr "chassi  (187c:0551): %s"
+
+#: alien_thunder/cli.py:83
+#, python-format
+msgid "service: running (pid %s)"
+msgstr "serviço: rodando (pid %s)"
+
+#: alien_thunder/cli.py:87
+msgid "service: stopped"
+msgstr "serviço: parado"
+
+#: alien_thunder/cli.py:114
+msgid "on"
+msgstr "ligado"
+
+#: alien_thunder/cli.py:114
+msgid "off"
+msgstr "desligado"
+
+#: alien_thunder/cli.py:115
+#, python-format
+msgid "G-Mode: %s (power profile: %s)"
+msgstr "G-Mode: %s (perfil de energia: %s)"
+
+#: alien_thunder/cli.py:129
+#, python-format
+msgid "imported: %s"
+msgstr "importado: %s"
+
+#: alien_thunder/cli.py:158
+msgid "ids as shown by --list (user:number)"
+msgstr "ids como mostrados por --list (usuário:número)"
+
+#: alien_thunder/effects.py:18
+msgid "Breathing (keeps the per-key colors)"
+msgstr "Respiração (mantém as cores por tecla)"
+
+#: alien_thunder/effects.py:19
+msgid "Rainbow wave"
+msgstr "Onda arco-íris"
+
+#: alien_thunder/effects.py:20
+msgid "Spectrum cycle"
+msgstr "Ciclo de espectro"
+
+#: alien_thunder/effects.py:21
+msgid "Color wave over the per-key colors"
+msgstr "Onda de cor sobre as cores por tecla"
+
+#: alien_thunder/effects.py:22
+msgid "Twinkle (stars)"
+msgstr "Cintilar (estrelas)"
+
+#: alien_thunder/gui.py:50
+msgid "Pick a color"
+msgstr "Escolher cor"
+
+#: alien_thunder/gui.py:201
+msgid "← AWCC LEDs with no key on ABNT2 (JP/UK keyboards)"
+msgstr "← LEDs do AWCC sem tecla no ABNT2 (teclados JP/UK)"
+
+#: alien_thunder/gui.py:278
+msgid "LED with no physical key on ABNT2"
+msgstr "LED sem tecla física no ABNT2"
+
+#: alien_thunder/gui.py:279
+msgid "no color (not sent)"
+msgstr "sem cor (não enviado)"
+
+#: alien_thunder/gui.py:280
+#, python-format
+msgid "%s\nLED(s): %s  (AWCC: %s)\nColor: %s"
+msgstr "%s\nLED(s): %s  (AWCC: %s)\nCor: %s"
+
+#: alien_thunder/gui.py:322
+msgid "Profile:"
+msgstr "Perfil:"
+
+#: alien_thunder/gui.py:328
+msgid "New"
+msgstr "Novo"
+
+#: alien_thunder/gui.py:328
+msgid "Create a new profile"
+msgstr "Criar perfil novo"
+
+#: alien_thunder/gui.py:329
+msgid "Rename"
+msgstr "Renomear"
+
+#: alien_thunder/gui.py:329
+msgid "Rename the profile"
+msgstr "Renomear o perfil"
+
+#: alien_thunder/gui.py:330
+msgid "Duplicate"
+msgstr "Duplicar"
+
+#: alien_thunder/gui.py:330
+msgid "Duplicate the profile"
+msgstr "Duplicar o perfil"
+
+#: alien_thunder/gui.py:331
+msgid "Delete"
+msgstr "Excluir"
+
+#: alien_thunder/gui.py:331
+msgid "Delete the profile"
+msgstr "Excluir o perfil"
+
+#: alien_thunder/gui.py:332
+msgid "Make active"
+msgstr "Tornar ativo"
+
+#: alien_thunder/gui.py:333
+msgid "Make this the lasting profile (applied at login, after suspend, and so on)"
+msgstr "Torna este o perfil persistente (aplicado no login, após suspender etc.)"
+
+#: alien_thunder/gui.py:334
+msgid "Import from Windows…"
+msgstr "Importar do Windows…"
+
+#: alien_thunder/gui.py:335
+msgid "Import Alienware Command Center presets"
+msgstr "Importar predefinições do Alienware Command Center"
+
+#: alien_thunder/gui.py:348
+msgid "Turbo: fans at full speed and the performance power profile (same as Fn+F1)"
+msgstr "Turbo: ventoinhas no máximo e perfil de energia performance (o mesmo que Fn+F1)"
+
+#: alien_thunder/gui.py:370
+msgid "Colors"
+msgstr "Cores"
+
+#: alien_thunder/gui.py:371
+msgid "Effects"
+msgstr "Efeitos"
+
+#: alien_thunder/gui.py:372
+msgid "Chassis"
+msgstr "Chassi"
+
+#: alien_thunder/gui.py:373
+msgid "Options"
+msgstr "Opções"
+
+#: alien_thunder/gui.py:378
+msgid "No keys selected"
+msgstr "Nenhuma tecla selecionada"
+
+#: alien_thunder/gui.py:381
+msgid "Apply live"
+msgstr "Aplicar ao vivo"
+
+#: alien_thunder/gui.py:383
+msgid "Sends changes to the LEDs as you edit"
+msgstr "Envia as alterações para os LEDs enquanto você edita"
+
+#: alien_thunder/gui.py:388
+msgid "Apply"
+msgstr "Aplicar"
+
+#: alien_thunder/gui.py:416
+msgid "Color for the selection"
+msgstr "Cor para a seleção"
+
+#: alien_thunder/gui.py:419
+msgid "Color of the selected keys"
+msgstr "Cor das teclas selecionadas"
+
+#: alien_thunder/gui.py:422
+msgid "Apply to selection"
+msgstr "Aplicar à seleção"
+
+#: alien_thunder/gui.py:427
+msgid "Eyedropper"
+msgstr "Conta-gotas"
+
+#: alien_thunder/gui.py:428
+msgid "Click a key to copy its color"
+msgstr "Clique numa tecla para copiar a cor dela"
+
+#: alien_thunder/gui.py:431
+msgid "Turn selection off"
+msgstr "Apagar seleção"
+
+#: alien_thunder/gui.py:432
+msgid "Sets the selected keys to black (LED off)"
+msgstr "Define preto (LED apagado) nas teclas selecionadas"
+
+#: alien_thunder/gui.py:437
+msgid "Palette:"
+msgstr "Paleta:"
+
+#: alien_thunder/gui.py:445
+msgid "Recent colors:"
+msgstr "Cores recentes:"
+
+#: alien_thunder/gui.py:452
+msgid "Overall brightness (keyboard and chassis)"
+msgstr "Brilho geral (teclado e chassi)"
+
+#: alien_thunder/gui.py:463
+msgid "Key sets"
+msgstr "Padrões de teclas"
+
+#: alien_thunder/gui.py:469
+msgid "Click: select • Ctrl+click: add to the selection"
+msgstr "Clique: selecionar • Ctrl+clique: adicionar à seleção"
+
+#: alien_thunder/gui.py:474
+msgid "Invert selection"
+msgstr "Inverter seleção"
+
+#: alien_thunder/gui.py:477
+msgid "Clear selection"
+msgstr "Limpar seleção"
+
+#: alien_thunder/gui.py:481
+msgid "My groups:"
+msgstr "Meus grupos:"
+
+#: alien_thunder/gui.py:485
+msgid "Select"
+msgstr "Selecionar"
+
+#: alien_thunder/gui.py:490
+msgid "Save selection as a group…"
+msgstr "Salvar seleção como grupo…"
+
+#: alien_thunder/gui.py:493
+msgid "Delete group"
+msgstr "Excluir grupo"
+
+#: alien_thunder/gui.py:505
+msgid "Keyboard effect"
+msgstr "Efeito do teclado"
+
+#: alien_thunder/gui.py:508
+msgid "Static (per-key colors)"
+msgstr "Estático (cores por tecla)"
+
+#: alien_thunder/gui.py:509
+msgid "Hardware effect (no CPU use)"
+msgstr "Efeito de hardware (sem uso de CPU)"
+
+#: alien_thunder/gui.py:510
+msgid "Software effect (runs in the service)"
+msgstr "Efeito de software (roda no serviço)"
+
+#: alien_thunder/gui.py:519 alien_thunder/gui.py:564
+msgid "Effect:"
+msgstr "Efeito:"
+
+#: alien_thunder/gui.py:520
+msgid "Effect color 1"
+msgstr "Cor 1 do efeito"
+
+#: alien_thunder/gui.py:522
+msgid "Color 1:"
+msgstr "Cor 1:"
+
+#: alien_thunder/gui.py:523
+msgid "Effect color 2"
+msgstr "Cor 2 do efeito"
+
+#: alien_thunder/gui.py:525
+msgid "Color 2:"
+msgstr "Cor 2:"
+
+#: alien_thunder/gui.py:530
+msgid "Colors:"
+msgstr "Cores:"
+
+#: alien_thunder/gui.py:533
+msgid "The controller's tempo byte (0–255)"
+msgstr "Byte de tempo do controlador (0–255)"
+
+#: alien_thunder/gui.py:535 alien_thunder/gui.py:567
+msgid "Tempo:"
+msgstr "Tempo:"
+
+#: alien_thunder/gui.py:539
+msgid "Speed:"
+msgstr "Velocidade:"
+
+#: alien_thunder/gui.py:553
+msgid "Touchpad"
+msgstr "Touchpad"
+
+#: alien_thunder/gui.py:553
+msgid "Logo (Alienhead on the lid)"
+msgstr "Logo (Alienhead na tampa)"
+
+#: alien_thunder/gui.py:559
+#, python-format
+msgid "%s: color"
+msgstr "%s: cor"
+
+#: alien_thunder/gui.py:560
+#, python-format
+msgid "%s: color 2"
+msgstr "%s: cor 2"
+
+#: alien_thunder/gui.py:563
+msgid "Transition tempo (the controller's byte, 1–255)"
+msgstr "Tempo da transição (byte do controlador, 1–255)"
+
+#: alien_thunder/gui.py:565
+msgid "Color:"
+msgstr "Cor:"
+
+#: alien_thunder/gui.py:566
+msgid "Color 2 (morph):"
+msgstr "Cor 2 (morph):"
+
+#: alien_thunder/gui.py:573
+msgid "Power button"
+msgstr "Botão de energia"
+
+#: alien_thunder/gui.py:575
+msgid "Power button when plugged in"
+msgstr "Botão de energia na tomada"
+
+#: alien_thunder/gui.py:576
+msgid "Power button on battery"
+msgstr "Botão de energia na bateria"
+
+#: alien_thunder/gui.py:579
+msgid "Plugged in (AC):"
+msgstr "Na tomada (AC):"
+
+#: alien_thunder/gui.py:580
+msgid "On battery:"
+msgstr "Na bateria:"
+
+#: alien_thunder/gui.py:581
+msgid "The controller stores how the button behaves, asleep and charging included. To avoid writing it over and over, the colors only go out when they change and the profile is the active one, never live. Use “Apply” or the button below."
+msgstr "O controlador guarda o comportamento do botão, inclusive dormindo e carregando. Para não gravar repetidas vezes, as cores só são enviadas quando mudam e o perfil é o ativo, nunca ao vivo. Use “Aplicar” ou o botão abaixo."
+
+#: alien_thunder/gui.py:587
+msgid "Write the button colors now"
+msgstr "Gravar cores do botão agora"
+
+#: alien_thunder/gui.py:597
+msgid "Background service"
+msgstr "Serviço em segundo plano"
+
+#: alien_thunder/gui.py:605
+msgid "Restart service"
+msgstr "Reiniciar serviço"
+
+#: alien_thunder/gui.py:608
+msgid "Reapply active profile"
+msgstr "Reaplicar perfil ativo"
+
+#: alien_thunder/gui.py:617
+msgid "Software effects:"
+msgstr "Efeitos de software:"
+
+#: alien_thunder/gui.py:619
+msgid "hidraw directly (touchpad, logo and effects)"
+msgstr "hidraw direto (touchpad, logo e efeitos)"
+
+#: alien_thunder/gui.py:620
+msgid "alienrgb (compatible, fixed colors only)"
+msgstr "alienrgb (compatível, só cores fixas)"
+
+#: alien_thunder/gui.py:623
+msgid "Chassis through:"
+msgstr "Chassi via:"
+
+#: alien_thunder/gui.py:625
+msgid "Devices"
+msgstr "Dispositivos"
+
+#: alien_thunder/gui.py:630
+msgid "Tips: click selects; Ctrl+click toggles; Shift+click adds; drag to select an area; double click opens the color picker; Ctrl+A selects everything; Ctrl+I inverts; Esc clears.\nCLI: alien-thunder list | set <profile> | apply [profile] | status"
+msgstr "Dicas: clique seleciona; Ctrl+clique alterna; Shift+clique adiciona; arraste para selecionar uma área; duplo clique abre o seletor de cor; Ctrl+A seleciona tudo; Ctrl+I inverte; Esc limpa.\nCLI: alien-thunder list | set <perfil> | apply [perfil] | status"
+
+#: alien_thunder/gui.py:708
+msgid "You're editing a profile that isn't the active one: the LEDs show it only while this window is open. Use “Make active” to keep it."
+msgstr "Você está editando um perfil que não é o ativo: ele aparece nos LEDs só enquanto esta janela estiver aberta. Use “Tornar ativo” para mantê-lo."
+
+#: alien_thunder/gui.py:713
+msgid "Profile name:"
+msgstr "Nome do perfil:"
+
+#: alien_thunder/gui.py:718
+msgid "New profile"
+msgstr "Novo perfil"
+
+#: alien_thunder/gui.py:727
+msgid "Rename profile"
+msgstr "Renomear perfil"
+
+#: alien_thunder/gui.py:737
+msgid "Duplicate profile"
+msgstr "Duplicar perfil"
+
+#: alien_thunder/gui.py:737 alien_thunder/profiles.py:226
+#, python-format
+msgid "%s (copy)"
+msgstr "%s (cópia)"
+
+#: alien_thunder/gui.py:747
+msgid "This is the active profile. Make another one active before deleting it."
+msgstr "Este é o perfil ativo. Ative outro perfil antes de excluí-lo."
+
+#: alien_thunder/gui.py:749
+#, python-format
+msgid "Delete the profile “%s”?"
+msgstr "Excluir o perfil “%s”?"
+
+#: alien_thunder/gui.py:766
+#, python-format
+msgid "“%s” is now the active profile"
+msgstr "“%s” agora é o perfil ativo"
+
+#. noqa: BLE001
+#: alien_thunder/gui.py:774
+#, python-format
+msgid "Couldn't read the AWCC presets:\n%s"
+msgstr "Não foi possível ler as predefinições do AWCC:\n%s"
+
+#: alien_thunder/gui.py:779
+msgid "Import from Windows (Alienware Command Center)"
+msgstr "Importar do Windows (Alienware Command Center)"
+
+#: alien_thunder/gui.py:781
+msgid "Check the presets to import as new profiles (the Windows partition is only read):"
+msgstr "Marque as predefinições para importar como perfis novos (a partição do Windows é só lida):"
+
+#: alien_thunder/gui.py:793
+msgid "Import"
+msgstr "Importar"
+
+#: alien_thunder/gui.py:809
+#, python-format
+msgid "%d profile imported"
+msgid_plural "%d profiles imported"
+msgstr[0] "%d perfil importado"
+msgstr[1] "%d perfis importados"
+
+#: alien_thunder/gui.py:821
+msgid "No keys selected: click, Ctrl/Shift+click or drag to select"
+msgstr "Nenhuma tecla selecionada: clique, Ctrl/Shift+clique ou arraste para selecionar"
+
+#: alien_thunder/gui.py:824
+#, python-format
+msgid "Selected: %s (LED %s)"
+msgstr "Selecionada: %s (LED %s)"
+
+#: alien_thunder/gui.py:826
+#, python-format
+msgid "%d key selected"
+msgid_plural "%d keys selected"
+msgstr[0] "%d tecla selecionada"
+msgstr[1] "%d teclas selecionadas"
+
+#: alien_thunder/gui.py:853
+msgid "Note: a hardware effect is on; per-key colors show in Static mode or with the software effects"
+msgstr "Aviso: um efeito de hardware está ativo; as cores por tecla aparecem no modo Estático ou nos efeitos de software"
+
+#: alien_thunder/gui.py:862
+msgid "Key color"
+msgstr "Cor da tecla"
+
+#: alien_thunder/gui.py:870
+msgid "Eyedropper: click a key"
+msgstr "Conta-gotas: clique numa tecla"
+
+#: alien_thunder/gui.py:876
+#, python-format
+msgid "Color %s copied from %s"
+msgstr "Cor %s copiada de %s"
+
+#: alien_thunder/gui.py:891
+msgid "(none yet)"
+msgstr "(nenhuma ainda)"
+
+#: alien_thunder/gui.py:921
+msgid "Save group"
+msgstr "Salvar grupo"
+
+#: alien_thunder/gui.py:921
+msgid "Group name:"
+msgstr "Nome do grupo:"
+
+#: alien_thunder/gui.py:993
+msgid "The keyboard's own controller runs this effect (no CPU). Ported from alienfx-tools, so check that it looks right. The per-key colors are kept and come back in Static mode."
+msgstr "Efeito executado pelo próprio controlador do teclado (zero CPU). Portado do alienfx-tools, então confira se ficou certo. As cores por tecla ficam guardadas e voltam no modo Estático."
+
+#: alien_thunder/gui.py:995
+#, python-format
+msgid "Hardware effect: %s (preview shows the per-key colors)"
+msgstr "Efeito de hardware: %s (a prévia mostra as cores por tecla)"
+
+#: alien_thunder/gui.py:997
+#, python-format
+msgid "Drawn by the background service at %d fps (low CPU use). The preview beside it is animated."
+msgstr "Desenhado pelo serviço em segundo plano a %d fps (baixo uso de CPU). A prévia ao lado é animada."
+
+#: alien_thunder/gui.py:1001
+msgid "Each key uses the color set in the Colors tab."
+msgstr "Cada tecla usa a cor definida na aba Cores."
+
+#: alien_thunder/gui.py:1050
+msgid "The power button colors are written on Apply (active profile) or with “Write the button colors now”"
+msgstr "As cores do botão de energia são gravadas em Aplicar (perfil ativo) ou em “Gravar cores do botão agora”"
+
+#: alien_thunder/gui.py:1063
+msgid "Power button written"
+msgstr "Botão de energia gravado"
+
+#: alien_thunder/gui.py:1063
+msgid "Couldn't write the power button"
+msgstr "Falha ao gravar o botão de energia"
+
+#: alien_thunder/gui.py:1075
+#, python-format
+msgid "systemctl %s failed"
+msgstr "systemctl %s falhou"
+
+#: alien_thunder/gui.py:1087
+msgid "Active profile applied again"
+msgstr "Perfil ativo reaplicado"
+
+#: alien_thunder/gui.py:1113
+msgid "● service running"
+msgstr "● serviço ativo"
+
+#: alien_thunder/gui.py:1113
+msgid "● service: retrying"
+msgstr "● serviço: tentando novamente"
+
+#: alien_thunder/gui.py:1115
+msgid "The service keeps the active profile on the LEDs"
+msgstr "O serviço mantém o perfil ativo nos LEDs"
+
+#: alien_thunder/gui.py:1116
+#, python-format
+msgid "Running (pid %s). Applying: %s"
+msgstr "Rodando (pid %s). Aplicando: %s"
+
+#: alien_thunder/gui.py:1118
+#, python-format
+msgid "Software effect: %s"
+msgstr "Efeito de software: %s"
+
+#: alien_thunder/gui.py:1119
+#, python-format
+msgid "Last error: %s"
+msgstr "Último erro: %s"
+
+#: alien_thunder/gui.py:1121
+msgid "● service stopped"
+msgstr "● serviço parado"
+
+#: alien_thunder/gui.py:1123
+msgid "Without the service the editor applies directly; software effects don't run"
+msgstr "Sem o serviço, o editor aplica diretamente; efeitos de software não rodam"
+
+#: alien_thunder/gui.py:1124
+msgid "Stopped. Start it with: systemctl --user enable --now alien-thunder"
+msgstr "Parado. Inicie com: systemctl --user enable --now alien-thunder"
+
+#: alien_thunder/gui.py:1127
+#, python-format
+msgid "Keyboard 0d62:d2b1: %s"
+msgstr "Teclado 0d62:d2b1: %s"
+
+#: alien_thunder/gui.py:1128
+#, python-format
+msgid "AW-ELC 187c:0551: %s"
+msgstr "AW-ELC 187c:0551: %s"
+
+#: alien_thunder/gui.py:1129
+msgid "available"
+msgstr "disponível"
+
+#: alien_thunder/gui.py:1129
+msgid "missing"
+msgstr "ausente"
+
+#: alien_thunder/gui.py:1135
+msgid "modified…"
+msgstr "modificado…"
+
+#: alien_thunder/gui.py:1149
+msgid "saved"
+msgstr "salvo"
+
+#: alien_thunder/gui.py:1151
+msgid "save failed"
+msgstr "erro ao salvar"
+
+#. noqa: BLE001
+#: alien_thunder/gui.py:1161
+#, python-format
+msgid "Service: %s"
+msgstr "Serviço: %s"
+
+#: alien_thunder/gui.py:1175
+#, python-format
+msgid "Error: %s"
+msgstr "Erro: %s"
+
+#: alien_thunder/gui.py:1188
+msgid "Couldn't apply (see the Options tab)"
+msgstr "Falha ao aplicar (veja a aba Opções)"
+
+#: alien_thunder/gui.py:1198
+msgid "Applied"
+msgstr "Aplicado"
+
+#: alien_thunder/gui.py:1198
+msgid "Couldn't apply (the service will try again)"
+msgstr "Falha ao aplicar (o serviço vai tentar de novo)"
+
+#: alien_thunder/gui.py:1200
+msgid "; not the active profile, so the active one comes back when you close"
+msgstr "; não é o perfil ativo, então o ativo volta quando você fechar"
+
+#: alien_thunder/hw.py:81
+msgid "another process is using the LEDs (lock busy)"
+msgstr "outro processo está usando os LEDs (lock ocupado)"
+
+#: alien_thunder/hw.py:104
+#, python-format
+msgid "%s not found"
+msgstr "%s não encontrado"
+
+#: alien_thunder/hw.py:108
+#, python-format
+msgid "%s: no access to %s: %s"
+msgstr "%s: sem acesso a %s: %s"
+
+#: alien_thunder/hw.py:141
+#, python-format
+msgid "keyboard: send failed (%s)"
+msgstr "teclado: falha ao enviar (%s)"
+
+#: alien_thunder/hw.py:152
+#, python-format
+msgid "keyboard: status read failed (%s)"
+msgstr "teclado: falha ao ler o status (%s)"
+
+#: alien_thunder/hw.py:165
+#, python-format
+msgid "keyboard: unexpected reply %s"
+msgstr "teclado: resposta inesperada %s"
+
+#: alien_thunder/hw.py:169
+msgid "keyboard busy (WAITUPDATE)"
+msgstr "teclado ocupado (WAITUPDATE)"
+
+#: alien_thunder/hw.py:201
+#, python-format
+msgid "chassis: send failed (%s)"
+msgstr "chassi: falha ao enviar (%s)"
+
+#: alien_thunder/hw.py:203
+#, python-format
+msgid "chassis: short write (%d)"
+msgstr "chassi: escrita curta (%d)"
+
+#: alien_thunder/hw.py:212
+#, python-format
+msgid "chassis: status read failed (%s)"
+msgstr "chassi: falha ao ler o status (%s)"
+
+#: alien_thunder/hw.py:236
+#, python-format
+msgid "chassis: unexpected reply %s"
+msgstr "chassi: resposta inesperada %s"
+
+#: alien_thunder/hw.py:250
+msgid "alienrgb not found (~/.local/src/alienrgb/target/release/alienrgb)"
+msgstr "alienrgb não encontrado (~/.local/src/alienrgb/target/release/alienrgb)"
+
+#: alien_thunder/layout.py:192
+msgid "All"
+msgstr "Todas"
+
+#: alien_thunder/layout.py:193
+msgid "Letters"
+msgstr "Letras"
+
+#: alien_thunder/layout.py:194
+msgid "Numbers"
+msgstr "Números"
+
+#: alien_thunder/layout.py:195
+msgid "F1–F12"
+msgstr "F1–F12"
+
+#: alien_thunder/layout.py:196
+msgid "Arrows"
+msgstr "Setas"
+
+#: alien_thunder/layout.py:197
+msgid "WASD"
+msgstr "WASD"
+
+#: alien_thunder/layout.py:198
+msgid "Modifiers"
+msgstr "Modificadores"
+
+#: alien_thunder/layout.py:199
+msgid "Media/volume"
+msgstr "Mídia/volume"
+
+#: alien_thunder/layout.py:200
+msgid "Editing block"
+msgstr "Bloco de edição"
+
+#: alien_thunder/layout.py:201
+msgid "Symbols"
+msgstr "Símbolos"
+
+#: alien_thunder/layout.py:202
+msgid "Function row (Esc…Del)"
+msgstr "Linha F (Esc…Del)"
+
+#: alien_thunder/layout.py:203
+msgid "Extra LEDs (JP/UK)"
+msgstr "LEDs extras (JP/UK)"
+
+#: alien_thunder/overlay.py:49
+msgid "CPU"
+msgstr "CPU"
+
+#: alien_thunder/overlay.py:49
+msgid "GPU"
+msgstr "GPU"
+
+#: alien_thunder/overlay.py:49
+msgid "CPU fan"
+msgstr "Fan CPU"
+
+#: alien_thunder/overlay.py:50
+msgid "GPU fan"
+msgstr "Fan GPU"
+
+#: alien_thunder/overlay.py:50
+msgid "RAM"
+msgstr "RAM"
+
+#: alien_thunder/overlay.py:161
+msgid "usage: alien-thunder overlay [run|on|off|lock|unlock|show ITEM|hide ITEM|status]"
+msgstr "uso: alien-thunder overlay [run|on|off|lock|unlock|show ITEM|hide ITEM|status]"
+
+#: alien_thunder/overlay.py:162
+#, python-format
+msgid "items: %s"
+msgstr "itens: %s"
+
+#: alien_thunder/profiles.py:91
+#, python-format
+msgid "invalid color: %r"
+msgstr "cor inválida: %r"
+
+#: alien_thunder/profiles.py:139
+msgid "a profile must be a JSON object"
+msgstr "um perfil precisa ser um objeto JSON"
+
+#: alien_thunder/profiles.py:148
+#, python-format
+msgid "invalid LED id: %s"
+msgstr "id de LED inválido: %s"
+
+#: alien_thunder/profiles.py:165
+msgid "Untitled"
+msgstr "Sem nome"
+
+#: alien_thunder/profiles.py:172
+#, python-format
+msgid "invalid profile file name: %r"
+msgstr "nome de arquivo de perfil inválido: %r"
+
+#: alien_thunder/profiles.py:188
+msgid "(unreadable)"
+msgstr "(ilegível)"
+
+#: alien_thunder/profiles.py:198 alien_thunder/profiles.py:262
+#, python-format
+msgid "profile not found: %s"
+msgstr "perfil não encontrado: %s"
+
+#: alien_thunder/profiles.py:200
+#, python-format
+msgid "profile %s is not valid: %s"
+msgstr "perfil %s inválido: %s"
+
+#: alien_thunder/profiles.py:249
+msgid "the active profile can't be deleted; make another one active first"
+msgstr "não é possível excluir o perfil ativo; ative outro antes"
+
+#: alien_thunder/profiles.py:323
+#, python-format
+msgid "settings upgraded to format %d"
+msgstr "configuração atualizada para o formato %d"
+
+#: alien_thunder/profiles.py:331
+#, python-format
+msgid "profile %s upgraded to format %d"
+msgstr "perfil %s atualizado para o formato %d"
+
+#: alien_thunder/profiles.py:344
+#, python-format
+msgid "%s moved to %s"
+msgstr "%s movido para %s"
+
+#: alien_thunder/profiles.py:356
+#, python-format
+msgid "profile imported from %s: %s (%s)"
+msgstr "perfil importado de %s: %s (%s)"
+
+#: alien_thunder/profiles.py:358
+#, python-format
+msgid "couldn't import the legacy profile: %s"
+msgstr "falha ao importar o perfil legado: %s"
+
+#: alien_thunder/profiles.py:361
+msgid "Default"
+msgstr "Padrão"
+
+#: alien_thunder/protocol.py:70 alien_thunder/protocol.py:157
+msgid "Breathing"
+msgstr "Respiração"
+
+#: alien_thunder/protocol.py:71
+msgid "Side wave"
+msgstr "Onda lateral"
+
+#: alien_thunder/protocol.py:72
+msgid "Double wave"
+msgstr "Onda dupla"
+
+#: alien_thunder/protocol.py:73 alien_thunder/protocol.py:156
+msgid "Pulse"
+msgstr "Pulso"
+
+#: alien_thunder/protocol.py:74
+msgid "Morph (mixed pulse)"
+msgstr "Morph (pulso misto)"
+
+#: alien_thunder/protocol.py:75
+msgid "Bounce (scanner)"
+msgstr "Ricochete (scanner)"
+
+#: alien_thunder/protocol.py:76
+msgid "Laser"
+msgstr "Laser"
+
+#: alien_thunder/protocol.py:77 alien_thunder/protocol.py:79
+msgid "Rainbow"
+msgstr "Arco-íris"
+
+#: alien_thunder/protocol.py:79
+msgid "One color"
+msgstr "Uma cor"
+
+#: alien_thunder/protocol.py:79
+msgid "Two colors"
+msgstr "Duas cores"
+
+#: alien_thunder/protocol.py:155
+msgid "Static"
+msgstr "Estático"
+
+#: alien_thunder/protocol.py:158
+msgid "Morph (2 colors)"
+msgstr "Morph (2 cores)"
+
+#: alien_thunder/protocol.py:159
+msgid "Spectrum (color cycle)"
+msgstr "Espectro (ciclo de cores)"
+
+#: alien_thunder/protocol.py:160
+msgid "Off"
+msgstr "Apagado"
+
+#: alien_thunder/winimport.py:119
+msgid "AWCC's FXRepository.db wasn't found under /mnt/windows"
+msgstr "FXRepository.db do AWCC não encontrado em /mnt/windows"
+
+#: alien_thunder/winimport.py:153
+#, python-format
+msgid "Preset %d"
+msgstr "Predefinição %d"
+
+#: alien_thunder/winimport.py:165
+#, python-format
+msgid "%d keys"
+msgstr "%d teclas"
+
+#: alien_thunder/winimport.py:166
+#, python-format
+msgid ", effect %s"
+msgstr ", efeito %s"
+
+#: alien_thunder/winimport.py:167
+#, python-format
+msgid ", touchpad %s, logo %s"
+msgstr ", touchpad %s, logo %s"
+
+#: alien_thunder/winimport.py:168
+#, python-format
+msgid " (Windows user: %s)"
+msgstr " (usuário Windows: %s)"

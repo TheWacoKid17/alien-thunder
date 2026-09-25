@@ -1,0 +1,14 @@
+[Desktop Entry]
+Type=Application
+Name=Alien Thunder
+GenericName=Keyboard lighting
+GenericName[pt_BR]=Iluminação do teclado
+Comment=Per-key colors, effects, lighting profiles and G-Mode for the Alienware m16 R2
+Comment[pt_BR]=Cores por tecla, efeitos, perfis de iluminação e G-Mode do Alienware m16 R2
+Exec=alien-thunder
+Icon=alien-thunder
+Terminal=false
+Categories=Settings;HardwareSettings;Qt;
+Keywords=rgb;keyboard;alienware;alienfx;led;lighting;colors;gmode;g-mode;turbo;fan;temperature;
+Keywords[pt_BR]=rgb;teclado;alienware;alienfx;led;iluminação;cores;gmode;g-mode;turbo;ventoinha;temperatura;
+StartupNotify=true

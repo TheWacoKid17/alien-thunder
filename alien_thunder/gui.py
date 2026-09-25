@@ -1,8 +1,9 @@
-"""Interface grafica (PySide6) do AlienFX Studio."""
+"""Alien Thunder's lighting editor (PySide6)."""
 from __future__ import annotations
 
 import copy
 import json
+import os
 import subprocess
 import sys
 import time
@@ -17,12 +18,18 @@ from PySide6.QtWidgets import (QAbstractItemView, QApplication, QButtonGroup, QC
                                QRadioButton, QRubberBand, QScrollArea, QSizePolicy, QSlider,
                                QSpinBox, QTabWidget, QToolButton, QVBoxLayout, QWidget)
 
-from . import effects, engine, hw, layout, profiles, protocol
+from . import effects, engine, gmode, hw, layout, profiles, protocol
+from .i18n import gettext as _
+from .i18n import ngettext
 
-APP_NAME = "AlienFX Studio"
+APP_NAME = "Alien Thunder"
 ACCENT = QColor("#00c8ff")
 PALETTE = ["#ff0000", "#ff2900", "#ff8000", "#ffd000", "#80ff00", "#00ff40", "#00ffd0", "#00a0ff",
            "#0020ff", "#8000ff", "#ff00c0", "#ff62e2", "#ffffff", "#ffb070", "#630000", "#000000"]
+
+
+def app_icon() -> QIcon:
+    return QIcon.fromTheme("alien-thunder", QIcon(os.path.join(os.path.dirname(__file__), "icons", "alien-thunder.png")))
 
 
 def qcolor(h: str | None) -> QColor | None:
@@ -38,9 +45,9 @@ def text_color_for(c: QColor) -> QColor:
 class ColorButton(QPushButton):
     colorChanged = Signal(str)
 
-    def __init__(self, color="#ff0000", title="Escolher cor", parent=None):
+    def __init__(self, color="#ff0000", title=None, parent=None):
         super().__init__(parent)
-        self.title = title
+        self.title = title or _("Pick a color")
         self._color = color
         self.setMinimumSize(QSize(64, 28))
         self.clicked.connect(self._pick)
@@ -81,8 +88,8 @@ class Swatch(QToolButton):
 
 class KeyboardView(QWidget):
     selectionChanged = Signal()
-    keyActivated = Signal(int)  # duplo clique
-    keyPicked = Signal(int)  # conta-gotas
+    keyActivated = Signal(int)  # double click
+    keyPicked = Signal(int)  # eyedropper
 
     MARGIN = 14
 
@@ -103,7 +110,7 @@ class KeyboardView(QWidget):
         self.setSizePolicy(QSizePolicy.Expanding, QSizePolicy.Expanding)
         self.setFocusPolicy(Qt.StrongFocus)
 
-    # --------------------------------------------------------- geometria
+    # --------------------------------------------------------- geometry
     def _xf(self):
         w = self.width() - 2 * self.MARGIN
         h = self.height() - 2 * self.MARGIN
@@ -133,7 +140,7 @@ class KeyboardView(QWidget):
     def heightForWidth(self, w):
         return int(w * layout.CANVAS_H / layout.CANVAS_W) + 2 * self.MARGIN
 
-    # --------------------------------------------------------- desenho
+    # --------------------------------------------------------- drawing
     def paintEvent(self, _ev):
         p = QPainter(self)
         p.setRenderHint(QPainter.Antialiasing)
@@ -149,7 +156,7 @@ class KeyboardView(QWidget):
             c = src.get(k.id)
             path = QPainterPath()
             rad = 5 * s
-            if k.id == 55:  # Enter ISO em "L" invertido
+            if k.id == 55:  # ISO Enter, an upside-down "L"
                 s_ = s
                 x, y, w, h = k.rect
                 top_h = 52.7
@@ -183,7 +190,7 @@ class KeyboardView(QWidget):
             font.setBold(k.id in self.selection)
             p.setFont(font)
             p.drawText(r, Qt.AlignCenter, k.label)
-        # legenda dos extras
+        # caption for the extras
         font.setBold(False)
         font.setPointSizeF(max(7.0, 9 * s * 1.2) * 0.75)
         p.setFont(font)
@@ -191,7 +198,7 @@ class KeyboardView(QWidget):
         lx = ox + 6 * 68.0 * s + 6 * s
         p.drawText(QRectF(lx, oy + layout.EXTRA_Y * s, 600 * s, layout.EXTRA_H * s),
                    Qt.AlignVCenter | Qt.AlignLeft,
-                   "← LEDs do AWCC sem tecla no ABNT2 (teclados JP/UK)")
+                   _("← AWCC LEDs with no key on ABNT2 (JP/UK keyboards)"))
         if self.banner:
             p.setPen(QColor("#ffd27a"))
             p.drawText(QRectF(lx, oy + layout.EXTRA_Y * s + layout.EXTRA_H * s * 0.0, 590 * s, layout.EXTRA_H * s),
@@ -268,20 +275,21 @@ class KeyboardView(QWidget):
                 key = layout.KEY_BY_ID[k]
                 c = self.colors.get(k)
                 leds = ", ".join(str(x) for x in key.leds)
-                extra = "\nLED sem tecla física no ABNT2" if key.extra else ""
-                self.setToolTip(f"{key.name}\nLED(s): {leds}  (AWCC: {key.awcc})\n"
-                                f"Cor: {c.name().upper() if c else 'sem cor (não enviado)'}{extra}")
+                extra = "\n" + _("LED with no physical key on ABNT2") if key.extra else ""
+                color = c.name().upper() if c else _("no color (not sent)")
+                self.setToolTip(_("%s\nLED(s): %s  (AWCC: %s)\nColor: %s") % (key.name, leds, key.awcc, color)
+                                + extra)
             else:
                 self.setToolTip("")
         return super().event(ev)
 
 
-# ====================================================================== janela
+# ====================================================================== window
 class MainWindow(QMainWindow):
     def __init__(self):
         super().__init__()
         self.setWindowTitle(APP_NAME)
-        self.setWindowIcon(QIcon.fromTheme("input-keyboard", QIcon.fromTheme("preferences-desktop-color")))
+        self.setWindowIcon(app_icon())
         for m in profiles.ensure_initialized():
             print(m)
         self.cfg = profiles.load_config()
@@ -303,28 +311,28 @@ class MainWindow(QMainWindow):
         self.refresh_daemon_status()
         QTimer(self, interval=5000, timeout=self.refresh_daemon_status).start()
 
-    # ------------------------------------------------------------ construcao
+    # ------------------------------------------------------------ building
     def _build(self):
         central = QWidget()
         root = QVBoxLayout(central)
         root.setContentsMargins(10, 8, 10, 8)
 
-        # barra de perfis
+        # profile bar
         bar = QHBoxLayout()
-        bar.addWidget(QLabel("<b>Perfil:</b>"))
+        bar.addWidget(QLabel("<b>%s</b>" % _("Profile:")))
         self.cb_profile = QComboBox()
         self.cb_profile.setMinimumWidth(230)
         self.cb_profile.currentIndexChanged.connect(self.on_profile_selected)
         bar.addWidget(self.cb_profile)
         for text, icon, slot, tip in (
-                ("Novo", "document-new", self.new_profile, "Criar perfil novo"),
-                ("Renomear", "edit-rename", self.rename_profile, "Renomear perfil"),
-                ("Duplicar", "edit-copy", self.duplicate_profile, "Duplicar perfil"),
-                ("Excluir", "edit-delete", self.delete_profile, "Excluir perfil"),
-                ("Tornar ativo", "starred", self.activate_profile,
-                 "Torna este o perfil persistente (aplicado no login, após suspender, etc.)"),
-                ("Importar do Windows…", "document-import", self.import_windows,
-                 "Importar predefinições do Alienware Command Center")):
+                (_("New"), "document-new", self.new_profile, _("Create a new profile")),
+                (_("Rename"), "edit-rename", self.rename_profile, _("Rename the profile")),
+                (_("Duplicate"), "edit-copy", self.duplicate_profile, _("Duplicate the profile")),
+                (_("Delete"), "edit-delete", self.delete_profile, _("Delete the profile")),
+                (_("Make active"), "starred", self.activate_profile,
+                 _("Make this the lasting profile (applied at login, after suspend, and so on)")),
+                (_("Import from Windows…"), "document-import", self.import_windows,
+                 _("Import Alienware Command Center presets"))):
             b = QToolButton()
             b.setText(text)
             b.setIcon(QIcon.fromTheme(icon))
@@ -332,9 +340,15 @@ class MainWindow(QMainWindow):
             b.setToolTip(tip)
             b.clicked.connect(slot)
             bar.addWidget(b)
-            if text == "Tornar ativo":
+            if icon == "starred":
                 self.btn_activate = b
         bar.addStretch(1)
+        self.btn_gmode = QPushButton("G-Mode")
+        self.btn_gmode.setCheckable(True)
+        self.btn_gmode.setToolTip(_("Turbo: fans at full speed and the performance power profile (same as Fn+F1)"))
+        self.btn_gmode.setStyleSheet("QPushButton:checked{background:#f0f0f0;color:#111;font-weight:bold;}")
+        self.btn_gmode.clicked.connect(self.toggle_gmode)
+        bar.addWidget(self.btn_gmode)
         self.lbl_daemon = QLabel()
         bar.addWidget(self.lbl_daemon)
         root.addLayout(bar)
@@ -353,25 +367,25 @@ class MainWindow(QMainWindow):
         self.tabs = QTabWidget()
         self.tabs.setMinimumWidth(360)
         self.tabs.setMaximumWidth(420)
-        self.tabs.addTab(self._scroll(self._tab_colors()), "Cores")
-        self.tabs.addTab(self._scroll(self._tab_effects()), "Efeitos")
-        self.tabs.addTab(self._scroll(self._tab_chassis()), "Chassi")
-        self.tabs.addTab(self._scroll(self._tab_options()), "Opções")
+        self.tabs.addTab(self._scroll(self._tab_colors()), _("Colors"))
+        self.tabs.addTab(self._scroll(self._tab_effects()), _("Effects"))
+        self.tabs.addTab(self._scroll(self._tab_chassis()), _("Chassis"))
+        self.tabs.addTab(self._scroll(self._tab_options()), _("Options"))
         mid.addWidget(self.tabs)
         root.addLayout(mid, 1)
 
         bottom = QHBoxLayout()
-        self.lbl_sel = QLabel("Nenhuma tecla selecionada")
+        self.lbl_sel = QLabel(_("No keys selected"))
         bottom.addWidget(self.lbl_sel)
         bottom.addStretch(1)
-        self.chk_live = QCheckBox("Aplicar ao vivo")
+        self.chk_live = QCheckBox(_("Apply live"))
         self.chk_live.setChecked(True)
-        self.chk_live.setToolTip("Envia as alterações para os LEDs enquanto você edita")
+        self.chk_live.setToolTip(_("Sends changes to the LEDs as you edit"))
         bottom.addWidget(self.chk_live)
         self.lbl_saved = QLabel("")
         self.lbl_saved.setStyleSheet("color:#888;")
         bottom.addWidget(self.lbl_saved)
-        self.btn_apply = QPushButton(QIcon.fromTheme("dialog-ok-apply"), "Aplicar")
+        self.btn_apply = QPushButton(QIcon.fromTheme("dialog-ok-apply"), _("Apply"))
         self.btn_apply.setDefault(True)
         self.btn_apply.setMinimumWidth(120)
         self.btn_apply.clicked.connect(self.apply_now)
@@ -381,7 +395,7 @@ class MainWindow(QMainWindow):
         self.setCentralWidget(central)
         self.resize(1480, 640)
 
-        act = QAction(self, shortcut="Ctrl+A", triggered=lambda: self.select_group("Todas"))
+        act = QAction(self, shortcut="Ctrl+A", triggered=lambda: self.select_group("All"))
         self.addAction(act)
         act = QAction(self, shortcut="Escape", triggered=lambda: self.set_selection(set()))
         self.addAction(act)
@@ -399,28 +413,28 @@ class MainWindow(QMainWindow):
         w = QWidget()
         v = QVBoxLayout(w)
 
-        g = QGroupBox("Cor para a seleção")
+        g = QGroupBox(_("Color for the selection"))
         gl = QVBoxLayout(g)
         row = QHBoxLayout()
-        self.btn_color = ColorButton("#ff0000", "Cor das teclas selecionadas")
+        self.btn_color = ColorButton("#ff0000", _("Color of the selected keys"))
         self.btn_color.colorChanged.connect(lambda c: self.apply_color_to_selection(c))
         row.addWidget(self.btn_color, 1)
-        b = QPushButton("Aplicar à seleção")
+        b = QPushButton(_("Apply to selection"))
         b.clicked.connect(lambda: self.apply_color_to_selection(self.btn_color.color()))
         row.addWidget(b)
         gl.addLayout(row)
         row = QHBoxLayout()
-        b = QPushButton(QIcon.fromTheme("color-picker"), "Conta-gotas")
-        b.setToolTip("Clique numa tecla para copiar a cor dela")
+        b = QPushButton(QIcon.fromTheme("color-picker"), _("Eyedropper"))
+        b.setToolTip(_("Click a key to copy its color"))
         b.clicked.connect(self.start_pick)
         row.addWidget(b)
-        b = QPushButton("Apagar seleção")
-        b.setToolTip("Define preto (LED apagado) nas teclas selecionadas")
+        b = QPushButton(_("Turn selection off"))
+        b.setToolTip(_("Sets the selected keys to black (LED off)"))
         b.clicked.connect(lambda: self.apply_color_to_selection("#000000", recent=False))
         row.addWidget(b)
         gl.addLayout(row)
 
-        gl.addWidget(QLabel("Paleta:"))
+        gl.addWidget(QLabel(_("Palette:")))
         grid = QGridLayout()
         grid.setSpacing(4)
         for i, c in enumerate(PALETTE):
@@ -428,14 +442,14 @@ class MainWindow(QMainWindow):
             s.clicked.connect(lambda _=False, c=c: self.choose_color(c))
             grid.addWidget(s, i // 8, i % 8)
         gl.addLayout(grid)
-        gl.addWidget(QLabel("Cores recentes:"))
+        gl.addWidget(QLabel(_("Recent colors:")))
         self.recent_grid = QGridLayout()
         self.recent_grid.setSpacing(4)
         gl.addLayout(self.recent_grid)
         self._refresh_recent()
         v.addWidget(g)
 
-        g = QGroupBox("Brilho geral (teclado e chassi)")
+        g = QGroupBox(_("Overall brightness (keyboard and chassis)"))
         gl = QHBoxLayout(g)
         self.sl_bright = QSlider(Qt.Horizontal)
         self.sl_bright.setRange(0, 100)
@@ -446,37 +460,37 @@ class MainWindow(QMainWindow):
         gl.addWidget(self.lbl_bright)
         v.addWidget(g)
 
-        g = QGroupBox("Padrões de teclas")
+        g = QGroupBox(_("Key sets"))
         gl = QVBoxLayout(g)
         grid = QGridLayout()
         grid.setSpacing(4)
         for i, name in enumerate(layout.GROUPS):
-            b = QPushButton(name)
-            b.setToolTip("Clique: selecionar • Ctrl+clique: adicionar à seleção")
+            b = QPushButton(_(name))
+            b.setToolTip(_("Click: select • Ctrl+click: add to the selection"))
             b.clicked.connect(lambda _=False, n=name: self.select_group(n))
             grid.addWidget(b, i // 2, i % 2)
         gl.addLayout(grid)
         row = QHBoxLayout()
-        b = QPushButton("Inverter seleção")
+        b = QPushButton(_("Invert selection"))
         b.clicked.connect(self.invert_selection)
         row.addWidget(b)
-        b = QPushButton("Limpar seleção")
+        b = QPushButton(_("Clear selection"))
         b.clicked.connect(lambda: self.set_selection(set()))
         row.addWidget(b)
         gl.addLayout(row)
-        gl.addWidget(QLabel("Meus grupos:"))
+        gl.addWidget(QLabel(_("My groups:")))
         row = QHBoxLayout()
         self.cb_groups = QComboBox()
         row.addWidget(self.cb_groups, 1)
-        b = QPushButton("Selecionar")
+        b = QPushButton(_("Select"))
         b.clicked.connect(self.select_custom_group)
         row.addWidget(b)
         gl.addLayout(row)
         row = QHBoxLayout()
-        b = QPushButton("Salvar seleção como grupo…")
+        b = QPushButton(_("Save selection as a group…"))
         b.clicked.connect(self.save_custom_group)
         row.addWidget(b)
-        b = QPushButton("Excluir grupo")
+        b = QPushButton(_("Delete group"))
         b.clicked.connect(self.delete_custom_group)
         row.addWidget(b)
         gl.addLayout(row)
@@ -488,41 +502,41 @@ class MainWindow(QMainWindow):
     def _tab_effects(self):
         w = QWidget()
         v = QVBoxLayout(w)
-        g = QGroupBox("Efeito do teclado")
+        g = QGroupBox(_("Keyboard effect"))
         gl = QVBoxLayout(g)
         self.rb_mode = QButtonGroup(self)
-        for i, (key, text) in enumerate((("estatico", "Estático (cores por tecla)"),
-                                         ("hardware", "Efeito de hardware (sem uso de CPU)"),
-                                         ("software", "Efeito de software (roda no serviço)"))):
+        for i, (key, text) in enumerate((("static", _("Static (per-key colors)")),
+                                         ("hardware", _("Hardware effect (no CPU use)")),
+                                         ("software", _("Software effect (runs in the service)")))):
             rb = QRadioButton(text)
-            rb.setProperty("modo", key)
+            rb.setProperty("mode", key)
             self.rb_mode.addButton(rb, i)
             gl.addWidget(rb)
         self.rb_mode.idToggled.connect(self.on_effect_mode)
         form = QFormLayout()
         self.cb_effect = QComboBox()
         self.cb_effect.currentIndexChanged.connect(self.on_effect_param)
-        form.addRow("Efeito:", self.cb_effect)
-        self.btn_ec1 = ColorButton("#ff0000", "Cor 1 do efeito")
+        form.addRow(_("Effect:"), self.cb_effect)
+        self.btn_ec1 = ColorButton("#ff0000", _("Effect color 1"))
         self.btn_ec1.colorChanged.connect(self.on_effect_param)
-        form.addRow("Cor 1:", self.btn_ec1)
-        self.btn_ec2 = ColorButton("#0000ff", "Cor 2 do efeito")
+        form.addRow(_("Color 1:"), self.btn_ec1)
+        self.btn_ec2 = ColorButton("#0000ff", _("Effect color 2"))
         self.btn_ec2.colorChanged.connect(self.on_effect_param)
-        form.addRow("Cor 2:", self.btn_ec2)
+        form.addRow(_("Color 2:"), self.btn_ec2)
         self.cb_cmode = QComboBox()
         for k, t in protocol.KB_COLOR_MODES.items():
-            self.cb_cmode.addItem(t, k)
+            self.cb_cmode.addItem(_(t), k)
         self.cb_cmode.currentIndexChanged.connect(self.on_effect_param)
-        form.addRow("Cores:", self.cb_cmode)
+        form.addRow(_("Colors:"), self.cb_cmode)
         self.sl_tempo = QSlider(Qt.Horizontal)
         self.sl_tempo.setRange(0, 255)
-        self.sl_tempo.setToolTip("Byte de tempo do controlador (0–255)")
+        self.sl_tempo.setToolTip(_("The controller's tempo byte (0–255)"))
         self.sl_tempo.valueChanged.connect(self.on_effect_param)
-        form.addRow("Tempo:", self.sl_tempo)
+        form.addRow(_("Tempo:"), self.sl_tempo)
         self.sl_speed = QSlider(Qt.Horizontal)
         self.sl_speed.setRange(1, 50)
         self.sl_speed.valueChanged.connect(self.on_effect_param)
-        form.addRow("Velocidade:", self.sl_speed)
+        form.addRow(_("Speed:"), self.sl_speed)
         gl.addLayout(form)
         self.lbl_effect_note = QLabel()
         self.lbl_effect_note.setWordWrap(True)
@@ -536,41 +550,41 @@ class MainWindow(QMainWindow):
         w = QWidget()
         v = QVBoxLayout(w)
         self.zone_widgets = {}
-        for zone, title in (("touchpad", "Touchpad"), ("logo", "Logo (Alienhead na tampa)")):
+        for zone, title in (("touchpad", _("Touchpad")), ("logo", _("Logo (Alienhead on the lid)"))):
             g = QGroupBox(title)
             f = QFormLayout(g)
             cb = QComboBox()
             for k, t in protocol.CHASSIS_EFFECTS.items():
-                cb.addItem(t, k)
-            c1 = ColorButton("#ff2900", f"{title}: cor")
-            c2 = ColorButton("#000000", f"{title}: cor 2")
+                cb.addItem(_(t), k)
+            c1 = ColorButton("#ff2900", _("%s: color") % title)
+            c2 = ColorButton("#000000", _("%s: color 2") % title)
             sl = QSlider(Qt.Horizontal)
             sl.setRange(1, 255)
-            sl.setToolTip("Tempo da transição (byte do controlador, 1–255)")
-            f.addRow("Efeito:", cb)
-            f.addRow("Cor:", c1)
-            f.addRow("Cor 2 (morph):", c2)
-            f.addRow("Tempo:", sl)
+            sl.setToolTip(_("Transition tempo (the controller's byte, 1–255)"))
+            f.addRow(_("Effect:"), cb)
+            f.addRow(_("Color:"), c1)
+            f.addRow(_("Color 2 (morph):"), c2)
+            f.addRow(_("Tempo:"), sl)
             for wdg, sig in ((cb, cb.currentIndexChanged), (c1, c1.colorChanged), (c2, c2.colorChanged),
                              (sl, sl.valueChanged)):
                 sig.connect(lambda *_a, z=zone: self.on_zone_changed(z))
             self.zone_widgets[zone] = (cb, c1, c2, sl)
             v.addWidget(g)
-        g = QGroupBox("Botão de energia")
+        g = QGroupBox(_("Power button"))
         f = QFormLayout(g)
-        self.btn_pw_ac = ColorButton("#ff2900", "Botão de energia na tomada")
-        self.btn_pw_bat = ColorButton("#ff2900", "Botão de energia na bateria")
+        self.btn_pw_ac = ColorButton("#ff2900", _("Power button when plugged in"))
+        self.btn_pw_bat = ColorButton("#ff2900", _("Power button on battery"))
         self.btn_pw_ac.colorChanged.connect(self.on_power_changed)
         self.btn_pw_bat.colorChanged.connect(self.on_power_changed)
-        f.addRow("Na tomada (AC):", self.btn_pw_ac)
-        f.addRow("Na bateria:", self.btn_pw_bat)
-        note = QLabel("O controlador guarda o comportamento do botão (inclusive dormindo e "
-                      "carregando). Para evitar gravações repetidas, as cores só são enviadas "
-                      "quando mudam e o perfil é o ativo — não ao vivo. Use “Aplicar” ou o botão abaixo.")
+        f.addRow(_("Plugged in (AC):"), self.btn_pw_ac)
+        f.addRow(_("On battery:"), self.btn_pw_bat)
+        note = QLabel(_("The controller stores how the button behaves, asleep and charging included. "
+                        "To avoid writing it over and over, the colors only go out when they change "
+                        "and the profile is the active one, never live. Use “Apply” or the button below."))
         note.setWordWrap(True)
         note.setStyleSheet("color:#999;")
         f.addRow(note)
-        b = QPushButton("Gravar cores do botão agora")
+        b = QPushButton(_("Write the button colors now"))
         b.clicked.connect(self.write_power_now)
         f.addRow(b)
         v.addWidget(g)
@@ -580,7 +594,7 @@ class MainWindow(QMainWindow):
     def _tab_options(self):
         w = QWidget()
         v = QVBoxLayout(w)
-        g = QGroupBox("Serviço em segundo plano")
+        g = QGroupBox(_("Background service"))
         f = QFormLayout(g)
         self.lbl_service = QLabel()
         self.lbl_service.setWordWrap(True)
@@ -588,10 +602,10 @@ class MainWindow(QMainWindow):
         self.lbl_service.setAlignment(Qt.AlignTop | Qt.AlignLeft)
         f.addRow(self.lbl_service)
         row = QHBoxLayout()
-        b = QPushButton("Reiniciar serviço")
+        b = QPushButton(_("Restart service"))
         b.clicked.connect(lambda: self._systemctl("restart"))
         row.addWidget(b)
-        b = QPushButton("Reaplicar perfil ativo")
+        b = QPushButton(_("Reapply active profile"))
         b.clicked.connect(self.reapply_active)
         row.addWidget(b)
         f.addRow(row)
@@ -600,22 +614,22 @@ class MainWindow(QMainWindow):
         self.sp_fps.setValue(self.cfg["fps"])
         self.sp_fps.setSuffix(" fps")
         self.sp_fps.valueChanged.connect(self.on_options)
-        f.addRow("Efeitos de software:", self.sp_fps)
+        f.addRow(_("Software effects:"), self.sp_fps)
         self.cb_backend = QComboBox()
-        self.cb_backend.addItem("hidraw direto (touchpad, logo e efeitos)", "hidraw")
-        self.cb_backend.addItem("alienrgb (compatível, só cores fixas)", "alienrgb")
-        self.cb_backend.setCurrentIndex(0 if self.cfg["chassi_backend"] == "hidraw" else 1)
+        self.cb_backend.addItem(_("hidraw directly (touchpad, logo and effects)"), "hidraw")
+        self.cb_backend.addItem(_("alienrgb (compatible, fixed colors only)"), "alienrgb")
+        self.cb_backend.setCurrentIndex(0 if self.cfg["chassis_backend"] == "hidraw" else 1)
         self.cb_backend.currentIndexChanged.connect(self.on_options)
-        f.addRow("Chassi via:", self.cb_backend)
+        f.addRow(_("Chassis through:"), self.cb_backend)
         v.addWidget(g)
-        g = QGroupBox("Dispositivos")
+        g = QGroupBox(_("Devices"))
         f = QVBoxLayout(g)
         self.lbl_devs = QLabel()
         self.lbl_devs.setTextInteractionFlags(Qt.TextSelectableByMouse)
         f.addWidget(self.lbl_devs)
-        help_ = QLabel("Dicas: clique seleciona; Ctrl+clique alterna; Shift+clique adiciona; arraste para "
-                       "selecionar uma área; duplo clique abre o seletor de cor; Ctrl+A seleciona tudo; "
-                       "Ctrl+I inverte; Esc limpa.\nCLI: alienfx-studio list | set <perfil> | apply [perfil] | status")
+        help_ = QLabel(_("Tips: click selects; Ctrl+click toggles; Shift+click adds; drag to select an "
+                         "area; double click opens the color picker; Ctrl+A selects everything; "
+                         "Ctrl+I inverts; Esc clears.\nCLI: alien-thunder list | set <profile> | apply [profile] | status"))
         help_.setWordWrap(True)
         help_.setStyleSheet("color:#999;")
         f.addWidget(help_)
@@ -623,7 +637,7 @@ class MainWindow(QMainWindow):
         v.addStretch(1)
         return w
 
-    # ------------------------------------------------------------ perfis
+    # ------------------------------------------------------------ profiles
     def reload_profile_list(self, select: str | None = None):
         self._loading = True
         act = profiles.active_slug()
@@ -654,31 +668,31 @@ class MainWindow(QMainWindow):
     def load_into_widgets(self):
         self._loading = True
         p = self.profile
-        self.kb.colors = {int(k): QColor(v) for k, v in p["teclado"].items()}
-        for k in layout.KEYS:  # tecla mostra a cor do LED principal
+        self.kb.colors = {int(k): QColor(v) for k, v in p["keyboard"].items()}
+        for k in layout.KEYS:  # a key shows its main LED's color
             if k.id not in self.kb.colors:
                 for led in k.leds[1:]:
-                    if str(led) in p["teclado"]:
-                        self.kb.colors[k.id] = QColor(p["teclado"][str(led)])
-        self.sl_bright.setValue(p["brilho"])
-        self.lbl_bright.setText(f"{p['brilho']}%")
-        e = p["efeito_teclado"]
-        modes = ["estatico", "hardware", "software"]
-        self.rb_mode.button(modes.index(e["modo"])).setChecked(True)
-        self._fill_effect_combo(e["modo"], e["efeito"])
-        self.btn_ec1.setColor(e["cor1"])
-        self.btn_ec2.setColor(e["cor2"])
-        self.cb_cmode.setCurrentIndex(self.cb_cmode.findData(e["modo_cor"]))
+                    if str(led) in p["keyboard"]:
+                        self.kb.colors[k.id] = QColor(p["keyboard"][str(led)])
+        self.sl_bright.setValue(p["brightness"])
+        self.lbl_bright.setText(f"{p['brightness']}%")
+        e = p["keyboard_effect"]
+        modes = ["static", "hardware", "software"]
+        self.rb_mode.button(modes.index(e["mode"])).setChecked(True)
+        self._fill_effect_combo(e["mode"], e["effect"])
+        self.btn_ec1.setColor(e["color1"])
+        self.btn_ec2.setColor(e["color2"])
+        self.cb_cmode.setCurrentIndex(self.cb_cmode.findData(e["color_mode"]))
         self.sl_tempo.setValue(e["tempo"])
-        self.sl_speed.setValue(int(round(e["velocidade"] * 10)))
+        self.sl_speed.setValue(int(round(e["speed"] * 10)))
         for zone, (cb, c1, c2, sl) in self.zone_widgets.items():
-            z = p["chassi"][zone]
-            cb.setCurrentIndex(max(0, cb.findData(z["efeito"])))
-            c1.setColor(z["cor"])
-            c2.setColor(z["cor2"])
+            z = p["chassis"][zone]
+            cb.setCurrentIndex(max(0, cb.findData(z["effect"])))
+            c1.setColor(z["color"])
+            c2.setColor(z["color2"])
             sl.setValue(max(1, z["tempo"]))
-        self.btn_pw_ac.setColor(p["chassi"]["energia"]["ac"])
-        self.btn_pw_bat.setColor(p["chassi"]["energia"]["bateria"])
+        self.btn_pw_ac.setColor(p["chassis"]["power"]["ac"])
+        self.btn_pw_bat.setColor(p["chassis"]["power"]["battery"])
         self._loading = False
         self._update_effect_ui()
         self._update_hint()
@@ -691,17 +705,17 @@ class MainWindow(QMainWindow):
             self.lbl_hint.setText("")
             self.lbl_hint.hide()
         else:
-            self.lbl_hint.setText("Você está editando um perfil que não é o ativo: ele aparece nos LEDs "
-                                  "só enquanto esta janela estiver aberta. Use “Tornar ativo” para mantê-lo.")
+            self.lbl_hint.setText(_("You're editing a profile that isn't the active one: the LEDs show it only "
+                                    "while this window is open. Use “Make active” to keep it."))
             self.lbl_hint.show()
 
     def _ask_name(self, title, default=""):
-        name, ok = QInputDialog.getText(self, title, "Nome do perfil:", text=default)
+        name, ok = QInputDialog.getText(self, title, _("Profile name:"), text=default)
         name = name.strip()
         return name if ok and name else None
 
     def new_profile(self):
-        name = self._ask_name("Novo perfil")
+        name = self._ask_name(_("New profile"))
         if name:
             self.save_now()
             slug = profiles.create(name)
@@ -710,17 +724,17 @@ class MainWindow(QMainWindow):
     def rename_profile(self):
         if not self.slug:
             return
-        name = self._ask_name("Renomear perfil", self.profile["nome"])
+        name = self._ask_name(_("Rename profile"), self.profile["name"])
         if name:
             self.save_now()
             self.slug = profiles.rename(self.slug, name)
-            self.profile["nome"] = name
+            self.profile["name"] = name
             self.reload_profile_list(select=self.slug)
 
     def duplicate_profile(self):
         if not self.slug:
             return
-        name = self._ask_name("Duplicar perfil", self.profile["nome"] + " (cópia)")
+        name = self._ask_name(_("Duplicate profile"), _("%s (copy)") % self.profile["name"])
         if name:
             self.save_now()
             slug = profiles.duplicate(self.slug, name)
@@ -730,9 +744,9 @@ class MainWindow(QMainWindow):
         if not self.slug:
             return
         if self.slug == profiles.active_slug():
-            QMessageBox.information(self, APP_NAME, "Este é o perfil ativo. Ative outro perfil antes de excluí-lo.")
+            QMessageBox.information(self, APP_NAME, _("This is the active profile. Make another one active before deleting it."))
             return
-        if QMessageBox.question(self, APP_NAME, f"Excluir o perfil “{self.profile['nome']}”?") != QMessageBox.Yes:
+        if QMessageBox.question(self, APP_NAME, _("Delete the profile “%s”?") % self.profile["name"]) != QMessageBox.Yes:
             return
         self.save_timer.stop()
         profiles.delete(self.slug)
@@ -749,7 +763,7 @@ class MainWindow(QMainWindow):
         if ok is None:
             self._direct_apply(power=True)
         self.reload_profile_list(select=self.slug)
-        self.statusBar().showMessage(f"“{self.profile['nome']}” agora é o perfil ativo", 5000)
+        self.statusBar().showMessage(_("“%s” is now the active profile") % self.profile["name"], 5000)
 
     def import_windows(self):
         from . import winimport
@@ -757,26 +771,26 @@ class MainWindow(QMainWindow):
             QApplication.setOverrideCursor(Qt.WaitCursor)
             items = winimport.list_presets()
         except Exception as e:  # noqa: BLE001
-            QMessageBox.warning(self, APP_NAME, f"Não foi possível ler as predefinições do AWCC:\n{e}")
+            QMessageBox.warning(self, APP_NAME, _("Couldn't read the AWCC presets:\n%s") % e)
             return
         finally:
             QApplication.restoreOverrideCursor()
         dlg = QDialog(self)
-        dlg.setWindowTitle("Importar do Windows (Alienware Command Center)")
+        dlg.setWindowTitle(_("Import from Windows (Alienware Command Center)"))
         lay = QVBoxLayout(dlg)
-        lay.addWidget(QLabel("Marque as predefinições para importar como perfis novos "
-                             "(a partição do Windows é só lida):"))
+        lay.addWidget(QLabel(_("Check the presets to import as new profiles "
+                               "(the Windows partition is only read):")))
         lst = QListWidget()
         lst.setSelectionMode(QAbstractItemView.NoSelection)
         for it in items:
-            li = QListWidgetItem(f"{it['nome']}  —  {it['resumo']}")
+            li = QListWidgetItem(f"{it['name']}  —  {it['summary']}")
             li.setFlags(li.flags() | Qt.ItemIsUserCheckable)
             li.setCheckState(Qt.Unchecked)
             li.setData(Qt.UserRole, it["id"])
             lst.addItem(li)
         lay.addWidget(lst)
         bb = QDialogButtonBox(QDialogButtonBox.Ok | QDialogButtonBox.Cancel)
-        bb.button(QDialogButtonBox.Ok).setText("Importar")
+        bb.button(QDialogButtonBox.Ok).setText(_("Import"))
         bb.accepted.connect(dlg.accept)
         bb.rejected.connect(dlg.reject)
         lay.addWidget(bb)
@@ -788,13 +802,14 @@ class MainWindow(QMainWindow):
         last = None
         for it in items:
             if it["id"] in chosen:
-                last = profiles.create(it["nome"] + " (Windows)", it["perfil"])
+                last = profiles.create(it["name"] + " (Windows)", it["profile"])
         if last:
             self.save_now()
             self.reload_profile_list(select=last)
-            self.statusBar().showMessage(f"{len(chosen)} perfil(is) importado(s)", 5000)
+            self.statusBar().showMessage(ngettext("%d profile imported", "%d profiles imported", len(chosen))
+                                         % len(chosen), 5000)
 
-    # ------------------------------------------------------------ selecao / cores
+    # ------------------------------------------------------------ selection / colors
     def set_selection(self, sel: set[int]):
         self.kb.selection = set(sel)
         self.kb.update()
@@ -803,12 +818,12 @@ class MainWindow(QMainWindow):
     def on_selection_changed(self):
         n = len(self.kb.selection)
         if n == 0:
-            self.lbl_sel.setText("Nenhuma tecla selecionada — clique, Ctrl/Shift+clique ou arraste para selecionar")
+            self.lbl_sel.setText(_("No keys selected: click, Ctrl/Shift+click or drag to select"))
         elif n == 1:
             k = layout.KEY_BY_ID[next(iter(self.kb.selection))]
-            self.lbl_sel.setText(f"Selecionada: {k.name} (LED {', '.join(map(str, k.leds))})")
+            self.lbl_sel.setText(_("Selected: %s (LED %s)") % (k.name, ", ".join(map(str, k.leds))))
         else:
-            self.lbl_sel.setText(f"{n} teclas selecionadas")
+            self.lbl_sel.setText(ngettext("%d key selected", "%d keys selected", n) % n)
 
     def select_group(self, name: str):
         ids = set(layout.GROUPS[name])
@@ -830,13 +845,13 @@ class MainWindow(QMainWindow):
         c = profiles.norm_hex(c)
         for kid in self.kb.selection:
             for led in layout.KEY_BY_ID[kid].leds:
-                self.profile["teclado"][str(led)] = c
+                self.profile["keyboard"][str(led)] = c
             self.kb.colors[kid] = QColor(c)
         if recent:
             self._push_recent(c)
-        if self.profile["efeito_teclado"]["modo"] == "hardware":
-            self.statusBar().showMessage("Aviso: um efeito de hardware está ativo; as cores por tecla "
-                                         "valem no modo Estático ou nos efeitos de software", 6000)
+        if self.profile["keyboard_effect"]["mode"] == "hardware":
+            self.statusBar().showMessage(_("Note: a hardware effect is on; per-key colors show in Static "
+                                           "mode or with the software effects"), 6000)
         self.kb.update()
         self.changed()
 
@@ -844,7 +859,7 @@ class MainWindow(QMainWindow):
         cur = None
         if len(self.kb.selection) == 1:
             cur = self.kb.colors.get(next(iter(self.kb.selection)))
-        c = QColorDialog.getColor(cur or QColor(self.btn_color.color()), self, "Cor da tecla")
+        c = QColorDialog.getColor(cur or QColor(self.btn_color.color()), self, _("Key color"))
         if c.isValid():
             self.btn_color.setColor(c.name())
             self.apply_color_to_selection(c.name())
@@ -852,18 +867,18 @@ class MainWindow(QMainWindow):
     def start_pick(self):
         self.kb.pick_mode = True
         self.kb.setCursor(Qt.CrossCursor)
-        self.statusBar().showMessage("Conta-gotas: clique numa tecla", 4000)
+        self.statusBar().showMessage(_("Eyedropper: click a key"), 4000)
 
     def on_key_picked(self, kid):
         c = self.kb.colors.get(kid)
         if c is not None:
             self.btn_color.setColor(c.name())
-            self.statusBar().showMessage(f"Cor {c.name().upper()} copiada de {layout.KEY_BY_ID[kid].name}", 4000)
+            self.statusBar().showMessage(_("Color %s copied from %s") % (c.name().upper(), layout.KEY_BY_ID[kid].name), 4000)
 
     def _push_recent(self, c):
-        rec = [x for x in self.cfg.get("cores_recentes", []) if x != c]
-        self.cfg["cores_recentes"] = ([c] + rec)[:16]
-        self._save_cfg_keys("cores_recentes")
+        rec = [x for x in self.cfg.get("recent_colors", []) if x != c]
+        self.cfg["recent_colors"] = ([c] + rec)[:16]
+        self._save_cfg_keys("recent_colors")
         self._refresh_recent()
 
     def _refresh_recent(self):
@@ -871,9 +886,9 @@ class MainWindow(QMainWindow):
             it = self.recent_grid.takeAt(0)
             if it.widget():
                 it.widget().deleteLater()
-        rec = self.cfg.get("cores_recentes", [])
+        rec = self.cfg.get("recent_colors", [])
         if not rec:
-            lbl = QLabel("(nenhuma ainda)")
+            lbl = QLabel(_("(none yet)"))
             lbl.setStyleSheet("color:#888;")
             self.recent_grid.addWidget(lbl, 0, 0, 1, 8)
         for i, c in enumerate(rec):
@@ -882,7 +897,7 @@ class MainWindow(QMainWindow):
             self.recent_grid.addWidget(s, i // 8, i % 8)
 
     def _save_cfg_keys(self, *keys):
-        cfg = profiles.load_config()  # relê para nao sobrescrever o perfil ativo mudado por fora
+        cfg = profiles.load_config()  # read again so an active profile changed elsewhere survives
         for k in keys:
             cfg[k] = self.cfg[k]
         profiles.save_config(cfg)
@@ -890,12 +905,12 @@ class MainWindow(QMainWindow):
 
     def _refresh_groups(self):
         self.cb_groups.clear()
-        for name in sorted(self.cfg.get("grupos", {})):
+        for name in sorted(self.cfg.get("groups", {})):
             self.cb_groups.addItem(name)
 
     def select_custom_group(self):
         name = self.cb_groups.currentText()
-        ids = set(self.cfg.get("grupos", {}).get(name, [])) & set(layout.KEY_BY_ID)
+        ids = set(self.cfg.get("groups", {}).get(name, [])) & set(layout.KEY_BY_ID)
         if ids:
             self.set_selection(ids)
 
@@ -903,37 +918,37 @@ class MainWindow(QMainWindow):
         if not self.kb.selection:
             self.statusBar().showMessage("Selecione teclas primeiro", 3000)
             return
-        name, ok = QInputDialog.getText(self, "Salvar grupo", "Nome do grupo:")
+        name, ok = QInputDialog.getText(self, _("Save group"), _("Group name:"))
         if ok and name.strip():
-            self.cfg.setdefault("grupos", {})[name.strip()] = sorted(self.kb.selection)
-            self._save_cfg_keys("grupos")
+            self.cfg.setdefault("groups", {})[name.strip()] = sorted(self.kb.selection)
+            self._save_cfg_keys("groups")
             self._refresh_groups()
             self.cb_groups.setCurrentText(name.strip())
 
     def delete_custom_group(self):
         name = self.cb_groups.currentText()
-        if name and name in self.cfg.get("grupos", {}):
-            del self.cfg["grupos"][name]
-            self._save_cfg_keys("grupos")
+        if name and name in self.cfg.get("groups", {}):
+            del self.cfg["groups"][name]
+            self._save_cfg_keys("groups")
             self._refresh_groups()
 
     def on_brightness(self, v):
         self.lbl_bright.setText(f"{v}%")
         if self._loading:
             return
-        self.profile["brilho"] = v
+        self.profile["brightness"] = v
         self.changed()
 
-    # ------------------------------------------------------------ efeitos
+    # ------------------------------------------------------------ effects
     def _fill_effect_combo(self, mode, current=None):
         self.cb_effect.blockSignals(True)
         self.cb_effect.clear()
         if mode == "hardware":
             for k, (_t, name) in protocol.KB_HW_EFFECTS.items():
-                self.cb_effect.addItem(name, k)
+                self.cb_effect.addItem(_(name), k)
         elif mode == "software":
             for k, name in effects.SW_EFFECTS.items():
-                self.cb_effect.addItem(name, k)
+                self.cb_effect.addItem(_(name), k)
         idx = self.cb_effect.findData(current)
         self.cb_effect.setCurrentIndex(max(0, idx))
         self.cb_effect.blockSignals(False)
@@ -941,58 +956,57 @@ class MainWindow(QMainWindow):
     def on_effect_mode(self, bid, checked):
         if not checked:
             return
-        mode = self.rb_mode.button(bid).property("modo")
+        mode = self.rb_mode.button(bid).property("mode")
         if not self._loading:
-            self._fill_effect_combo(mode, self.profile["efeito_teclado"].get("efeito"))
-            self.profile["efeito_teclado"]["modo"] = mode
+            self._fill_effect_combo(mode, self.profile["keyboard_effect"].get("effect"))
+            self.profile["keyboard_effect"]["mode"] = mode
             if self.cb_effect.count():
-                self.profile["efeito_teclado"]["efeito"] = self.cb_effect.currentData()
+                self.profile["keyboard_effect"]["effect"] = self.cb_effect.currentData()
             self.changed()
         self._update_effect_ui()
 
     def on_effect_param(self, *_a):
         if self._loading:
             return
-        e = self.profile["efeito_teclado"]
+        e = self.profile["keyboard_effect"]
         if self.cb_effect.count():
-            e["efeito"] = self.cb_effect.currentData()
-        e["cor1"] = self.btn_ec1.color()
-        e["cor2"] = self.btn_ec2.color()
-        e["modo_cor"] = self.cb_cmode.currentData()
+            e["effect"] = self.cb_effect.currentData()
+        e["color1"] = self.btn_ec1.color()
+        e["color2"] = self.btn_ec2.color()
+        e["color_mode"] = self.cb_cmode.currentData()
         e["tempo"] = self.sl_tempo.value()
-        e["velocidade"] = self.sl_speed.value() / 10.0
+        e["speed"] = self.sl_speed.value() / 10.0
         self._update_effect_ui()
         self.changed()
 
     def _update_effect_ui(self):
-        e = self.profile["efeito_teclado"]
-        mode = e["modo"]
+        e = self.profile["keyboard_effect"]
+        mode = e["mode"]
         hwm, swm = mode == "hardware", mode == "software"
         self.cb_effect.setEnabled(hwm or swm)
-        self.btn_ec1.setEnabled(hwm or (swm and e["efeito"] in ("onda_cor", "cintilar")))
-        self.btn_ec2.setEnabled(hwm and e["modo_cor"] == 2)
+        self.btn_ec1.setEnabled(hwm or (swm and e["effect"] in ("color_wave", "twinkle")))
+        self.btn_ec2.setEnabled(hwm and e["color_mode"] == 2)
         self.cb_cmode.setEnabled(hwm)
         self.sl_tempo.setEnabled(hwm)
         self.sl_speed.setEnabled(swm)
         if hwm:
-            note = ("Efeito executado pelo próprio controlador do teclado (zero CPU). "
-                    "Traduzido do alienfx-tools — precisa de confirmação visual. "
-                    "As cores por tecla ficam guardadas e voltam no modo Estático.")
-            self.kb.banner = f"Efeito de hardware: {self.cb_effect.currentText()} (prévia = cores por tecla)"
+            note = _("The keyboard's own controller runs this effect (no CPU). Ported from alienfx-tools, "
+                     "so check that it looks right. The per-key colors are kept and come back in Static mode.")
+            self.kb.banner = _("Hardware effect: %s (preview shows the per-key colors)") % self.cb_effect.currentText()
         elif swm:
-            note = (f"Renderizado pelo serviço em segundo plano a {self.cfg['fps']} fps "
-                    "(baixo uso de CPU). A prévia ao lado é animada.")
+            note = _("Drawn by the background service at %d fps (low CPU use). "
+                     "The preview beside it is animated.") % self.cfg["fps"]
             self.kb.banner = ""
         else:
-            note = "Cada tecla usa a cor definida na aba Cores."
+            note = _("Each key uses the color set in the Colors tab.")
             self.kb.banner = ""
         self.lbl_effect_note.setText(note)
         self._restart_anim()
         self.kb.update()
 
     def _restart_anim(self):
-        e = self.profile["efeito_teclado"]
-        if e["modo"] == "software":
+        e = self.profile["keyboard_effect"]
+        if e["mode"] == "software":
             try:
                 self.anim_fx = engine.make_sw_effect(profiles.normalize(self.profile))
             except (ValueError, profiles.ProfileError):
@@ -1010,7 +1024,7 @@ class MainWindow(QMainWindow):
         if not self.anim_fx or not self.isVisible():
             return
         fr = self.anim_fx.frame(time.monotonic() - self.anim_t0)
-        f = max(0.15, self.profile["brilho"] / 100.0)  # prévia legível mesmo com brilho baixo
+        f = max(0.15, self.profile["brightness"] / 100.0)  # keeps the preview readable at low brightness
         prev = {}
         for k in layout.KEYS:
             c = fr.get(k.id)
@@ -1019,46 +1033,46 @@ class MainWindow(QMainWindow):
         self.kb.preview = prev
         self.kb.update()
 
-    # ------------------------------------------------------------ chassi
+    # ------------------------------------------------------------ chassis
     def on_zone_changed(self, zone):
         if self._loading:
             return
         cb, c1, c2, sl = self.zone_widgets[zone]
-        z = self.profile["chassi"][zone]
+        z = self.profile["chassis"][zone]
         z.update(efeito=cb.currentData(), cor=c1.color(), cor2=c2.color(), tempo=sl.value())
         self.changed()
 
     def on_power_changed(self, *_a):
         if self._loading:
             return
-        self.profile["chassi"]["energia"] = {"ac": self.btn_pw_ac.color(), "bateria": self.btn_pw_bat.color()}
+        self.profile["chassis"]["power"] = {"ac": self.btn_pw_ac.color(), "battery": self.btn_pw_bat.color()}
         self.changed(live=False)
-        self.statusBar().showMessage("Cores do botão de energia serão gravadas ao clicar em Aplicar "
-                                     "(perfil ativo) ou em “Gravar cores do botão agora”", 6000)
+        self.statusBar().showMessage(_("The power button colors are written on Apply (active profile) "
+                                       "or with “Write the button colors now”"), 6000)
 
     def write_power_now(self):
         self.save_now()
         ok = self._daemon("WritePower", self.slug or "")
         if ok is None:
             try:
-                self._engine().write_power_now(self.profile, self.cfg["chassi_backend"])
+                self._engine().write_power_now(self.profile, self.cfg["chassis_backend"])
                 ok = True
             except hw.DeviceError as e:
                 QMessageBox.warning(self, APP_NAME, str(e))
                 return
-        self.statusBar().showMessage("Botão de energia gravado" if ok else "Falha ao gravar o botão de energia", 5000)
+        self.statusBar().showMessage(_("Power button written") if ok else _("Couldn't write the power button"), 5000)
 
-    # ------------------------------------------------------------ opcoes/servico
+    # ------------------------------------------------------------ options / service
     def on_options(self, *_a):
         self.cfg["fps"] = self.sp_fps.value()
-        self.cfg["chassi_backend"] = self.cb_backend.currentData()
-        self._save_cfg_keys("fps", "chassi_backend")
+        self.cfg["chassis_backend"] = self.cb_backend.currentData()
+        self._save_cfg_keys("fps", "chassis_backend")
         self._update_effect_ui()
 
     def _systemctl(self, verb):
-        r = subprocess.run(["systemctl", "--user", verb, "alienfx-studio.service"], capture_output=True, text=True)
+        r = subprocess.run(["systemctl", "--user", verb, "alien-thunder.service"], capture_output=True, text=True)
         if r.returncode:
-            QMessageBox.warning(self, APP_NAME, r.stderr or f"systemctl {verb} falhou")
+            QMessageBox.warning(self, APP_NAME, r.stderr or _("systemctl %s failed") % verb)
         QTimer.singleShot(1500, self.refresh_daemon_status)
         self.preview_sent = False
         QTimer.singleShot(1800, self.schedule_live)
@@ -1070,10 +1084,22 @@ class MainWindow(QMainWindow):
             if slug:
                 self._direct_apply(profiles.load(slug), power=True, force=True)
         self.preview_sent = False
-        self.statusBar().showMessage("Perfil ativo reaplicado", 3000)
+        self.statusBar().showMessage(_("Active profile applied again"), 3000)
+
+    def toggle_gmode(self, on):
+        ok = self._daemon("SetGMode", bool(on))
+        if ok is None:
+            try:
+                gmode.set_profile(gmode.PERFORMANCE if on else "balanced")
+            except Exception as e:  # noqa: BLE001
+                self.statusBar().showMessage(f"G-Mode: {e}", 6000)
+        QTimer.singleShot(300, self.refresh_daemon_status)
 
     def refresh_daemon_status(self):
         info = engine.env_info()
+        self.btn_gmode.blockSignals(True)
+        self.btn_gmode.setChecked(gmode.is_on())
+        self.btn_gmode.blockSignals(False)
         running = engine.daemon_running()
         self._daemon_ok = running
         st = {}
@@ -1084,28 +1110,29 @@ class MainWindow(QMainWindow):
                 st = {}
         if running:
             err = st.get("ultimo_erro")
-            self.lbl_daemon.setText("● serviço ativo" if not err else "● serviço: tentando novamente")
+            self.lbl_daemon.setText(_("● service running") if not err else _("● service: retrying"))
             self.lbl_daemon.setStyleSheet("color:#3fb950;" if not err else "color:#d29922;")
-            self.lbl_daemon.setToolTip(err or "O serviço mantém o perfil ativo aplicado")
-            txt = (f"Rodando (pid {st.get('pid')}). Aplicando: {st.get('aplicando')}"
+            self.lbl_daemon.setToolTip(err or _("The service keeps the active profile on the LEDs"))
+            txt = (_("Running (pid %s). Applying: %s") % (st.get("pid"), st.get("applying"))
                    + (f" [{st.get('override')}]" if st.get("override") else "")
-                   + (f"\nEfeito de software: {st.get('efeito_software')}" if st.get("efeito_software") else "")
-                   + (f"\nÚltimo erro: {err}" if err else ""))
+                   + ("\n" + _("Software effect: %s") % st.get("software_effect") if st.get("software_effect") else "")
+                   + ("\n" + _("Last error: %s") % err if err else ""))
         else:
-            self.lbl_daemon.setText("● serviço parado")
+            self.lbl_daemon.setText(_("● service stopped"))
             self.lbl_daemon.setStyleSheet("color:#f85149;")
-            self.lbl_daemon.setToolTip("Sem o serviço, a GUI aplica diretamente; efeitos de software não rodam")
-            txt = "Parado. Inicie com: systemctl --user enable --now alienfx-studio"
+            self.lbl_daemon.setToolTip(_("Without the service the editor applies directly; software effects don't run"))
+            txt = _("Stopped. Start it with: systemctl --user enable --now alien-thunder")
         self.lbl_service.setText(txt)
-        self.lbl_devs.setText(f"Teclado 0d62:d2b1: {info['teclado'] or 'não encontrado'}\n"
-                              f"AW-ELC 187c:0551: {info['chassi'] or 'não encontrado'}\n"
-                              f"alienrgb: {'disponível' if info['alienrgb'] else 'ausente'}")
+        missing = _("not found")
+        self.lbl_devs.setText(_("Keyboard 0d62:d2b1: %s") % (info["keyboard"] or missing) + "\n"
+                              + _("AW-ELC 187c:0551: %s") % (info["chassis"] or missing) + "\n"
+                              + "alienrgb: " + (_("available") if info["alienrgb"] else _("missing")))
 
-    # ------------------------------------------------------------ aplicar/salvar
+    # ------------------------------------------------------------ apply / save
     def changed(self, live=True):
         if self._loading or not self.slug:
             return
-        self.lbl_saved.setText("modificado…")
+        self.lbl_saved.setText(_("modified…"))
         self.save_timer.start()
         if live:
             self.schedule_live()
@@ -1119,19 +1146,19 @@ class MainWindow(QMainWindow):
         if self.slug and not self._loading:
             try:
                 profiles.save(self.slug, self.profile)
-                self.lbl_saved.setText("salvo")
+                self.lbl_saved.setText(_("saved"))
             except (OSError, profiles.ProfileError) as e:
-                self.lbl_saved.setText("erro ao salvar")
+                self.lbl_saved.setText(_("save failed"))
                 self.statusBar().showMessage(str(e), 8000)
 
     def _daemon(self, method, *args):
-        """Chama o serviço. Retorna None se ele não estiver disponível."""
+        """Calls the service. Returns None when it isn't there."""
         if not engine.daemon_running():
             return None
         try:
             return bool(engine.daemon_call(method, *args, timeout=25))
         except Exception as e:  # noqa: BLE001
-            self.statusBar().showMessage(f"Serviço: {e}", 6000)
+            self.statusBar().showMessage(_("Service: %s") % e, 6000)
             return None
 
     def _engine(self):
@@ -1142,10 +1169,10 @@ class MainWindow(QMainWindow):
     def _direct_apply(self, prof=None, power=False, force=False):
         try:
             self._engine().apply(prof or self.profile, power=power, force=force,
-                                 backend=self.cfg["chassi_backend"])
+                                 backend=self.cfg["chassis_backend"])
             return True
         except hw.DeviceError as e:
-            self.statusBar().showMessage(f"Erro: {e}", 8000)
+            self.statusBar().showMessage(_("Error: %s") % e, 8000)
             return False
 
     def push_live(self):
@@ -1158,7 +1185,7 @@ class MainWindow(QMainWindow):
         else:
             self.preview_sent = True
         if ok is False:
-            self.statusBar().showMessage("Falha ao aplicar (veja a aba Opções)", 5000)
+            self.statusBar().showMessage(_("Couldn't apply (see the Options tab)"), 5000)
 
     def apply_now(self):
         self.save_now()
@@ -1168,9 +1195,9 @@ class MainWindow(QMainWindow):
             ok = self._direct_apply(power=is_active, force=True)
         else:
             self.preview_sent = not is_active
-        msg = "Aplicado" if ok else "Falha ao aplicar (o serviço tentará de novo)"
+        msg = _("Applied") if ok else _("Couldn't apply (the service will try again)")
         if ok and not is_active:
-            msg += " — perfil não ativo: volta ao ativo ao fechar"
+            msg += _("; not the active profile, so the active one comes back when you close")
         self.statusBar().showMessage(msg, 5000)
 
     def closeEvent(self, ev):
@@ -1193,8 +1220,8 @@ class MainWindow(QMainWindow):
 def main(argv=None) -> int:
     app = QApplication(sys.argv if argv is None else argv)
     app.setApplicationName(APP_NAME)
-    app.setDesktopFileName("alienfx-studio")
-    app.setWindowIcon(QIcon.fromTheme("input-keyboard"))
+    app.setDesktopFileName("alien-thunder")
+    app.setWindowIcon(app_icon())
     w = MainWindow()
     w.show()
     return app.exec()

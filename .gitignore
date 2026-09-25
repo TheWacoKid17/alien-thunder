@@ -1,2 +1,4 @@
 __pycache__/
 *.pyc
+alien_thunder/locale/
+plasma/alien-thunder/contents/locale/

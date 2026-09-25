@@ -1,17 +1,23 @@
-"""Testes dos codificadores contra pacotes comprovados (alienfx-perfil e alienrgb).
+"""Checks the encoders against packets known to work (from alienfx-perfil and alienrgb).
 
-Rode com:  python3 -m unittest discover -s tests -v
+Run with:  python3 -m unittest discover -s tests -v
 """
 import json
 import os
 import sys
+import tempfile
 import unittest
 
 HERE = os.path.dirname(os.path.abspath(__file__))
 sys.path.insert(0, os.path.dirname(HERE))
 
-from alienfx_studio import effects, layout, profiles, protocol  # noqa: E402
-from alienfx_studio.profiles import hex_to_rgb  # noqa: E402
+# paths.py reads these at import time; the tests must never touch the real profiles or state.
+_SANDBOX = tempfile.mkdtemp(prefix="alien-thunder-tests-")
+for _var in ("XDG_CONFIG_HOME", "XDG_STATE_HOME", "XDG_RUNTIME_DIR"):
+    os.environ[_var] = os.path.join(_SANDBOX, _var.lower())
+
+from alien_thunder import effects, engine, gmode, layout, profiles, protocol  # noqa: E402
+from alien_thunder.profiles import hex_to_rgb  # noqa: E402
 
 
 def golden(name):
@@ -20,7 +26,7 @@ def golden(name):
 
 
 def plan_hex(g, length):
-    """Extrai os payloads de um plano --dry-run --json do alienrgb."""
+    """Pulls the payloads out of an alienrgb --dry-run --json plan."""
     out = []
     for s in g["plan"]["steps"]:
         if s.get("payload_hex") and s["transfer"] != "hid_feature_read_intent":
@@ -31,15 +37,15 @@ def plan_hex(g, length):
 
 
 class KeyboardV5(unittest.TestCase):
-    def test_devops_identico_ao_alienfx_perfil(self):
-        g = golden("devops_alienfx_perfil.json")
-        prof = profiles.from_legacy(g["perfil"])
-        colors = {int(k): hex_to_rgb(v) for k, v in prof["teclado"].items()}
+    def test_devops_matches_alienfx_perfil(self):
+        g = golden("devops_legacy_profile.json")
+        prof = profiles.from_legacy(g["profile"])
+        colors = {int(k): hex_to_rgb(v) for k, v in prof["keyboard"].items()}
         mine = [protocol.KB_RESET.hex(), protocol.KB_STATUS.hex()]
         mine += [p.hex() for p in protocol.kb_static_packets(colors)]
-        self.assertEqual(mine, g["pacotes"])
+        self.assertEqual(mine, g["packets"])
 
-    def test_todas_identico_ao_alienrgb(self):
+    def test_all_keys_match_alienrgb(self):
         g = golden("kb_all.json")
         steps = plan_hex(g, 64)
         colors = {a["logical_id"]: (a["color"]["r"], a["color"]["g"], a["color"]["b"])
@@ -47,8 +53,8 @@ class KeyboardV5(unittest.TestCase):
         mine = [protocol.KB_RESET, protocol.KB_STATUS] + protocol.kb_static_packets(colors)
         self.assertEqual([p.hex() for p in mine], [h for _, h in steps])
 
-    def test_efeito_global(self):
-        p = protocol.kb_effect_packet("respiracao", 5, 2, (1, 2, 3), (4, 5, 6))
+    def test_global_effect(self):
+        p = protocol.kb_effect_packet("breathing", 5, 2, (1, 2, 3), (4, 5, 6))
         self.assertEqual(p[:16].hex(), "cc80020500000101010101020304050" "6")
         self.assertEqual(p[16:], bytes(48))
         self.assertEqual(protocol.KB_EFFECT_OFF[:9].hex(), "cc8001fe0000010101")
@@ -57,57 +63,57 @@ class KeyboardV5(unittest.TestCase):
 
 
 class ChassisV4(unittest.TestCase):
-    def test_touchpad_estatico(self):
+    def test_static_touchpad(self):
         steps = plan_hex(golden("touchpad_ff2900.json"), 33)
-        mine = protocol.elc_zone_packets({0: {"efeito": "estatico", "cor": (0xff, 0x29, 0)}})
+        mine = protocol.elc_zone_packets({0: {"effect": "static", "color": (0xff, 0x29, 0)}})
         self.assertEqual([p.hex() for p in mine], [h for _, h in steps])
 
-    def test_touchpad_e_logo_mesma_cor(self):
+    def test_touchpad_and_logo_same_color(self):
         steps = plan_hex(golden("tp_back.json"), 33)
         c = (0x0a, 0x0b, 0x0c)
-        mine = protocol.elc_zone_packets({0: {"efeito": "estatico", "cor": c},
-                                          2: {"efeito": "estatico", "cor": c}})
+        mine = protocol.elc_zone_packets({0: {"effect": "static", "color": c},
+                                          2: {"effect": "static", "color": c}})
         self.assertEqual([p.hex() for p in mine], [h for _, h in steps])
 
-    def test_energia_igual_ao_alienrgb(self):
+    def test_power_matches_alienrgb(self):
         for fn, c in (("power_ff2900.json", (0xff, 0x29, 0)), ("power_12ab34.json", (0x12, 0xab, 0x34))):
             steps = plan_hex(golden(fn), 33)
             mine = protocol.elc_power_packets(c, c)
             self.assertEqual(len(mine), 34)
             self.assertEqual([p.hex() for p in mine], [h for _, h in steps], fn)
 
-    def test_energia_ac_bateria_separadas(self):
+    def test_power_ac_and_battery_apart(self):
         ac, bat = (1, 2, 3), (9, 8, 7)
         pk = protocol.elc_power_packets(ac, bat)
         self.assertEqual(len(pk), 34)
-        # estado 0x5c (AC ligado): 1o registro = cor AC tipo "color"
+        # state 0x5c (AC on): first record is the AC color, type "color"
         i = [n for n, p in enumerate(pk) if p[:6].hex() == "032200010" "05c"][0]
         rec = pk[i + 2]
         self.assertEqual(rec[2:10].hex(), "0003d000fa010203")
-        # estado 0x5f (bateria ligado): ultimos registros com a cor da bateria
+        # state 0x5f (battery on): the last records carry the battery color
         i = [n for n, p in enumerate(pk) if p[:6].hex() == "032200010" "05f"][0]
         self.assertEqual(pk[i + 2][10:18].hex(), "0203e80064090807")
 
-    def test_efeitos_chassi(self):
-        z = {0: {"efeito": "pulso", "cor": (1, 2, 3), "tempo": 100},
-             2: {"efeito": "espectro", "cor": (0, 0, 0), "tempo": 50}}
+    def test_chassis_effects(self):
+        z = {0: {"effect": "pulse", "color": (1, 2, 3), "tempo": 100},
+             2: {"effect": "spectrum", "color": (0, 0, 0), "tempo": 50}}
         pk = protocol.elc_zone_packets(z)
         self.assertEqual(pk[0], protocol.ELC_REMOVE)
         self.assertEqual(pk[1], protocol.ELC_START)
         self.assertEqual(pk[2][:6].hex(), "032301000100")
         self.assertEqual(pk[3][:10].hex(), "03240107dc0064010203")
         self.assertEqual(pk[4][:6].hex(), "032301000102")
-        self.assertEqual(len(pk), 2 + 2 + 3 + 1)  # espectro: 6 registros = 2 pacotes
+        self.assertEqual(len(pk), 2 + 2 + 3 + 1)  # spectrum: 6 records = 2 packets
         self.assertEqual(pk[-1], protocol.ELC_FINISH_PLAY)
 
-    def test_seguranca(self):
+    def test_safety(self):
         all_pk = protocol.elc_power_packets((1, 1, 1), (2, 2, 2))
         for eff in protocol.CHASSIS_EFFECTS:
-            all_pk += protocol.elc_zone_packets({0: {"efeito": eff, "cor": (1, 2, 3), "cor2": (4, 5, 6), "tempo": 9}})
+            all_pk += protocol.elc_zone_packets({0: {"effect": eff, "color": (1, 2, 3), "color2": (4, 5, 6), "tempo": 9}})
         for p in all_pk:
             protocol.assert_safe_elc(p)
             self.assertNotEqual(p[1], 0xFF)
-            if p[1] == 0x21:  # controle geral: nunca save/default/startup
+            if p[1] == 0x21:  # general control: never save/default/startup
                 self.assertIn(p[3], (1, 3, 4, 5))
         for bad in ([0x03, 0xFF], [0x03, 0x21, 0x00, 0x02, 0xFF, 0xFF], [0x03, 0x21, 0x00, 0x06],
                     [0x03, 0x21, 0x00, 0x07]):
@@ -124,37 +130,107 @@ class Layout(unittest.TestCase):
             88, 89, 90, 91, 92, 94, 114, 17, 100, 101, 103, 104, 105, 110, 107, 111, 112, 109, 133,
             134, 135}
 
-    def test_92_ids_do_awcc(self):
+    def test_92_awcc_ids(self):
         self.assertEqual(set(layout.AWCC_IDS), self.AWCC)
         self.assertEqual(len([k for k in layout.KEYS if not k.extra]), 86)
         self.assertIn(106, layout.KEY_BY_ID[107].leds)
 
-    def test_grupos_validos(self):
+    def test_groups_are_valid(self):
         for name, ids in layout.GROUPS.items():
             for i in ids:
                 self.assertIn(i, layout.KEY_BY_ID, name)
 
 
-class Perfis(unittest.TestCase):
-    def test_migracao_legado(self):
-        g = golden("devops_alienfx_perfil.json")
-        p = profiles.from_legacy(g["perfil"])
-        self.assertEqual(p["nome"], "Devops")
-        self.assertEqual(len(p["teclado"]), 92)
-        self.assertEqual(p["chassi"]["touchpad"]["cor"], "#ff2900")
-        self.assertEqual(p["chassi"]["energia"], {"ac": "#ff2900", "bateria": "#ff2900"})
+class Profiles(unittest.TestCase):
+    def test_legacy_import(self):
+        g = golden("devops_legacy_profile.json")
+        p = profiles.from_legacy(g["profile"])
+        self.assertEqual(p["name"], "Devops")
+        self.assertEqual(len(p["keyboard"]), 92)
+        self.assertEqual(p["chassis"]["touchpad"]["color"], "#ff2900")
+        self.assertEqual(p["chassis"]["power"], {"ac": "#ff2900", "battery": "#ff2900"})
         self.assertEqual(profiles.normalize(p), p)
 
-    def test_efeitos_software(self):
+    def test_version_1_file(self):
+        v1 = {"versao": 1, "nome": "Devops", "brilho": 80, "teclado": {"1": "#9900ba", "107": "#fa2800"},
+              "efeito_teclado": {"modo": "software", "efeito": "onda_cor", "cor1": "#ff0000", "cor2": "#0000ff",
+                                 "modo_cor": 2, "tempo": 5, "velocidade": 1.5},
+              "chassi": {"touchpad": {"efeito": "pulso", "cor": "#ff2900", "cor2": "#000000", "tempo": 100},
+                         "logo": {"efeito": "apagado", "cor": "#ff2900", "cor2": "#000000", "tempo": 100},
+                         "energia": {"ac": "#ff2900", "bateria": "#00ff00"}}}
+        p = profiles.normalize(v1)
+        self.assertEqual(p["version"], 2)
+        self.assertEqual(p["name"], "Devops")
+        self.assertEqual(p["brightness"], 80)
+        self.assertEqual(p["keyboard"], {"1": "#9900ba", "107": "#fa2800"})
+        self.assertEqual(p["keyboard_effect"]["mode"], "software")
+        self.assertEqual(p["keyboard_effect"]["effect"], "color_wave")
+        self.assertEqual(p["keyboard_effect"]["speed"], 1.5)
+        self.assertEqual(p["chassis"]["touchpad"]["effect"], "pulse")
+        self.assertEqual(p["chassis"]["logo"]["effect"], "off")
+        self.assertEqual(p["chassis"]["power"], {"ac": "#ff2900", "battery": "#00ff00"})
+        self.assertNotIn("nome", p)
+        cfg = profiles.from_v1({"versao": 1, "perfil_ativo": "devops", "grupos": {"Minhas": [1, 2]},
+                                "chassi_backend": "hidraw"})
+        self.assertEqual(cfg["active_profile"], "devops")
+        self.assertEqual(cfg["groups"], {"Minhas": [1, 2]})
+        self.assertEqual(cfg["chassis_backend"], "hidraw")
+
+    def test_software_effects(self):
         base = {0: (255, 0, 0), 107: (0, 255, 0)}
         for name in effects.SW_EFFECTS:
-            fx = effects.SoftwareEffect(name, base, {"velocidade": 1.0, "cor1_rgb": (0, 0, 255)}, 1.0)
+            fx = effects.SoftwareEffect(name, base, {"speed": 1.0, "color1_rgb": (0, 0, 255)}, 1.0)
             for t in (0.0, 0.3, 1.7, 10.0):
                 fr = fx.frame(t)
                 self.assertTrue(set(layout.AWCC_IDS) <= set(fr))
                 for c in fr.values():
                     self.assertTrue(all(0 <= x <= 255 for x in c))
                 protocol.kb_static_packets(fr)
+
+
+class _Fake:
+    """A stand-in device that records the calls instead of talking to hidraw."""
+
+    def __init__(self):
+        self.calls = []
+
+    def __getattr__(self, name):
+        return lambda *a, **k: self.calls.append((name, a))
+
+
+class GMode(unittest.TestCase):
+    def ev(self, typ, code, value):
+        return gmode.EVENT.pack(0, 0, typ, code, value)
+
+    def test_key(self):
+        syn = self.ev(0, 0, 0)
+        scan = self.ev(4, 4, 0x68)
+        self.assertTrue(gmode.pressed(scan + self.ev(1, gmode.KEY_PERFORMANCE, 1) + syn))
+        self.assertFalse(gmode.pressed(scan + self.ev(1, gmode.KEY_PERFORMANCE, 0) + syn))  # release
+        self.assertFalse(gmode.pressed(self.ev(1, gmode.KEY_PERFORMANCE, 2)))  # repeat
+        self.assertFalse(gmode.pressed(self.ev(1, 59, 1)))  # F1 without Fn
+        self.assertTrue(gmode.pressed(self.ev(1, gmode.KEY_PERFORMANCE, 1) + b"\x00" * 5))
+
+    def apply(self, eng, prof):
+        eng.kb, eng.ch = _Fake(), _Fake()
+        eng.state.data["keyboard_hw_effect"] = False
+        eng.apply(prof)
+        return [a[0] for n, a in eng.kb.calls if n == "static"]
+
+    def test_f1_white_only_in_gmode(self):
+        prof = profiles.normalize(profiles.from_legacy(golden("devops_legacy_profile.json")["profile"]))
+        prof["brightness"] = 50
+        eng = engine.Engine(log=lambda m: None)
+        (off,) = self.apply(eng, prof)
+        eng.gmode = True
+        (on,) = self.apply(eng, prof)
+        self.assertEqual(on[gmode.F1_LED], (128, 128, 128))
+        self.assertNotEqual(off[gmode.F1_LED], on[gmode.F1_LED])
+        self.assertEqual({k: v for k, v in on.items() if k != gmode.F1_LED},
+                         {k: v for k, v in off.items() if k != gmode.F1_LED})
+        eng.gmode = False
+        (back,) = self.apply(eng, prof)
+        self.assertEqual(back, off)
 
 
 if __name__ == "__main__":

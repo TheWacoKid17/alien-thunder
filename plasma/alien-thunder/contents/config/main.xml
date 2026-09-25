@@ -1,0 +1,13 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<kcfg xmlns="http://www.kde.org/standards/kcfg/1.0"
+      xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+      xsi:schemaLocation="http://www.kde.org/standards/kcfg/1.0 http://www.kde.org/standards/kcfg/1.0/kcfg.xsd">
+  <kcfgfile name=""/>
+  <group name="General">
+    <entry name="panel_cpu_temp" type="Bool"><default>true</default></entry>
+    <entry name="panel_gpu_temp" type="Bool"><default>true</default></entry>
+    <entry name="panel_cpu_fan" type="Bool"><default>true</default></entry>
+    <entry name="panel_gpu_fan" type="Bool"><default>true</default></entry>
+    <entry name="panel_ram" type="Bool"><default>true</default></entry>
+  </group>
+</kcfg>

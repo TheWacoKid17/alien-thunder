@@ -1,0 +1,15 @@
+[Unit]
+Description=Alien Thunder overlay: temperature, fan and memory readouts above every window
+Documentation=https://github.com/cryptoconspiracy/alien-thunder
+PartOf=graphical-session.target
+After=graphical-session.target alien-thunder.service
+
+[Service]
+ExecStart=%h/.local/bin/alien-thunder overlay run
+Restart=on-failure
+RestartSec=3
+Environment=PYTHONUNBUFFERED=1
+Environment=PYTHONDONTWRITEBYTECODE=1
+
+[Install]
+WantedBy=graphical-session.target
