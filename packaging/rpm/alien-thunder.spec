@@ -13,13 +13,17 @@ BuildRequires:  python3
 BuildRequires:  systemd-rpm-macros
 
 Requires:       python3
-Requires:       python3-dbus
 %if 0%{?suse_version}
-Requires:       python3-pyside6
-Requires:       python3-gobject
+# openSUSE names Python packages after the interpreter version (python313-...).
+BuildRequires:  hicolor-icon-theme
+Requires:       %{primary_python}-pyside6
+Requires:       %{primary_python}-dbus-python
+Requires:       %{primary_python}-gobject
 Requires:       typelib-1_0-GUdev-1_0
 Requires:       layer-shell-qt6
+Requires:       hicolor-icon-theme
 %else
+Requires:       python3-dbus
 Requires:       python3-pyside6
 Requires:       python3-gobject
 Requires:       libgudev
@@ -64,6 +68,8 @@ rm -f %{buildroot}%{_datadir}/licenses/%{name}/LICENSE
 %{_udevrulesdir}/70-alien-thunder.rules
 %{_datadir}/applications/alien-thunder.desktop
 %{_datadir}/icons/hicolor/*/apps/alien-thunder.png
+%dir %{_datadir}/plasma
+%dir %{_datadir}/plasma/plasmoids
 %{_datadir}/plasma/plasmoids/alien-thunder/
 
 %changelog
