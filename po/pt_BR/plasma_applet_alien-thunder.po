@@ -34,6 +34,19 @@ msgstr "Rotação do fan da GPU"
 msgid "Memory in use"
 msgstr "Memória em uso"
 
+#: plasma/alien-thunder/contents/ui/configSupport.qml:38
+msgid "Alien Thunder is free and stays free. If it saved you from booting into Windows just to change your keyboard colors, a donation keeps it going."
+msgstr "O Alien Thunder é gratuito e vai continuar assim. Se ele te poupou de abrir o Windows só para trocar as cores do teclado, uma doação ajuda a mantê-lo."
+
+#: plasma/alien-thunder/contents/ui/configSupport.qml:73
+#: plasma/alien-thunder/contents/ui/configSupport.qml:84
+msgid "Copy"
+msgstr "Copiar"
+
+#: plasma/alien-thunder/contents/ui/configSupport.qml:78
+msgid "Copied"
+msgstr "Copiado"
+
 #: plasma/alien-thunder/contents/ui/main.qml:24
 msgid "CPU"
 msgstr "CPU"
@@ -102,3 +115,7 @@ msgstr "Uma barra de mostradores acima de todas as janelas, inclusive jogos. Arr
 #: plasma/alien-thunder/contents/config/config.qml:6
 msgid "General"
 msgstr "Geral"
+
+#: plasma/alien-thunder/contents/config/config.qml:11
+msgid "Support"
+msgstr "Apoie"

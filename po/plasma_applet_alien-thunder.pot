@@ -8,7 +8,7 @@ msgid ""
 msgstr ""
 "Project-Id-Version: plasma_applet_alien-thunder\n"
 "Report-Msgid-Bugs-To: \n"
-"POT-Creation-Date: 2026-09-25 19:04-0300\n"
+"POT-Creation-Date: 2026-09-25 21:43-0300\n"
 "PO-Revision-Date: YEAR-MO-DA HO:MI+ZONE\n"
 "Last-Translator: FULL NAME <EMAIL@ADDRESS>\n"
 "Language-Team: LANGUAGE <LL@li.org>\n"
@@ -39,6 +39,21 @@ msgstr ""
 
 #: plasma/alien-thunder/contents/ui/configGeneral.qml:23
 msgid "Memory in use"
+msgstr ""
+
+#: plasma/alien-thunder/contents/ui/configSupport.qml:38
+msgid ""
+"Alien Thunder is free and stays free. If it saved you from booting into "
+"Windows just to change your keyboard colors, a donation keeps it going."
+msgstr ""
+
+#: plasma/alien-thunder/contents/ui/configSupport.qml:73
+#: plasma/alien-thunder/contents/ui/configSupport.qml:84
+msgid "Copy"
+msgstr ""
+
+#: plasma/alien-thunder/contents/ui/configSupport.qml:78
+msgid "Copied"
 msgstr ""
 
 #: plasma/alien-thunder/contents/ui/main.qml:24
@@ -112,4 +127,8 @@ msgstr ""
 
 #: plasma/alien-thunder/contents/config/config.qml:6
 msgid "General"
+msgstr ""
+
+#: plasma/alien-thunder/contents/config/config.qml:11
+msgid "Support"
 msgstr ""
