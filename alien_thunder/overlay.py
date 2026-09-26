@@ -61,7 +61,7 @@ def main() -> int:
     from PySide6.QtCore import (Property, QFileSystemWatcher, QObject, QPoint, QTimer, QUrl, Signal, Slot,
                                 qInstallMessageHandler)
     from PySide6.QtGui import QGuiApplication, QIcon
-    from PySide6.QtQml import QQmlApplicationEngine
+    from PySide6.QtQml import QQmlApplicationEngine, QQmlEngine
 
     class Backend(QObject):
         valuesChanged = Signal()
@@ -123,7 +123,13 @@ def main() -> int:
         # LayerShellQt places the surface by its own screen property, not the window's.
         @Slot(str, result=QObject)
         def screenObject(self, name):
-            return self._screen(name)
+            scr = self._screen(name)
+            # A QScreen has no parent, and QML takes ownership of parentless objects a
+            # method returns: its garbage collector then deleted the application's
+            # screen, the bar was left pointing at nothing, and Qt crashed every few
+            # minutes, whenever the collector ran.
+            QQmlEngine.setObjectOwnership(scr, QQmlEngine.ObjectOwnership.CppOwnership)
+            return scr
 
         @staticmethod
         def _screen(name):
@@ -186,6 +192,13 @@ def main() -> int:
     engine.load(QUrl.fromLocalFile(os.path.join(os.path.dirname(__file__), "overlay.qml")))
     if not engine.rootObjects():
         return 1
+
+    def note(msg):
+        print("overlay: " + msg, file=sys.stderr, flush=True)
+    app.screenAdded.connect(lambda s: note("screen added: " + s.name()))
+    app.screenRemoved.connect(lambda s: note("screen removed: " + s.name()))
+    for w in app.topLevelWindows():
+        w.screenChanged.connect(lambda s, w=w: note("window moved to screen: %s" % (s.name() if s else None)))
     return app.exec()
 
 
