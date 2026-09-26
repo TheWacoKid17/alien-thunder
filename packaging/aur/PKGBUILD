@@ -1,6 +1,6 @@
 # Maintainer: Dan B <unknown@cryptoconspiracy.io>
 pkgname=alien-thunder
-pkgver=1.1.1
+pkgver=1.1.2
 pkgrel=1
 pkgdesc="Per-key RGB, G-Mode on Fn+F1, and temperature and fan readouts (panel widget and floating overlay) for Alienware laptops on KDE Plasma"
 arch=('any')
@@ -11,7 +11,7 @@ makedepends=('gettext')
 optdepends=('plasma-workspace: the panel widget')
 install=alien-thunder.install
 source=("$pkgname-$pkgver.tar.gz::$url/archive/refs/tags/v$pkgver.tar.gz")
-sha256sums=('d597a0753c57dfd95d7ac023e583069d86c84bfac187a55b5fe6fc472e38dc3a')
+sha256sums=('e2864d6135a9ebd287853d239904b74ddae2fd038f621fdbdd84af196be5c4f9')
 
 build() {
   cd "$pkgname-$pkgver"
