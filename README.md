@@ -68,6 +68,48 @@ mounted at `/mnt/windows`; it only reads, it never writes there.
 
 ## Install
 
+### From packages
+
+Signed repositories on the openSUSE Build Service. After installing, run
+`alien-thunder setup` once as your own user (not root): it turns the service on,
+puts the widget next to the system tray and tells you if anything is missing.
+
+**Fedora 43 and 44**
+
+```bash
+sudo dnf config-manager addrepo --from-repofile=https://download.opensuse.org/repositories/home:/cryptoconspiracy/Fedora_$(rpm -E %fedora)/home:cryptoconspiracy.repo
+sudo dnf install alien-thunder
+```
+
+**openSUSE Tumbleweed**
+
+```bash
+sudo zypper addrepo -f https://download.opensuse.org/repositories/home:/cryptoconspiracy/openSUSE_Tumbleweed/home:cryptoconspiracy.repo
+sudo zypper install alien-thunder
+```
+
+**Debian 13, Ubuntu 25.10 and 26.04**: set `repo` to `Debian_13`, `xUbuntu_25.10` or `xUbuntu_26.04`.
+
+```bash
+repo=Debian_13
+curl -fsSL https://download.opensuse.org/repositories/home:/cryptoconspiracy/$repo/Release.key | gpg --dearmor | sudo tee /etc/apt/trusted.gpg.d/alien-thunder.gpg >/dev/null
+echo "deb https://download.opensuse.org/repositories/home:/cryptoconspiracy/$repo/ /" | sudo tee /etc/apt/sources.list.d/alien-thunder.list
+sudo apt update && sudo apt install alien-thunder
+```
+
+**Arch and Arch-based**: the AUR package follows when AUR registration reopens; until then, the signed repository:
+
+```bash
+curl -fsSL https://download.opensuse.org/repositories/home:/cryptoconspiracy/Fedora_44/repodata/repomd.xml.key | sudo pacman-key --add -
+sudo pacman-key --lsign-key 72E3A26E8377B7E2BFB5E9F1ADD09EAE97167CA4
+printf '[home_cryptoconspiracy_Arch]\nServer = https://download.opensuse.org/repositories/home:/cryptoconspiracy/Arch/$arch\n' | sudo tee -a /etc/pacman.conf
+sudo pacman -Sy alien-thunder
+```
+
+Fn+F1 needs your user in the `input` group: `sudo usermod -aG input $USER`, then log out and back in.
+
+### From source
+
 ```bash
 git clone https://github.com/cryptoconspiracy/alien-thunder.git
 cd alien-thunder
