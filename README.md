@@ -79,6 +79,16 @@ layer-shell-qt, gettext), the installer says which and asks before installing it
 puts the widget on your panel right before the system tray, starts the background
 service, and adds **Alien Thunder** to the app menu.
 
+The installer also offers to add a udev rule (it needs your password once) so your
+user can reach the lighting controllers, and Fn+F1 needs your user in the `input` group;
+`alien-thunder setup` tells you if either is missing.
+
+### Packagers
+
+`make && make DESTDIR=... install` puts everything under `/usr`: the app, the panel
+widget, the user services, the udev rule and the icons. Each user then runs
+`alien-thunder setup` once, which turns the service on and puts the widget on the panel.
+
 ### Updating
 
 ```bash

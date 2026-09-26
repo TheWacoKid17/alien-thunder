@@ -1,11 +1,14 @@
 #!/usr/bin/python3
-# Alien Thunder's launcher. ~/.local/bin/alien-thunder links here, so the checkout is
-# what runs. It uses the system Python on purpose: PySide6, dbus and gobject come
-# from the distribution's packages.
+# Alien Thunder's launcher. It uses the system Python on purpose: PySide6, dbus and
+# gobject come from the distribution's packages.
 import os
 import sys
 
-sys.path.insert(0, os.path.dirname(os.path.dirname(os.path.realpath(__file__))))
+here = os.path.dirname(os.path.realpath(__file__))
+system = os.path.join(here, "..", "lib", "alien-thunder")
+# A package installs the code in /usr/lib/alien-thunder; install.sh links this file
+# from a checkout, where the code sits next to bin/.
+sys.path.insert(0, system if os.path.isdir(os.path.join(system, "alien_thunder")) else os.path.dirname(here))
 from alien_thunder.cli import main  # noqa: E402
 
 sys.exit(main())

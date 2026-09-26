@@ -3,6 +3,7 @@ from __future__ import annotations
 
 import argparse
 import json
+import os
 import sys
 
 from . import engine, gmode, hw, profiles
@@ -22,6 +23,7 @@ alien-thunder overlay [on|off|show ITEM|hide ITEM|status]
                                  the floating readout bar
 alien-thunder import-windows [--list | --id N ...]
                                  import AWCC presets from /mnt/windows
+alien-thunder setup              per-user setup after installing a package
 alien-thunder daemon             the service (started by systemd --user)""")
 
 
@@ -116,6 +118,65 @@ def cmd_gmode(a) -> int:
     return 0
 
 
+# Puts the widget on the panel that holds the system tray, right before the tray, once.
+# addWidget appends at the end; the panel ignores a rewritten AppletOrder, but moving
+# the widget by index sticks.
+PANEL_SCRIPT = """
+let placed = false;
+for (const panel of panels())
+  for (const w of panel.widgets())
+    if (w.type == "alien-thunder") placed = true;
+if (!placed)
+  for (const panel of panels()) {
+    const tray = panel.widgets().find(w => w.type == "org.kde.plasma.systemtray");
+    if (!tray) continue;
+    const w = panel.addWidget("alien-thunder");
+    w.index = tray.index;
+    print("added");
+    break;
+  }
+"""
+
+
+def cmd_setup(_a) -> int:
+    """What a package can't do as root: the user's service, the panel, and a permissions check."""
+    import grp
+    import shutil
+    import subprocess
+    ok = True
+    subprocess.run(["systemctl", "--user", "daemon-reload"], check=False)
+    if subprocess.run(["systemctl", "--user", "enable", "--now", "alien-thunder.service"]).returncode == 0:
+        print(_("service: running, and it starts with every login"))
+    else:
+        ok = False
+    qdbus = shutil.which("qdbus6")
+    if qdbus:
+        r = subprocess.run([qdbus, "org.kde.plasmashell", "/PlasmaShell", "org.kde.PlasmaShell.evaluateScript",
+                            PANEL_SCRIPT], capture_output=True, text=True)
+        if r.returncode == 0:
+            print(_("panel: the widget is next to the system tray") if "added" in r.stdout
+                  else _("panel: the widget was already there"))
+        else:
+            print(_("panel: right-click the panel, Add Widgets, and pick Alien Thunder"))
+    info = engine.env_info()
+    for path in (info["keyboard"], info["chassis"]):
+        if path and not os.access(path, os.R_OK | os.W_OK):
+            ok = False
+            print(_("lighting: no access to %s; log out and back in so the udev rule applies") % path)
+    if not info["keyboard"] and not info["chassis"]:
+        print(_("lighting: no Alienware keyboard or AW-ELC controller found on this computer"))
+    if not os.access(gmode.KEYBOARD, os.R_OK):
+        ok = False
+        user = os.environ.get("USER", "")
+        in_group = user in grp.getgrnam("input").gr_mem if "input" in {g.gr_name for g in grp.getgrall()} else False
+        if in_group:
+            print(_("G-Mode key: log out and back in so the input group applies"))
+        else:
+            print(_("G-Mode key: Fn+F1 needs your user in the input group:"))
+            print("  sudo usermod -aG input " + user)
+    return 0 if ok else 1
+
+
 def cmd_import(a) -> int:
     from . import winimport
     items = winimport.list_presets()
@@ -153,6 +214,7 @@ def main(argv=None) -> int:
     s.add_argument("profile", nargs="?")
     s = sub.add_parser("gmode")
     s.add_argument("action", nargs="?", choices=("on", "off", "toggle"))
+    sub.add_parser("setup")
     s = sub.add_parser("import-windows")
     s.add_argument("--list", action="store_true")
     s.add_argument("--id", nargs="*", help=_("ids as shown by --list (user:number)"))
@@ -161,7 +223,8 @@ def main(argv=None) -> int:
         print(msg)
     try:
         return {"list": cmd_list, "set": cmd_set, "apply": cmd_apply, "status": cmd_status,
-                "power": cmd_power, "gmode": cmd_gmode, "import-windows": cmd_import}[a.cmd](a)
+                "power": cmd_power, "gmode": cmd_gmode, "setup": cmd_setup,
+                "import-windows": cmd_import}[a.cmd](a)
     except profiles.ProfileError as e:
         print(_("error: %s") % e, file=sys.stderr)
         return 1

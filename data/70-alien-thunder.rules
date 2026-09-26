@@ -1,0 +1,6 @@
+# Alien Thunder: lets the logged-in user drive the Alienware lighting, nothing else.
+# The keyboard's LED controller (0d62:d2b1) takes commands on interface 00 only; the
+# typing goes through the built-in i8042 keyboard, not through this device.
+SUBSYSTEM=="hidraw", KERNEL=="hidraw*", ATTRS{idVendor}=="0d62", ATTRS{idProduct}=="d2b1", ENV{ID_USB_INTERFACE_NUM}=="00", TAG+="uaccess"
+# The AW-ELC controller behind the touchpad, the alien head on the lid and the power button.
+SUBSYSTEM=="hidraw", KERNEL=="hidraw*", ATTRS{idVendor}=="187c", ATTRS{idProduct}=="0551", TAG+="uaccess"

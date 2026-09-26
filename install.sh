@@ -99,8 +99,7 @@ if systemctl --user is-enabled -q alienfx-perfil.service 2>/dev/null; then
   systemctl --user disable alienfx-perfil.service
 fi
 systemctl --user daemon-reload
-systemctl --user enable alien-thunder.service >/dev/null 2>&1
-systemctl --user restart alien-thunder.service
+systemctl --user restart alien-thunder.service 2>/dev/null || true
 # The overlay is opt-in, from the panel widget; only restart it if it's already on.
 systemctl --user is-active -q alien-thunder-overlay.service && systemctl --user restart alien-thunder-overlay.service
 
@@ -128,34 +127,21 @@ if command -v kpackagetool6 >/dev/null; then
   else
     kpackagetool6 --type Plasma/Applet --install "$widget" >/dev/null
   fi
-  # Puts the widget on the panel that holds the system tray, right before the tray,
-  # once. Plasma saves it with the panel, so it comes back on every login.
-  panel_script='
-    let placed = false;
-    for (const panel of panels())
-      for (const w of panel.widgets())
-        if (w.type == "alien-thunder") placed = true;
-    if (!placed)
-      for (const panel of panels()) {
-        const tray = panel.widgets().find(w => w.type == "org.kde.plasma.systemtray");
-        if (!tray) continue;
-        // addWidget appends at the end; the panel ignores a rewritten AppletOrder,
-        // but moving the widget by index sticks.
-        const w = panel.addWidget("alien-thunder");
-        w.index = tray.index;
-        print("added");
-        break;
-      }'
-  if command -v qdbus6 >/dev/null &&
-    result=$(qdbus6 org.kde.plasmashell /PlasmaShell org.kde.PlasmaShell.evaluateScript "$panel_script" 2>/dev/null); then
-    [[ $result == *added* ]] && widget_note="
-Alien Thunder is on your panel, next to the system tray."
-  else
-    widget_note="
-To add the panel widget: right-click the panel, Add Widgets, and pick Alien Thunder."
+fi
+
+# The lighting controllers need a udev rule so the logged-in user can reach them.
+rule=/etc/udev/rules.d/70-alien-thunder.rules
+if ! cmp -s "$repo/data/70-alien-thunder.rules" "$rule" && [[ ! -e /usr/lib/udev/rules.d/70-alien-thunder.rules ]]; then
+  echo ">> udev rule for the keyboard and chassis lighting"
+  echo "  sudo install -m644 data/70-alien-thunder.rules $rule && sudo udevadm control --reload && sudo udevadm trigger"
+  if confirm "Install it now?"; then
+    sudo install -m644 "$repo/data/70-alien-thunder.rules" "$rule"
+    sudo udevadm control --reload
+    sudo udevadm trigger --subsystem-match=hidraw
   fi
 fi
 
-cat <<EOF
-Alien Thunder installed. Open the lighting editor from the menu or with: alien-thunder${widget_note:-}
-EOF
+echo ">> your session"
+"$bin/alien-thunder" setup || true
+
+echo "Alien Thunder installed. Open the lighting editor from the menu or with: alien-thunder"

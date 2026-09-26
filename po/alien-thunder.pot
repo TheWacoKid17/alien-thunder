@@ -8,7 +8,7 @@ msgid ""
 msgstr ""
 "Project-Id-Version: alien-thunder\n"
 "Report-Msgid-Bugs-To: \n"
-"POT-Creation-Date: 2026-09-25 22:03-0300\n"
+"POT-Creation-Date: 2026-09-25 22:10-0300\n"
 "PO-Revision-Date: YEAR-MO-DA HO:MI+ZONE\n"
 "Last-Translator: FULL NAME <EMAIL@ADDRESS>\n"
 "Language-Team: LANGUAGE <LL@li.org>\n"
@@ -18,7 +18,7 @@ msgstr ""
 "Content-Transfer-Encoding: 8bit\n"
 "Plural-Forms: nplurals=INTEGER; plural=EXPRESSION;\n"
 
-#: alien_thunder/cli.py:13
+#: alien_thunder/cli.py:14
 msgid ""
 "alien-thunder                    open the lighting editor\n"
 "alien-thunder list               list the profiles (* = active)\n"
@@ -34,88 +34,123 @@ msgid ""
 "                                 the floating readout bar\n"
 "alien-thunder import-windows [--list | --id N ...]\n"
 "                                 import AWCC presets from /mnt/windows\n"
+"alien-thunder setup              per-user setup after installing a package\n"
 "alien-thunder daemon             the service (started by systemd --user)"
 msgstr ""
 
-#: alien_thunder/cli.py:35 alien_thunder/cli.py:99 alien_thunder/cli.py:166
+#: alien_thunder/cli.py:37 alien_thunder/cli.py:101 alien_thunder/cli.py:229
 #, python-format
 msgid "error: %s"
 msgstr ""
 
-#: alien_thunder/cli.py:40
+#: alien_thunder/cli.py:42
 msgid ""
 "note: software effects need the service (systemctl --user start alien-"
 "thunder)"
 msgstr ""
 
-#: alien_thunder/cli.py:54 alien_thunder/cli.py:80
+#: alien_thunder/cli.py:56 alien_thunder/cli.py:82
 #, python-format
 msgid "active profile: %s"
 msgstr ""
 
-#: alien_thunder/cli.py:57
+#: alien_thunder/cli.py:59
 msgid "applied by the service"
 msgstr ""
 
-#: alien_thunder/cli.py:57
+#: alien_thunder/cli.py:59
 msgid "the service will try again (see 'status')"
 msgstr ""
 
-#: alien_thunder/cli.py:66
+#: alien_thunder/cli.py:68
 msgid "no active profile"
 msgstr ""
 
-#: alien_thunder/cli.py:70
+#: alien_thunder/cli.py:72
 #, python-format
 msgid "applied: %s"
 msgstr ""
 
-#: alien_thunder/cli.py:70
+#: alien_thunder/cli.py:72
 msgid "failed; the service will try again (see 'status')"
 msgstr ""
 
-#: alien_thunder/cli.py:77 alien_thunder/gui.py:1076
+#: alien_thunder/cli.py:79 alien_thunder/gui.py:1076
 msgid "not found"
 msgstr ""
 
-#: alien_thunder/cli.py:78
+#: alien_thunder/cli.py:80
 #, python-format
 msgid "keyboard (0d62:d2b1): %s"
 msgstr ""
 
-#: alien_thunder/cli.py:79
+#: alien_thunder/cli.py:81
 #, python-format
 msgid "chassis  (187c:0551): %s"
 msgstr ""
 
-#: alien_thunder/cli.py:83
+#: alien_thunder/cli.py:85
 #, python-format
 msgid "service: running (pid %s)"
 msgstr ""
 
-#: alien_thunder/cli.py:87
+#: alien_thunder/cli.py:89
 msgid "service: stopped"
 msgstr ""
 
-#: alien_thunder/cli.py:114
+#: alien_thunder/cli.py:116
 msgid "on"
 msgstr ""
 
-#: alien_thunder/cli.py:114
+#: alien_thunder/cli.py:116
 msgid "off"
 msgstr ""
 
-#: alien_thunder/cli.py:115
+#: alien_thunder/cli.py:117
 #, python-format
 msgid "G-Mode: %s (power profile: %s)"
 msgstr ""
 
-#: alien_thunder/cli.py:129
+#: alien_thunder/cli.py:149
+msgid "service: running, and it starts with every login"
+msgstr ""
+
+#: alien_thunder/cli.py:157
+msgid "panel: the widget is next to the system tray"
+msgstr ""
+
+#: alien_thunder/cli.py:158
+msgid "panel: the widget was already there"
+msgstr ""
+
+#: alien_thunder/cli.py:160
+msgid "panel: right-click the panel, Add Widgets, and pick Alien Thunder"
+msgstr ""
+
+#: alien_thunder/cli.py:165
+#, python-format
+msgid "lighting: no access to %s; log out and back in so the udev rule applies"
+msgstr ""
+
+#: alien_thunder/cli.py:167
+msgid ""
+"lighting: no Alienware keyboard or AW-ELC controller found on this computer"
+msgstr ""
+
+#: alien_thunder/cli.py:173
+msgid "G-Mode key: log out and back in so the input group applies"
+msgstr ""
+
+#: alien_thunder/cli.py:175
+msgid "G-Mode key: Fn+F1 needs your user in the input group:"
+msgstr ""
+
+#: alien_thunder/cli.py:190
 #, python-format
 msgid "imported: %s"
 msgstr ""
 
-#: alien_thunder/cli.py:158
+#: alien_thunder/cli.py:220
 msgid "ids as shown by --list (user:number)"
 msgstr ""
 

@@ -10,87 +10,120 @@ msgstr ""
 "Content-Transfer-Encoding: 8bit\n"
 "Plural-Forms: nplurals=2; plural=(n > 1);\n"
 
-#: alien_thunder/cli.py:13
-msgid "alien-thunder                    open the lighting editor\nalien-thunder list               list the profiles (* = active)\nalien-thunder set <profile>      make a profile the active one and apply it\nalien-thunder apply [profile]    apply now (default: the active one) without changing it\nalien-thunder status             service and device status\nalien-thunder power [profile]    write the power button colors now\nalien-thunder gmode [on|off|toggle]\n                                 G-Mode, the same as Fn+F1; with no argument, show it\nalien-thunder overlay [on|off|show ITEM|hide ITEM|status]\n                                 the floating readout bar\nalien-thunder import-windows [--list | --id N ...]\n                                 import AWCC presets from /mnt/windows\nalien-thunder daemon             the service (started by systemd --user)"
-msgstr "alien-thunder                    abre o editor de iluminação\nalien-thunder list               lista os perfis (* = ativo)\nalien-thunder set <perfil>       torna o perfil ativo e aplica\nalien-thunder apply [perfil]     aplica agora (padrão: o ativo) sem mudar o ativo\nalien-thunder status             estado do serviço e dos dispositivos\nalien-thunder power [perfil]     grava agora as cores do botão de energia\nalien-thunder gmode [on|off|toggle]\n                                 G-Mode, o mesmo que Fn+F1; sem argumento, mostra o estado\nalien-thunder overlay [on|off|show ITEM|hide ITEM|status]\n                                 a barra flutuante de mostradores\nalien-thunder import-windows [--list | --id N ...]\n                                 importa predefinições do AWCC de /mnt/windows\nalien-thunder daemon             o serviço (iniciado pelo systemd --user)"
+#: alien_thunder/cli.py:14
+msgid "alien-thunder                    open the lighting editor\nalien-thunder list               list the profiles (* = active)\nalien-thunder set <profile>      make a profile the active one and apply it\nalien-thunder apply [profile]    apply now (default: the active one) without changing it\nalien-thunder status             service and device status\nalien-thunder power [profile]    write the power button colors now\nalien-thunder gmode [on|off|toggle]\n                                 G-Mode, the same as Fn+F1; with no argument, show it\nalien-thunder overlay [on|off|show ITEM|hide ITEM|status]\n                                 the floating readout bar\nalien-thunder import-windows [--list | --id N ...]\n                                 import AWCC presets from /mnt/windows\nalien-thunder setup              per-user setup after installing a package\nalien-thunder daemon             the service (started by systemd --user)"
+msgstr "alien-thunder                    abre o editor de iluminação\nalien-thunder list               lista os perfis (* = ativo)\nalien-thunder set <perfil>       torna o perfil ativo e aplica\nalien-thunder apply [perfil]     aplica agora (padrão: o ativo) sem mudar o ativo\nalien-thunder status             estado do serviço e dos dispositivos\nalien-thunder power [perfil]     grava agora as cores do botão de energia\nalien-thunder gmode [on|off|toggle]\n                                 G-Mode, o mesmo que Fn+F1; sem argumento, mostra o estado\nalien-thunder overlay [on|off|show ITEM|hide ITEM|status]\n                                 a barra flutuante de mostradores\nalien-thunder import-windows [--list | --id N ...]\n                                 importa predefinições do AWCC de /mnt/windows\nalien-thunder setup              ajustes por usuário depois de instalar um pacote\nalien-thunder daemon             o serviço (iniciado pelo systemd --user)"
 
-#: alien_thunder/cli.py:35 alien_thunder/cli.py:99 alien_thunder/cli.py:166
+#: alien_thunder/cli.py:37 alien_thunder/cli.py:101 alien_thunder/cli.py:229
 #, python-format
 msgid "error: %s"
 msgstr "erro: %s"
 
-#: alien_thunder/cli.py:40
+#: alien_thunder/cli.py:42
 msgid "note: software effects need the service (systemctl --user start alien-thunder)"
 msgstr "aviso: efeitos de software precisam do serviço (systemctl --user start alien-thunder)"
 
-#: alien_thunder/cli.py:54 alien_thunder/cli.py:80
+#: alien_thunder/cli.py:56 alien_thunder/cli.py:82
 #, python-format
 msgid "active profile: %s"
 msgstr "perfil ativo: %s"
 
-#: alien_thunder/cli.py:57
+#: alien_thunder/cli.py:59
 msgid "applied by the service"
 msgstr "aplicado pelo serviço"
 
-#: alien_thunder/cli.py:57
+#: alien_thunder/cli.py:59
 msgid "the service will try again (see 'status')"
 msgstr "o serviço vai tentar de novo (veja 'status')"
 
-#: alien_thunder/cli.py:66
+#: alien_thunder/cli.py:68
 msgid "no active profile"
 msgstr "nenhum perfil ativo"
 
-#: alien_thunder/cli.py:70
+#: alien_thunder/cli.py:72
 #, python-format
 msgid "applied: %s"
 msgstr "aplicado: %s"
 
-#: alien_thunder/cli.py:70
+#: alien_thunder/cli.py:72
 msgid "failed; the service will try again (see 'status')"
 msgstr "falhou; o serviço vai tentar de novo (veja 'status')"
 
-#: alien_thunder/cli.py:77 alien_thunder/gui.py:1076
+#: alien_thunder/cli.py:79 alien_thunder/gui.py:1076
 msgid "not found"
 msgstr "não encontrado"
 
-#: alien_thunder/cli.py:78
+#: alien_thunder/cli.py:80
 #, python-format
 msgid "keyboard (0d62:d2b1): %s"
 msgstr "teclado (0d62:d2b1): %s"
 
-#: alien_thunder/cli.py:79
+#: alien_thunder/cli.py:81
 #, python-format
 msgid "chassis  (187c:0551): %s"
 msgstr "chassi  (187c:0551): %s"
 
-#: alien_thunder/cli.py:83
+#: alien_thunder/cli.py:85
 #, python-format
 msgid "service: running (pid %s)"
 msgstr "serviço: rodando (pid %s)"
 
-#: alien_thunder/cli.py:87
+#: alien_thunder/cli.py:89
 msgid "service: stopped"
 msgstr "serviço: parado"
 
-#: alien_thunder/cli.py:114
+#: alien_thunder/cli.py:116
 msgid "on"
 msgstr "ligado"
 
-#: alien_thunder/cli.py:114
+#: alien_thunder/cli.py:116
 msgid "off"
 msgstr "desligado"
 
-#: alien_thunder/cli.py:115
+#: alien_thunder/cli.py:117
 #, python-format
 msgid "G-Mode: %s (power profile: %s)"
 msgstr "G-Mode: %s (perfil de energia: %s)"
 
-#: alien_thunder/cli.py:129
+#: alien_thunder/cli.py:149
+msgid "service: running, and it starts with every login"
+msgstr "serviço: rodando, e ele inicia a cada login"
+
+#: alien_thunder/cli.py:157
+msgid "panel: the widget is next to the system tray"
+msgstr "painel: o widget está ao lado da bandeja"
+
+#: alien_thunder/cli.py:158
+msgid "panel: the widget was already there"
+msgstr "painel: o widget já estava lá"
+
+#: alien_thunder/cli.py:160
+msgid "panel: right-click the panel, Add Widgets, and pick Alien Thunder"
+msgstr "painel: clique com o botão direito no painel, Adicionar widgets, e escolha Alien Thunder"
+
+#: alien_thunder/cli.py:165
+#, python-format
+msgid "lighting: no access to %s; log out and back in so the udev rule applies"
+msgstr "iluminação: sem acesso a %s; saia e entre de novo na sessão para a regra do udev valer"
+
+#: alien_thunder/cli.py:167
+msgid "lighting: no Alienware keyboard or AW-ELC controller found on this computer"
+msgstr "iluminação: nenhum teclado Alienware ou controlador AW-ELC encontrado neste computador"
+
+#: alien_thunder/cli.py:173
+msgid "G-Mode key: log out and back in so the input group applies"
+msgstr "tecla do G-Mode: saia e entre de novo na sessão para o grupo input valer"
+
+#: alien_thunder/cli.py:175
+msgid "G-Mode key: Fn+F1 needs your user in the input group:"
+msgstr "tecla do G-Mode: o Fn+F1 precisa do seu usuário no grupo input:"
+
+#: alien_thunder/cli.py:190
 #, python-format
 msgid "imported: %s"
 msgstr "importado: %s"
 
-#: alien_thunder/cli.py:158
+#: alien_thunder/cli.py:220
 msgid "ids as shown by --list (user:number)"
 msgstr "ids como mostrados por --list (usuário:número)"
 
