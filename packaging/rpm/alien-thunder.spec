@@ -1,5 +1,5 @@
 Name:           alien-thunder
-Version:        1.1.1
+Version:        1.1.2
 Release:        1%{?dist}
 Summary:        Per-key RGB, G-Mode and fan and temperature readouts for Alienware laptops
 License:        MIT
@@ -73,5 +73,8 @@ rm -f %{buildroot}%{_datadir}/licenses/%{name}/LICENSE
 %{_datadir}/plasma/plasmoids/alien-thunder/
 
 %changelog
+* Sat Sep 26 2026 Dan B <unknown@cryptoconspiracy.io> - 1.1.2-1
+- The overlay no longer crashes every few minutes
+
 * Fri Sep 25 2026 Dan B <unknown@cryptoconspiracy.io> - 1.1.1-1
 - First package

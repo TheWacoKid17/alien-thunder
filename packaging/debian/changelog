@@ -1,5 +1,7 @@
 alien-thunder (1.1.2-1) unstable; urgency=medium
 
-  * The overlay bar never resizes, which kept crashing it.
+  * The overlay no longer crashes every few minutes: QML was deleting the
+    screen object the bar sat on.
+  * First Debian/Ubuntu package.
 
  -- Dan B <unknown@cryptoconspiracy.io>  Sat, 26 Sep 2026 01:00:00 -0300
