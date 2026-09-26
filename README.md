@@ -45,7 +45,7 @@ G-Mode and the overlay are one switch each. **Lighting** opens the lighting edit
 
 ### The overlay
 
-<p align="center"><img src="assets/screenshots/overlay.png" alt="The readout bar over a window"></p>
+<p align="center"><img src="assets/screenshots/overlay.png" width="640" alt="The readout bar"></p>
 
 Grab the bar anywhere and drop it where you like, on either screen; it remembers the
 spot. The ✕ at its end turns the overlay off, and the switch on the panel brings it
@@ -56,9 +56,13 @@ back. Untick a reading in the panel popup and the bar gets shorter.
 <p align="center"><img src="assets/screenshots/editor.png" alt="The lighting editor"></p>
 
 Click keys to select them (Ctrl+click toggles, drag selects an area), pick a color, and
-the keyboard changes as you edit. The **Effects** tab has one effect and one speed for
-the keyboard, one for the touchpad and one for the alien head; the background service
-draws them, and they only dim and brighten the colors you picked. **Import from Windows** reads the
+the keyboard changes as you edit.
+
+<p align="center"><img src="assets/screenshots/effects.png" width="360" alt="The Effects tab"></p>
+
+The **Effects** tab has one effect and one speed for the keyboard, one for the touchpad
+and one for the alien head; the background service draws them, and they only dim and
+brighten the colors you picked. **Import from Windows** reads the
 presets you made in the Alienware Command Center, if your Windows partition is
 mounted at `/mnt/windows`; it only reads, it never writes there.
 
