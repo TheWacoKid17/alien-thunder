@@ -10,15 +10,15 @@ import time
 
 from PySide6.QtCore import QPointF, QRect, QRectF, QSize, Qt, QTimer, Signal
 from PySide6.QtGui import (QAction, QBrush, QColor, QFont, QIcon, QPainter, QPainterPath, QPalette,
-                           QPen)
+                           QPen, QPixmap)
 from PySide6.QtWidgets import (QAbstractItemView, QApplication, QCheckBox,
                                QColorDialog, QComboBox, QDialog, QDialogButtonBox, QFormLayout,
                                QGridLayout, QGroupBox, QHBoxLayout, QInputDialog, QLabel,
-                               QListWidget, QListWidgetItem, QMainWindow, QMessageBox, QPushButton,
+                               QLineEdit, QListWidget, QListWidgetItem, QMainWindow, QMessageBox, QPushButton,
                                QRubberBand, QScrollArea, QSizePolicy, QSlider,
                                QSpinBox, QTabWidget, QToolButton, QVBoxLayout, QWidget)
 
-from . import effects, engine, gmode, hw, layout, profiles
+from . import donate, effects, engine, gmode, hw, layout, profiles
 from .i18n import gettext as _
 from .i18n import ngettext
 
@@ -284,6 +284,50 @@ class KeyboardView(QWidget):
         return super().event(ev)
 
 
+class DonationStrip(QWidget):
+    """The wallets from donate.py, each with its QR code and a Copy button."""
+
+    def __init__(self, parent=None):
+        super().__init__(parent)
+        row = QHBoxLayout(self)
+        row.setContentsMargins(4, 4, 4, 4)
+        pitch = QLabel(_("Alien Thunder is free and stays free.\nIf it saved you a trip to Windows, a donation keeps it going."))
+        pitch.setStyleSheet("color:#9aa0a6;")
+        row.addWidget(pitch)
+        row.addStretch(1)
+        icons = os.path.join(os.path.dirname(__file__), "icons")
+        for w in donate.WALLETS:
+            qr = QLabel()
+            qr.setPixmap(QPixmap(os.path.join(icons, w["qr"])).scaled(76, 76, Qt.KeepAspectRatio, Qt.FastTransformation))
+            qr.setToolTip(w["address"])
+            row.addWidget(qr)
+            col = QVBoxLayout()
+            col.setSpacing(3)
+            name = QLabel("<b>%s</b>" % _(w["name"]))
+            col.addWidget(name)
+            if w["networks"]:
+                nets = QLabel(w["networks"])
+                nets.setStyleSheet("color:#9aa0a6;")
+                nets.setWordWrap(True)
+                col.addWidget(nets)
+            line = QHBoxLayout()
+            addr = QLineEdit(w["address"])
+            addr.setReadOnly(True)
+            addr.setFont(QFont("monospace"))
+            addr.setMinimumWidth(addr.fontMetrics().horizontalAdvance(w["address"]) + 16)
+            line.addWidget(addr)
+            copy = QPushButton(QIcon.fromTheme("edit-copy"), _("Copy"))
+            copy.clicked.connect(lambda _c=False, a=w["address"], b=copy: self._copy(a, b))
+            line.addWidget(copy)
+            col.addLayout(line)
+            row.addLayout(col)
+
+    def _copy(self, address, button):
+        QApplication.clipboard().setText(address)
+        button.setText(_("Copied"))
+        QTimer.singleShot(2000, lambda: button.setText(_("Copy")))
+
+
 # ====================================================================== window
 class MainWindow(QMainWindow):
     def __init__(self):
@@ -358,11 +402,14 @@ class MainWindow(QMainWindow):
         root.addWidget(self.lbl_hint)
 
         mid = QHBoxLayout()
+        left = QVBoxLayout()
+        left.addWidget(DonationStrip())
         self.kb = KeyboardView()
         self.kb.selectionChanged.connect(self.on_selection_changed)
         self.kb.keyActivated.connect(lambda _k: self.pick_color_dialog())
         self.kb.keyPicked.connect(self.on_key_picked)
-        mid.addWidget(self.kb, 1)
+        left.addWidget(self.kb, 1)
+        mid.addLayout(left, 1)
 
         self.tabs = QTabWidget()
         self.tabs.setMinimumWidth(360)
