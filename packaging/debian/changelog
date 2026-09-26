@@ -1,0 +1,5 @@
+alien-thunder (1.1.2-1) unstable; urgency=medium
+
+  * The overlay bar never resizes, which kept crashing it.
+
+ -- Dan B <unknown@cryptoconspiracy.io>  Sat, 26 Sep 2026 01:00:00 -0300

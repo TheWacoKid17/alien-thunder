@@ -1,0 +1,33 @@
+Source: alien-thunder
+Section: utils
+Priority: optional
+Maintainer: Dan B <unknown@cryptoconspiracy.io>
+Build-Depends: debhelper-compat (= 13), gettext, python3, make
+Standards-Version: 4.7.0
+Homepage: https://github.com/cryptoconspiracy/alien-thunder
+Rules-Requires-Root: no
+
+Package: alien-thunder
+Architecture: all
+Depends: ${misc:Depends},
+ python3,
+ python3-pyside6.qtcore,
+ python3-pyside6.qtgui,
+ python3-pyside6.qtwidgets,
+ python3-pyside6.qtqml,
+ python3-pyside6.qtquick,
+ python3-dbus,
+ python3-gi,
+ gir1.2-gudev-1.0,
+ qml6-module-qtquick,
+ qml6-module-qtquick-window,
+ qml6-module-qtqml,
+ qml6-module-org-kde-layershell
+Recommends: power-profiles-daemon, plasma-workspace
+Description: Alienware lighting, G-Mode and sensor readouts for KDE Plasma
+ Alien Thunder brings the Alienware Command Center bits Linux lacks to KDE
+ Plasma: per-key keyboard lighting with profiles and effects that keep your
+ colors, the touchpad, alien head and power button lights, G-Mode on Fn+F1,
+ and CPU/GPU temperature, fan speed and memory readouts on the panel and in a
+ bar that floats above every window. After installing, each user runs
+ "alien-thunder setup" once.
