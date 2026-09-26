@@ -141,6 +141,19 @@ alien-thunder overlay [on|off|show ITEM|hide ITEM|status]
 - Temperatures, fan speeds and memory on the panel, and the floating readout bar.
 - English and Brazilian Portuguese.
 
+## Support the project
+
+Alien Thunder is free and stays free. If it saved you from booting into Windows just to
+change your keyboard colors, a donation keeps it going.
+
+<p align="center"><img src="assets/donate/btc.png" width="200" alt="Bitcoin donation QR code"></p>
+
+**Bitcoin**: scan the code, or copy the address (the button at the right of the box):
+
+```text
+bc1q2nqp9d8lc0u6z7v9ag4u52sv9g9afepgyyrwu4
+```
+
 ## Credits
 
 - The lighting protocols come from [alienfx-tools](https://github.com/T-Troll/alienfx-tools)
