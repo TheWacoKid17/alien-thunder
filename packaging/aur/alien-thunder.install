@@ -1,0 +1,13 @@
+post_install() {
+  cat <<'MSG'
+==> Alien Thunder is installed. As your own user (not root), run once:
+      alien-thunder setup
+    It turns the service on, puts the widget next to the system tray, and tells you
+    if anything is missing. Fn+F1 (G-Mode) needs your user in the input group:
+      sudo usermod -aG input $USER    (then log out and back in)
+MSG
+}
+
+post_upgrade() {
+  echo "==> Restart the service to load the new version: systemctl --user restart alien-thunder"
+}

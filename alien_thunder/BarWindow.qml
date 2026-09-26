@@ -56,8 +56,18 @@ Window {
         id: content
         anchors.fill: parent
         backend: bar.backend
-        opacity: bar.overlay.dragging ? 0.3 : 1.0
+        opacity: bar.overlay.dragging ? 0.55 : 1.0
         onCloseClicked: bar.backend.close()
+    }
+
+    // While dragging, a bright frame says "let go anywhere".
+    Rectangle {
+        anchors.fill: parent
+        radius: 10
+        color: "transparent"
+        border.width: 2
+        border.color: "#00e5ff"
+        visible: bar.overlay.dragging
     }
 
     // Changes with every move so the new margins go out with a fresh frame.
@@ -75,21 +85,21 @@ Window {
         property point start
 
         // The bar doesn't move while the button is down, so these coordinates stay
-        // true for the whole drag; the ghost windows show where it's going.
+        // true for the whole drag.
         onPressed: (m) => start = Qt.point(m.x, m.y)
         onPositionChanged: (m) => {
             const dx = m.x - start.x
             const dy = m.y - start.y
             if (!bar.overlay.dragging && Math.abs(dx) + Math.abs(dy) < 4)
                 return
-            bar.overlay.ghostX = bar.ox + bar.mx + dx
-            bar.overlay.ghostY = bar.oy + bar.my + dy
+            bar.overlay.dropX = bar.ox + bar.mx + dx
+            bar.overlay.dropY = bar.oy + bar.my + dy
             bar.overlay.dragging = true
         }
         onReleased: {
             if (!bar.overlay.dragging)
                 return
-            const r = bar.backend.drop(bar, Math.round(bar.overlay.ghostX), Math.round(bar.overlay.ghostY))
+            const r = bar.backend.drop(bar, Math.round(bar.overlay.dropX), Math.round(bar.overlay.dropY))
             if (r.moved) {
                 bar.backend.relaunch()
                 return
