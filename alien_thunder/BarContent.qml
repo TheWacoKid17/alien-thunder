@@ -85,6 +85,17 @@ Item {
 
                         Text {
                             anchors.verticalCenter: parent.verticalCenter
+                            // Room for the widest reading, so a new digit never resizes the
+                            // window: resizing a layer surface crashed Qt (no screen for a moment).
+                            width: widest.advanceWidth
+                            horizontalAlignment: Text.AlignRight
+                            TextMetrics {
+                                id: widest
+                                font.family: "monospace"
+                                font.pixelSize: 28
+                                font.bold: true
+                                text: modelData.endsWith("_fan") ? "8888" : "888"
+                            }
                             text: {
                                 const v = content.backend.values[modelData]
                                 return v === undefined || v === null ? "--" : v

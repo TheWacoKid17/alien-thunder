@@ -14,8 +14,10 @@ Window {
     property int oy: 0
     property int frame: 0
 
-    width: content.implicitWidth
-    height: content.implicitHeight
+    // Set once. A layer surface that changes size can be left without a screen for a
+    // moment, and Qt crashes on it; showing other readings restarts the overlay instead.
+    width: 1
+    height: 1
     color: "transparent"
     visible: false
 
@@ -47,10 +49,11 @@ Window {
     }
 
     Component.onCompleted: {
+        width = content.implicitWidth
+        height = content.implicitHeight
         place(backend.restore(bar), true)
         visible = true
     }
-    onWidthChanged: if (visible) place(backend.restore(bar), false)
 
     BarContent {
         id: content

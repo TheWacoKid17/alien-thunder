@@ -91,6 +91,9 @@ def main() -> int:
         def _reload(self, *_a):
             # Our own saves land here too; they match what we hold, so nothing redraws.
             cfg = load_config()
+            if cfg["items"] != self._cfg["items"]:
+                # Different readings mean a different width; see relaunch().
+                self.relaunch()
             if cfg != self._cfg:
                 self._cfg = cfg
                 self.configChanged.emit()
@@ -151,11 +154,12 @@ def main() -> int:
             return {"x": x, "y": y, "screen": there.name(), "ox": g.x(), "oy": g.y(),
                     "moved": there is not here}
 
-        # A layer surface can't change screens once it exists, and hiding the bar to
-        # rebuild it crashed Qt (a repaint lands on the destroyed surface). Starting
-        # over is cheap and builds the bar on the new screen from the saved spot.
+        # A layer surface can't change screens once it exists, and hiding or resizing
+        # the bar crashed Qt (the window is left without a screen for a moment). Starting
+        # over is cheap and builds the bar on the right screen, at the right size.
         @Slot()
         def relaunch(self):
+            print("overlay: starting over (screen or readings changed)", file=sys.stderr, flush=True)
             sys.stdout.flush()
             sys.stderr.flush()
             os.execv(sys.executable, [sys.executable] + sys.orig_argv[1:])
