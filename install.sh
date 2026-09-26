@@ -116,7 +116,15 @@ if command -v kpackagetool6 >/dev/null; then
   if [[ -d $installed ]]; then
     # kpackagetool6 --upgrade removes the widget before reinstalling it, and the
     # panel drops anything that disappears, even for a moment.
+    changed=false
+    diff -rq "$widget" "$installed" >/dev/null 2>&1 || changed=true
     cp -rT "$widget" "$installed"
+    # A running plasmashell keeps the QML it already loaded; new files only take
+    # effect after it restarts. The panel blinks for a second or two.
+    if $changed && systemctl --user is-active -q plasma-plasmashell.service; then
+      echo "   restarting plasmashell so the panel picks up the new widget"
+      systemctl --user restart plasma-plasmashell.service
+    fi
   else
     kpackagetool6 --type Plasma/Applet --install "$widget" >/dev/null
   fi

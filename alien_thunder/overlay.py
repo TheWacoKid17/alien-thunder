@@ -111,6 +111,17 @@ def main() -> int:
         def items(self):
             return list(ITEMS)
 
+        @Property("QVariantList", constant=True)
+        def screens(self):
+            return [{"name": s.name(), "x": s.geometry().x(), "y": s.geometry().y(),
+                     "width": s.geometry().width(), "height": s.geometry().height()}
+                    for s in QGuiApplication.screens()]
+
+        # LayerShellQt places the surface by its own screen property, not the window's.
+        @Slot(str, result=QObject)
+        def screenObject(self, name):
+            return self._screen(name)
+
         @staticmethod
         def _screen(name):
             screens = QGuiApplication.screens()
@@ -121,26 +132,33 @@ def main() -> int:
         @Slot(QObject, result="QVariantMap")
         def restore(self, window):
             scr = self._screen(self._cfg["screen"])
-            window.setScreen(scr)
             g = scr.geometry()
             x = max(0, min(int(self._cfg["x"]), g.width() - window.width()))
             y = max(0, min(int(self._cfg["y"]), g.height() - window.height()))
-            return {"x": x, "y": y}
+            return {"x": x, "y": y, "screen": scr.name(), "ox": g.x(), "oy": g.y()}
 
         @Slot(QObject, int, int, result="QVariantMap")
-        def drop(self, window, x, y):
-            """Saves where the bar was let go; says whether it landed on another screen."""
-            here = window.screen()
-            center = here.geometry().topLeft() + QPoint(x + window.width() // 2, y + window.height() // 2)
+        def drop(self, window, gx, gy):
+            """Places the bar whose top-left corner was let go at (gx, gy) on the desktop."""
+            here = self._screen(self._cfg["screen"])
+            center = QPoint(gx + window.width() // 2, gy + window.height() // 2)
             there = QGuiApplication.screenAt(center) or here
             g = there.geometry()
-            x = max(0, min(center.x() - window.width() // 2 - g.x(), g.width() - window.width()))
-            y = max(0, min(center.y() - window.height() // 2 - g.y(), g.height() - window.height()))
+            x = max(0, min(gx - g.x(), g.width() - window.width()))
+            y = max(0, min(gy - g.y(), g.height() - window.height()))
             self._cfg.update(screen=there.name(), x=x, y=y)
             save_config(self._cfg)
-            if there is not here:
-                window.setScreen(there)
-            return {"x": x, "y": y, "moved": there is not here}
+            return {"x": x, "y": y, "screen": there.name(), "ox": g.x(), "oy": g.y(),
+                    "moved": there is not here}
+
+        # A layer surface can't change screens once it exists, and hiding the bar to
+        # rebuild it crashed Qt (a repaint lands on the destroyed surface). Starting
+        # over is cheap and builds the bar on the new screen from the saved spot.
+        @Slot()
+        def relaunch(self):
+            sys.stdout.flush()
+            sys.stderr.flush()
+            os.execv(sys.executable, [sys.executable] + sys.orig_argv[1:])
 
         @Slot()
         def close(self):
@@ -161,7 +179,7 @@ def main() -> int:
     backend = Backend()
     engine = QQmlApplicationEngine()
     engine.setInitialProperties({"backend": backend})
-    engine.load(QUrl.fromLocalFile(os.path.join(os.path.dirname(__file__), "OverlayBar.qml")))
+    engine.load(QUrl.fromLocalFile(os.path.join(os.path.dirname(__file__), "overlay.qml")))
     if not engine.rootObjects():
         return 1
     return app.exec()
