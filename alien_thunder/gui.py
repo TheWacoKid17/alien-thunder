@@ -285,42 +285,39 @@ class KeyboardView(QWidget):
 
 
 class DonationStrip(QWidget):
-    """The wallets from donate.py, each with its QR code and a Copy button."""
+    """The wallets from donate.py: a QR code each and a button that copies the address."""
 
     def __init__(self, parent=None):
         super().__init__(parent)
         row = QHBoxLayout(self)
         row.setContentsMargins(4, 4, 4, 4)
-        pitch = QLabel(_("Alien Thunder is free and stays free.\nIf it saved you a trip to Windows, a donation keeps it going."))
-        pitch.setStyleSheet("color:#9aa0a6;")
-        row.addWidget(pitch)
-        row.addStretch(1)
+        row.setSpacing(18)
         icons = os.path.join(os.path.dirname(__file__), "icons")
         for w in donate.WALLETS:
             qr = QLabel()
             qr.setPixmap(QPixmap(os.path.join(icons, w["qr"])).scaled(76, 76, Qt.KeepAspectRatio, Qt.FastTransformation))
             qr.setToolTip(w["address"])
-            row.addWidget(qr)
+            cell = QHBoxLayout()
+            cell.setSpacing(8)
+            cell.addWidget(qr)
             col = QVBoxLayout()
             col.setSpacing(3)
-            name = QLabel("<b>%s</b>" % _(w["name"]))
-            col.addWidget(name)
+            col.addStretch(1)
+            col.addWidget(QLabel("<b>%s</b>" % _(w["name"])))
             if w["networks"]:
                 nets = QLabel(w["networks"])
                 nets.setStyleSheet("color:#9aa0a6;")
                 nets.setWordWrap(True)
+                nets.setMaximumWidth(260)
                 col.addWidget(nets)
-            line = QHBoxLayout()
-            addr = QLineEdit(w["address"])
-            addr.setReadOnly(True)
-            addr.setFont(QFont("monospace"))
-            addr.setMinimumWidth(addr.fontMetrics().horizontalAdvance(w["address"]) + 16)
-            line.addWidget(addr)
             copy = QPushButton(QIcon.fromTheme("edit-copy"), _("Copy"))
+            copy.setToolTip(w["address"])
             copy.clicked.connect(lambda _c=False, a=w["address"], b=copy: self._copy(a, b))
-            line.addWidget(copy)
-            col.addLayout(line)
-            row.addLayout(col)
+            col.addWidget(copy, 0, Qt.AlignLeft)
+            col.addStretch(1)
+            cell.addLayout(col)
+            row.addLayout(cell)
+        row.addStretch(1)
 
     def _copy(self, address, button):
         QApplication.clipboard().setText(address)
@@ -424,6 +421,10 @@ class MainWindow(QMainWindow):
         bottom = QHBoxLayout()
         self.lbl_sel = QLabel(_("No keys selected"))
         bottom.addWidget(self.lbl_sel)
+        bottom.addStretch(1)
+        pitch = QLabel(_("Alien Thunder is free and stays free. If it saved you a trip to Windows, a donation keeps it going."))
+        pitch.setStyleSheet("color:#9aa0a6;")
+        bottom.addWidget(pitch)
         bottom.addStretch(1)
         self.chk_live = QCheckBox(_("Apply live"))
         self.chk_live.setChecked(True)
