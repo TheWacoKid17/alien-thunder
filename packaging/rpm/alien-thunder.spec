@@ -1,0 +1,71 @@
+Name:           alien-thunder
+Version:        1.1.1
+Release:        1%{?dist}
+Summary:        Per-key RGB, G-Mode and fan and temperature readouts for Alienware laptops
+License:        MIT
+URL:            https://github.com/cryptoconspiracy/alien-thunder
+Source0:        %{url}/archive/refs/tags/v%{version}.tar.gz#/%{name}-%{version}.tar.gz
+BuildArch:      noarch
+
+BuildRequires:  make
+BuildRequires:  gettext
+BuildRequires:  python3
+BuildRequires:  systemd-rpm-macros
+
+Requires:       python3
+Requires:       python3-dbus
+%if 0%{?suse_version}
+Requires:       python3-pyside6
+Requires:       python3-gobject
+Requires:       typelib-1_0-GUdev-1_0
+Requires:       layer-shell-qt6
+%else
+Requires:       python3-pyside6
+Requires:       python3-gobject
+Requires:       libgudev
+Requires:       layer-shell-qt
+%endif
+Recommends:     power-profiles-daemon
+Recommends:     plasma-workspace
+
+%description
+Alien Thunder brings the Alienware Command Center bits Linux lacks to KDE Plasma:
+per-key keyboard lighting with profiles and effects that keep your colors, the
+touchpad, alien head and power button lights, G-Mode on Fn+F1, and CPU/GPU
+temperature, fan speed and memory readouts on the panel and in a bar that floats
+above every window. After installing, each user runs "alien-thunder setup" once.
+
+%prep
+%autosetup -n %{name}-%{version}
+
+%build
+make locales
+
+%check
+make check
+
+%install
+make PREFIX=%{_prefix} DESTDIR=%{buildroot} install
+rm -f %{buildroot}%{_datadir}/licenses/%{name}/LICENSE
+
+%post
+%udev_rules_update
+
+%postun
+%udev_rules_update
+
+%files
+%license LICENSE
+%doc README.md
+%{_bindir}/alien-thunder
+%{_prefix}/lib/alien-thunder/
+%{_userunitdir}/alien-thunder.service
+%{_userunitdir}/alien-thunder-overlay.service
+%{_udevrulesdir}/70-alien-thunder.rules
+%{_datadir}/applications/alien-thunder.desktop
+%{_datadir}/icons/hicolor/*/apps/alien-thunder.png
+%{_datadir}/plasma/plasmoids/alien-thunder/
+
+%changelog
+* Fri Sep 25 2026 Dan B <unknown@cryptoconspiracy.io> - 1.1.1-1
+- First package
