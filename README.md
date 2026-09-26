@@ -154,6 +154,8 @@ change your keyboard colors, a donation keeps it going.
 bc1q2nqp9d8lc0u6z7v9ag4u52sv9g9afepgyyrwu4
 ```
 
+The same code is in the panel widget's settings, under **Support**, with a Copy button.
+
 ## Credits
 
 - The lighting protocols come from [alienfx-tools](https://github.com/T-Troll/alienfx-tools)
