@@ -7,7 +7,7 @@ LIBDIR = $(DESTDIR)$(PREFIX)/lib/alien-thunder
 SHARE = $(DESTDIR)$(PREFIX)/share
 WIDGET = plasma/alien-thunder
 
-LANGS = $(notdir $(wildcard po/*/))
+LANGS = $(patsubst po/%/,%,$(wildcard po/*/))
 
 all: locales
 
