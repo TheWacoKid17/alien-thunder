@@ -67,6 +67,14 @@
   </supports>
   <content_rating type="oars-1.1"/>
   <releases>
+    <release version="1.2.1" date="2026-09-28">
+      <description>
+        <ul>
+          <li>AppStream metadata, so GNOME Software and KDE Discover list the app</li>
+          <li>make release: publish a version to GitHub, OBS and the AUR from this machine</li>
+        </ul>
+      </description>
+    </release>
     <release version="1.2.0" date="2026-09-28">
       <description>
         <p>CPU load, VRAM in use and RAM in GB, and a choice of readings for the panel and the overlay.</p>

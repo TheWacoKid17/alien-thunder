@@ -1,3 +1,10 @@
+alien-thunder (1.2.1-1) unstable; urgency=medium
+
+  * AppStream metadata, so GNOME Software and KDE Discover list the app
+  * make release: publish a version to GitHub, OBS and the AUR from this machine
+
+ -- Dan B <unknown@cryptoconspiracy.io>  Mon, 28 Sep 2026 21:35:57 -0300
+
 alien-thunder (1.2.0-1) unstable; urgency=medium
 
   * CPU load, VRAM in use and RAM in GB on the panel and in the overlay.

@@ -1,5 +1,5 @@
 Name:           alien-thunder
-Version:        1.2.0
+Version:        1.2.1
 Release:        1%{?dist}
 Summary:        Per-key RGB, G-Mode and fan and temperature readouts for Alienware laptops
 License:        MIT
@@ -74,6 +74,10 @@ rm -f %{buildroot}%{_datadir}/licenses/%{name}/LICENSE
 %{_datadir}/plasma/plasmoids/alien-thunder/
 
 %changelog
+* Mon Sep 28 2026 Dan B <unknown@cryptoconspiracy.io> - 1.2.1-1
+- AppStream metadata, so GNOME Software and KDE Discover list the app
+- make release: publish a version to GitHub, OBS and the AUR from this machine
+
 * Mon Sep 28 2026 Dan B <unknown@cryptoconspiracy.io> - 1.2.0-1
 - CPU load, VRAM in use and RAM in GB; choose the readings for the panel and the overlay
 
