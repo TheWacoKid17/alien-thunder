@@ -39,4 +39,9 @@ install: locales
 	cp -r $(WIDGET) $(SHARE)/plasma/plasmoids/
 	install -Dm644 LICENSE $(SHARE)/licenses/alien-thunder/LICENSE
 
-.PHONY: all locales check install
+# Publishes VERSION to GitHub, the OBS repositories and (once there's an account) the AUR.
+release:
+	@test -n "$(VERSION)" || { echo "usage: make release VERSION=1.2.3 [DRY_RUN=1]"; exit 1; }
+	DRY_RUN=$(DRY_RUN) packaging/release.sh $(VERSION)
+
+.PHONY: all locales check install release
