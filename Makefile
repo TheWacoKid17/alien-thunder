@@ -3,7 +3,7 @@
 
 PREFIX ?= /usr
 DESTDIR ?=
-LIBDIR = $(DESTDIR)$(PREFIX)/lib/alien-thunder
+LIBDIR = $(DESTDIR)$(PREFIX)/share/alien-thunder
 SHARE = $(DESTDIR)$(PREFIX)/share
 WIDGET = plasma/alien-thunder
 
@@ -38,6 +38,7 @@ install: locales
 	done
 	install -d $(SHARE)/plasma/plasmoids
 	cp -r $(WIDGET) $(SHARE)/plasma/plasmoids/
+	install -Dm644 data/alien-thunder.1 $(SHARE)/man/man1/alien-thunder.1
 	install -Dm644 LICENSE $(SHARE)/licenses/alien-thunder/LICENSE
 
 # Publishes VERSION to GitHub, the OBS repositories and (once there's an account) the AUR.

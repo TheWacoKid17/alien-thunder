@@ -62,7 +62,8 @@ rm -f %{buildroot}%{_datadir}/licenses/%{name}/LICENSE
 %license LICENSE
 %doc README.md
 %{_bindir}/alien-thunder
-%{_prefix}/lib/alien-thunder/
+%{_mandir}/man1/alien-thunder.1*
+%{_datadir}/alien-thunder/
 %{_userunitdir}/alien-thunder.service
 %{_userunitdir}/alien-thunder-overlay.service
 %{_udevrulesdir}/70-alien-thunder.rules

@@ -2,9 +2,11 @@ Source: alien-thunder
 Section: utils
 Priority: optional
 Maintainer: Dan B <unknown@cryptoconspiracy.io>
-Build-Depends: debhelper-compat (= 13), gettext, python3, make
-Standards-Version: 4.7.0
+Build-Depends: debhelper-compat (= 13), gettext, python3
+Standards-Version: 4.7.2
 Homepage: https://github.com/cryptoconspiracy/alien-thunder
+Vcs-Browser: https://github.com/cryptoconspiracy/alien-thunder
+Vcs-Git: https://github.com/cryptoconspiracy/alien-thunder.git
 Rules-Requires-Root: no
 
 Package: alien-thunder

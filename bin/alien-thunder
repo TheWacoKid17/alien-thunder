@@ -5,8 +5,8 @@ import os
 import sys
 
 here = os.path.dirname(os.path.realpath(__file__))
-system = os.path.join(here, "..", "lib", "alien-thunder")
-# A package installs the code in /usr/lib/alien-thunder; install.sh links this file
+system = os.path.join(here, "..", "share", "alien-thunder")
+# A package installs the code in /usr/share/alien-thunder; install.sh links this file
 # from a checkout, where the code sits next to bin/.
 sys.path.insert(0, system if os.path.isdir(os.path.join(system, "alien_thunder")) else os.path.dirname(here))
 from alien_thunder.cli import main  # noqa: E402

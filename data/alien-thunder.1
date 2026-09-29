@@ -1,0 +1,56 @@
+.TH ALIEN-THUNDER 1 "September 2026" "alien-thunder" "User Commands"
+.SH NAME
+alien-thunder \- keyboard lighting, G-Mode and sensor readouts for Alienware laptops
+.SH SYNOPSIS
+.B alien-thunder
+.RI [ command ]
+.SH DESCRIPTION
+Without a command,
+.B alien-thunder
+opens the lighting editor: per-key keyboard colors, the touchpad, the alien head and
+the power button, saved as profiles. A user service keeps the active profile applied,
+turns G-Mode on and off with Fn+F1, and publishes CPU and GPU temperature, fan speeds,
+CPU load, GPU memory and RAM for the KDE Plasma panel widget and the overlay.
+.SH COMMANDS
+.TP
+.B list
+List the profiles; the active one is marked with *.
+.TP
+.BI set " profile"
+Make a profile the active one and apply it.
+.TP
+.BR apply " [\fIprofile\fR]"
+Apply a profile now (the active one by default) without changing the active one.
+.TP
+.B status
+Show the service and the lighting devices.
+.TP
+.BR power " [\fIprofile\fR]"
+Write the power button colors now.
+.TP
+.BR gmode " [\fBon\fR|\fBoff\fR|\fBtoggle\fR]"
+Switch G-Mode, the same as Fn+F1; without an argument, show whether it is on.
+.TP
+.BR overlay " [\fBon\fR|\fBoff\fR|\fBshow\fR \fIitem\fR|\fBhide\fR \fIitem\fR|\fBitems\fR \fIitem,...\fR|\fBstatus\fR]"
+Control the bar of readouts that floats above other windows. Items are cpu_temp,
+cpu_load, gpu_temp, gpu_mem, cpu_fan, gpu_fan, ram and ram_gb.
+.TP
+.BR import-windows " [\fB\-\-list\fR | \fB\-\-id\fR \fIid\fR ...]"
+Import Alienware Command Center presets from a Windows partition mounted at /mnt/windows.
+.TP
+.B setup
+Per-user setup after installing a package: turns the service on, puts the widget on
+the panel, and reports a missing udev rule or input group.
+.TP
+.B daemon
+The service itself, started by systemd \-\-user.
+.SH FILES
+.TP
+.I ~/.config/alien-thunder/
+Profiles, settings and the overlay position.
+.SH NOTES
+Fn+F1 needs the user in the
+.B input
+group. G-Mode relies on the kernel alienware-wmi driver and power-profiles-daemon.
+.SH SEE ALSO
+https://github.com/cryptoconspiracy/alien-thunder

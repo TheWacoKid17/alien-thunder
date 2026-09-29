@@ -22,3 +22,9 @@ License: MIT
  LIABILITY, WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM,
  OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE
  SOFTWARE.
+
+Files: data/io.github.cryptoconspiracy.AlienThunder.metainfo.xml
+Copyright: 2026 Dan B
+License: CC0-1.0
+ On Debian systems, the complete text of the CC0 1.0 Universal license can be
+ found in /usr/share/common-licenses/CC0-1.0.

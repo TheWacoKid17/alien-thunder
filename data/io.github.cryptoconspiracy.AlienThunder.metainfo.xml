@@ -60,6 +60,9 @@
   </screenshots>
   <provides>
     <binary>alien-thunder</binary>
+    <!-- the two lighting controllers the udev rule covers -->
+    <modalias>usb:v0D62pD2B1d*</modalias>
+    <modalias>usb:v187Cp0551d*</modalias>
   </provides>
   <supports>
     <control>pointing</control>
