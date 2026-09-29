@@ -1,3 +1,10 @@
+alien-thunder (1.2.0-1) unstable; urgency=medium
+
+  * CPU load, VRAM in use and RAM in GB on the panel and in the overlay.
+  * Choose the readings for the panel and the overlay in the widget settings.
+
+ -- Dan B <unknown@cryptoconspiracy.io>  Mon, 28 Sep 2026 21:30:00 -0300
+
 alien-thunder (1.1.2-1) unstable; urgency=medium
 
   * The overlay no longer crashes every few minutes: QML was deleting the
