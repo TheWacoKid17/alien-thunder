@@ -132,6 +132,12 @@ user can reach the lighting controllers, and Fn+F1 needs your user in the `input
 widget, the user services, the udev rule and the icons. Each user then runs
 `alien-thunder setup` once, which turns the service on and puts the widget on the panel.
 
+### Releasing (maintainers)
+
+`make release VERSION=1.2.3` bumps the version everywhere, tags it, publishes the GitHub
+release with the widget, updates the AUR recipe and the openSUSE Build Service packages,
+and waits for the builds. `DRY_RUN=1` does it all in a throwaway clone without publishing.
+
 ### Updating
 
 ```bash
