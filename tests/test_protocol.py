@@ -16,7 +16,7 @@ _SANDBOX = tempfile.mkdtemp(prefix="alien-thunder-tests-")
 for _var in ("XDG_CONFIG_HOME", "XDG_STATE_HOME", "XDG_RUNTIME_DIR"):
     os.environ[_var] = os.path.join(_SANDBOX, _var.lower())
 
-from alien_thunder import effects, engine, gmode, layout, profiles, protocol  # noqa: E402
+from alien_thunder import effects, engine, gmode, layout, profiles, protocol, sensors  # noqa: E402
 from alien_thunder.profiles import hex_to_rgb  # noqa: E402
 
 
@@ -268,6 +268,23 @@ class GMode(unittest.TestCase):
         eng.gmode = False
         (back,) = self.apply(eng, prof)
         self.assertEqual(back, off)
+
+
+class Sensors(unittest.TestCase):
+    def test_sleeping_gpu_is_left_alone(self):
+        gpu = os.path.join(_SANDBOX, "gpu")
+        os.makedirs(os.path.join(gpu, "power"), exist_ok=True)
+        with open(os.path.join(gpu, "power", "runtime_status"), "w") as f:
+            f.write("suspended\n")
+        # returns before loading NVML, so the test passes on machines without it too
+        self.assertIsNone(sensors.gpu_memory_percent(gpu))
+        self.assertIsNone(sensors.gpu_memory_percent(None))
+
+    def test_cpu_load_needs_two_reads(self):
+        s = sensors.Sensors()
+        self.assertIsNone(s._cpu_load())
+        load = s._cpu_load()
+        self.assertTrue(load is None or 0 <= load <= 100)
 
 
 if __name__ == "__main__":

@@ -6,6 +6,7 @@ and polling it every two seconds would keep it awake on battery.
 """
 from __future__ import annotations
 
+import ctypes
 import glob
 import json
 import os
@@ -47,10 +48,60 @@ def _labelled(hwmon: str | None, kind: str, label: str) -> str | None:
     return None
 
 
+def _nvidia_gpu() -> str | None:
+    """The discrete NVIDIA GPU's sysfs directory, if there is one."""
+    for d in sorted(glob.glob("/sys/bus/pci/devices/*")):
+        try:
+            with open(os.path.join(d, "vendor")) as f:
+                vendor = f.read().strip()
+            with open(os.path.join(d, "class")) as f:
+                cls = f.read().strip()
+        except OSError:
+            continue
+        if vendor == "0x10de" and cls[:6] in ("0x0300", "0x0302"):
+            return d
+    return None
+
+
+class _NvmlMemory(ctypes.Structure):
+    _fields_ = [("total", ctypes.c_ulonglong), ("free", ctypes.c_ulonglong), ("used", ctypes.c_ulonglong)]
+
+
+def gpu_memory_percent(gpu: str | None) -> int | None:
+    """VRAM in use, only while the GPU is already awake.
+
+    Asking the NVIDIA driver resumes a GPU in runtime suspend, so a sleeping GPU is
+    left alone and reads as unknown. NVML is shut down again right after each read,
+    because an open handle would keep the GPU from going back to sleep.
+    """
+    if gpu is None:
+        return None
+    try:
+        with open(os.path.join(gpu, "power", "runtime_status")) as f:
+            if f.read().strip() != "active":
+                return None
+        nv = ctypes.CDLL("libnvidia-ml.so.1")
+    except OSError:
+        return None
+    if nv.nvmlInit_v2() != 0:
+        return None
+    try:
+        handle = ctypes.c_void_p()
+        mem = _NvmlMemory()
+        if nv.nvmlDeviceGetHandleByIndex_v2(0, ctypes.byref(handle)) != 0:
+            return None
+        if nv.nvmlDeviceGetMemoryInfo(handle, ctypes.byref(mem)) != 0 or not mem.total:
+            return None
+        return round(100 * mem.used / mem.total)
+    finally:
+        nv.nvmlShutdown()
+
+
 class Sensors:
     """Finds the sysfs files once; hwmon numbers change between boots, labels don't."""
 
     def __init__(self):
+        self._cpu_prev: tuple[int, int] | None = None
         self.rescan()
 
     def rescan(self):
@@ -63,17 +114,42 @@ class Sensors:
             "cpu_fan": _labelled(aw, "fan", "CPU Fan"),
             "gpu_fan": _labelled(aw, "fan", "GPU Fan"),
         }
+        self.gpu = _nvidia_gpu()
 
     def read(self) -> dict:
         out = {}
         for key, path in self.files.items():
             v = _read(path) if path else None
             out[key] = None if v is None else (round(v / 1000) if key.endswith("_temp") else v)
-        out["ram"] = memory_percent()
+        out["cpu_load"] = self._cpu_load()
+        mem = _meminfo()
+        if mem:
+            total, available = mem
+            out["ram"] = round(100 * (1 - available / total))
+            out["ram_gb"] = round((total - available) / 2**20, 1)
+            out["ram_total_gb"] = round(total / 2**20)
+        else:
+            out["ram"] = out["ram_gb"] = out["ram_total_gb"] = None
+        out["gpu_mem"] = gpu_memory_percent(self.gpu)
         return out
 
+    def _cpu_load(self) -> int | None:
+        """Share of the time since the last read that the CPUs weren't idle."""
+        try:
+            with open("/proc/stat") as f:
+                fields = [int(x) for x in f.readline().split()[1:]]
+        except (OSError, ValueError):
+            return None
+        idle = fields[3] + fields[4]  # idle + iowait
+        total = sum(fields[:8])  # guest time is already counted in user
+        prev, self._cpu_prev = self._cpu_prev, (idle, total)
+        if prev is None or total <= prev[1]:
+            return None
+        return round(100 * (1 - (idle - prev[0]) / (total - prev[1])))
 
-def memory_percent() -> int | None:
+
+def _meminfo() -> tuple[int, int] | None:
+    """(MemTotal, MemAvailable) in KiB."""
     info = {}
     try:
         with open("/proc/meminfo") as f:
@@ -84,7 +160,8 @@ def memory_percent() -> int | None:
         return None
     if not info.get("MemTotal") or "MemAvailable" not in info:
         return None
-    return round(100 * (1 - info["MemAvailable"] / info["MemTotal"]))
+    return info["MemTotal"], info["MemAvailable"]
+
 
 
 def publish(values: dict) -> None:

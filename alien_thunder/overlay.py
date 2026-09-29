@@ -22,7 +22,7 @@ _ = i18n.gettext
 
 OVERLAY_FILE = os.path.join(paths.CONFIG_DIR, "overlay.json")
 UNIT = "alien-thunder-overlay.service"
-ITEMS = ("cpu_temp", "gpu_temp", "cpu_fan", "gpu_fan", "ram")
+ITEMS = ("cpu_temp", "cpu_load", "gpu_temp", "gpu_mem", "cpu_fan", "gpu_fan", "ram", "ram_gb")
 
 
 def default_config() -> dict:
@@ -51,8 +51,8 @@ def save_config(cfg: dict) -> None:
 
 
 def labels() -> dict:
-    return {"cpu_temp": _("CPU"), "gpu_temp": _("GPU"), "cpu_fan": _("CPU fan"),
-            "gpu_fan": _("GPU fan"), "ram": _("RAM")}
+    return {"cpu_temp": _("CPU"), "cpu_load": _("CPU load"), "gpu_temp": _("GPU"), "gpu_mem": _("VRAM"),
+            "cpu_fan": _("CPU fan"), "gpu_fan": _("GPU fan"), "ram": _("RAM"), "ram_gb": _("RAM")}
 
 
 def main() -> int:
@@ -203,7 +203,7 @@ def main() -> int:
 
 
 def command(args: list[str]) -> int:
-    """alien-thunder overlay [run|on|off|show ITEM|hide ITEM|status]"""
+    """alien-thunder overlay [run|on|off|show ITEM|hide ITEM|items ITEM,ITEM,...|status]"""
     action = args[0] if args else "status"
     if action == "run":
         return main()
@@ -213,12 +213,18 @@ def command(args: list[str]) -> int:
     cfg = load_config()
     if action in ("show", "hide") and len(args) == 2 and args[1] in ITEMS:
         cfg["items"][args[1]] = action == "show"
+    elif action == "items" and len(args) == 2:
+        # the whole selection at once, so the bar restarts once, not once per reading
+        wanted = set(args[1].split(",")) & set(ITEMS)
+        if cfg["items"] == {k: k in wanted for k in ITEMS}:
+            return 0
+        cfg["items"] = {k: k in wanted for k in ITEMS}
     elif action == "status":
         running = subprocess.run(["systemctl", "--user", "is-active", "-q", UNIT]).returncode == 0
         print(json.dumps({"running": running, **cfg}))
         return 0
     else:
-        print(_("usage: alien-thunder overlay [run|on|off|show ITEM|hide ITEM|status]"), file=sys.stderr)
+        print(_("usage: alien-thunder overlay [run|on|off|show ITEM|hide ITEM|items ITEM,ITEM,...|status]"), file=sys.stderr)
         print(_("items: %s") % " ".join(ITEMS), file=sys.stderr)
         return 2
     save_config(cfg)

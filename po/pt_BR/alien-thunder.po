@@ -1,18 +1,54 @@
 msgid ""
 msgstr ""
 "Project-Id-Version: alien-thunder\n"
-"Language: pt_BR\n"
+"Report-Msgid-Bugs-To: \n"
+"POT-Creation-Date: 2026-09-28 21:20-0300\n"
 "PO-Revision-Date: 2026-09-25 16:00-0300\n"
 "Last-Translator: Dan B\n"
 "Language-Team: Portuguese (Brazil)\n"
+"Language: pt_BR\n"
 "MIME-Version: 1.0\n"
 "Content-Type: text/plain; charset=UTF-8\n"
 "Content-Transfer-Encoding: 8bit\n"
 "Plural-Forms: nplurals=2; plural=(n > 1);\n"
 
 #: alien_thunder/cli.py:14
-msgid "alien-thunder                    open the lighting editor\nalien-thunder list               list the profiles (* = active)\nalien-thunder set <profile>      make a profile the active one and apply it\nalien-thunder apply [profile]    apply now (default: the active one) without changing it\nalien-thunder status             service and device status\nalien-thunder power [profile]    write the power button colors now\nalien-thunder gmode [on|off|toggle]\n                                 G-Mode, the same as Fn+F1; with no argument, show it\nalien-thunder overlay [on|off|show ITEM|hide ITEM|status]\n                                 the floating readout bar\nalien-thunder import-windows [--list | --id N ...]\n                                 import AWCC presets from /mnt/windows\nalien-thunder setup              per-user setup after installing a package\nalien-thunder daemon             the service (started by systemd --user)"
-msgstr "alien-thunder                    abre o editor de iluminação\nalien-thunder list               lista os perfis (* = ativo)\nalien-thunder set <perfil>       torna o perfil ativo e aplica\nalien-thunder apply [perfil]     aplica agora (padrão: o ativo) sem mudar o ativo\nalien-thunder status             estado do serviço e dos dispositivos\nalien-thunder power [perfil]     grava agora as cores do botão de energia\nalien-thunder gmode [on|off|toggle]\n                                 G-Mode, o mesmo que Fn+F1; sem argumento, mostra o estado\nalien-thunder overlay [on|off|show ITEM|hide ITEM|status]\n                                 a barra flutuante de mostradores\nalien-thunder import-windows [--list | --id N ...]\n                                 importa predefinições do AWCC de /mnt/windows\nalien-thunder setup              ajustes por usuário depois de instalar um pacote\nalien-thunder daemon             o serviço (iniciado pelo systemd --user)"
+msgid ""
+"alien-thunder                    open the lighting editor\n"
+"alien-thunder list               list the profiles (* = active)\n"
+"alien-thunder set <profile>      make a profile the active one and apply it\n"
+"alien-thunder apply [profile]    apply now (default: the active one) without "
+"changing it\n"
+"alien-thunder status             service and device status\n"
+"alien-thunder power [profile]    write the power button colors now\n"
+"alien-thunder gmode [on|off|toggle]\n"
+"                                 G-Mode, the same as Fn+F1; with no "
+"argument, show it\n"
+"alien-thunder overlay [on|off|show ITEM|hide ITEM|status]\n"
+"                                 the floating readout bar\n"
+"alien-thunder import-windows [--list | --id N ...]\n"
+"                                 import AWCC presets from /mnt/windows\n"
+"alien-thunder setup              per-user setup after installing a package\n"
+"alien-thunder daemon             the service (started by systemd --user)"
+msgstr ""
+"alien-thunder                    abre o editor de iluminação\n"
+"alien-thunder list               lista os perfis (* = ativo)\n"
+"alien-thunder set <perfil>       torna o perfil ativo e aplica\n"
+"alien-thunder apply [perfil]     aplica agora (padrão: o ativo) sem mudar o "
+"ativo\n"
+"alien-thunder status             estado do serviço e dos dispositivos\n"
+"alien-thunder power [perfil]     grava agora as cores do botão de energia\n"
+"alien-thunder gmode [on|off|toggle]\n"
+"                                 G-Mode, o mesmo que Fn+F1; sem argumento, "
+"mostra o estado\n"
+"alien-thunder overlay [on|off|show ITEM|hide ITEM|status]\n"
+"                                 a barra flutuante de mostradores\n"
+"alien-thunder import-windows [--list | --id N ...]\n"
+"                                 importa predefinições do AWCC de /mnt/"
+"windows\n"
+"alien-thunder setup              ajustes por usuário depois de instalar um "
+"pacote\n"
+"alien-thunder daemon             o serviço (iniciado pelo systemd --user)"
 
 #: alien_thunder/cli.py:37 alien_thunder/cli.py:101 alien_thunder/cli.py:229
 #, python-format
@@ -20,8 +56,12 @@ msgid "error: %s"
 msgstr "erro: %s"
 
 #: alien_thunder/cli.py:42
-msgid "note: software effects need the service (systemctl --user start alien-thunder)"
-msgstr "aviso: efeitos de software precisam do serviço (systemctl --user start alien-thunder)"
+msgid ""
+"note: software effects need the service (systemctl --user start alien-"
+"thunder)"
+msgstr ""
+"aviso: efeitos de software precisam do serviço (systemctl --user start alien-"
+"thunder)"
 
 #: alien_thunder/cli.py:56 alien_thunder/cli.py:82
 #, python-format
@@ -99,20 +139,28 @@ msgstr "painel: o widget já estava lá"
 
 #: alien_thunder/cli.py:160
 msgid "panel: right-click the panel, Add Widgets, and pick Alien Thunder"
-msgstr "painel: clique com o botão direito no painel, Adicionar widgets, e escolha Alien Thunder"
+msgstr ""
+"painel: clique com o botão direito no painel, Adicionar widgets, e escolha "
+"Alien Thunder"
 
 #: alien_thunder/cli.py:165
 #, python-format
 msgid "lighting: no access to %s; log out and back in so the udev rule applies"
-msgstr "iluminação: sem acesso a %s; saia e entre de novo na sessão para a regra do udev valer"
+msgstr ""
+"iluminação: sem acesso a %s; saia e entre de novo na sessão para a regra do "
+"udev valer"
 
 #: alien_thunder/cli.py:167
-msgid "lighting: no Alienware keyboard or AW-ELC controller found on this computer"
-msgstr "iluminação: nenhum teclado Alienware ou controlador AW-ELC encontrado neste computador"
+msgid ""
+"lighting: no Alienware keyboard or AW-ELC controller found on this computer"
+msgstr ""
+"iluminação: nenhum teclado Alienware ou controlador AW-ELC encontrado neste "
+"computador"
 
 #: alien_thunder/cli.py:173
 msgid "G-Mode key: log out and back in so the input group applies"
-msgstr "tecla do G-Mode: saia e entre de novo na sessão para o grupo input valer"
+msgstr ""
+"tecla do G-Mode: saia e entre de novo na sessão para o grupo input valer"
 
 #: alien_thunder/cli.py:175
 msgid "G-Mode key: Fn+F1 needs your user in the input group:"
@@ -181,8 +229,14 @@ msgstr "sem cor (não enviado)"
 
 #: alien_thunder/gui.py:280
 #, python-format
-msgid "%s\nLED(s): %s  (AWCC: %s)\nColor: %s"
-msgstr "%s\nLED(s): %s  (AWCC: %s)\nCor: %s"
+msgid ""
+"%s\n"
+"LED(s): %s  (AWCC: %s)\n"
+"Color: %s"
+msgstr ""
+"%s\n"
+"LED(s): %s  (AWCC: %s)\n"
+"Cor: %s"
 
 #: alien_thunder/gui.py:314 alien_thunder/gui.py:326
 msgid "Copy"
@@ -233,8 +287,10 @@ msgid "Make active"
 msgstr "Tornar ativo"
 
 #: alien_thunder/gui.py:375
-msgid "Make this the lasting profile (applied at login, after suspend, and so on)"
-msgstr "Torna este o perfil persistente (aplicado no login, após suspender etc.)"
+msgid ""
+"Make this the lasting profile (applied at login, after suspend, and so on)"
+msgstr ""
+"Torna este o perfil persistente (aplicado no login, após suspender etc.)"
 
 #: alien_thunder/gui.py:376
 msgid "Import from Windows…"
@@ -245,8 +301,11 @@ msgid "Import Alienware Command Center presets"
 msgstr "Importar predefinições do Alienware Command Center"
 
 #: alien_thunder/gui.py:390
-msgid "Turbo: fans at full speed and the performance power profile (same as Fn+F1)"
-msgstr "Turbo: ventoinhas no máximo e perfil de energia performance (o mesmo que Fn+F1)"
+msgid ""
+"Turbo: fans at full speed and the performance power profile (same as Fn+F1)"
+msgstr ""
+"Turbo: ventoinhas no máximo e perfil de energia performance (o mesmo que "
+"Fn+F1)"
 
 #: alien_thunder/gui.py:415 alien_thunder/gui.py:582
 msgid "Colors"
@@ -269,8 +328,12 @@ msgid "No keys selected"
 msgstr "Nenhuma tecla selecionada"
 
 #: alien_thunder/gui.py:426
-msgid "Alien Thunder is free and stays free. If it saved you a trip to Windows, a donation keeps it going."
-msgstr "O Alien Thunder é gratuito e vai continuar assim. Se ele te poupou uma ida ao Windows, uma doação ajuda a mantê-lo."
+msgid ""
+"Alien Thunder is free and stays free. If it saved you a trip to Windows, a "
+"donation keeps it going."
+msgstr ""
+"O Alien Thunder é gratuito e vai continuar assim. Se ele te poupou uma ida "
+"ao Windows, uma doação ajuda a mantê-lo."
 
 #: alien_thunder/gui.py:430
 msgid "Apply live"
@@ -358,8 +421,12 @@ msgstr "Excluir grupo"
 
 #: alien_thunder/gui.py:554
 #, python-format
-msgid "Effects only change how bright each light is; the colors stay the ones you picked. The background service draws them at %d fps."
-msgstr "Os efeitos só mudam o brilho de cada luz; as cores continuam as que você escolheu. O serviço em segundo plano os desenha a %d fps."
+msgid ""
+"Effects only change how bright each light is; the colors stay the ones you "
+"picked. The background service draws them at %d fps."
+msgstr ""
+"Os efeitos só mudam o brilho de cada luz; as cores continuam as que você "
+"escolheu. O serviço em segundo plano os desenha a %d fps."
 
 #: alien_thunder/gui.py:560
 msgid "Keyboard"
@@ -402,8 +469,15 @@ msgid "On battery:"
 msgstr "Na bateria:"
 
 #: alien_thunder/gui.py:599
-msgid "The controller stores how the button behaves, asleep and charging included. To avoid writing it over and over, the colors only go out when they change and the profile is the active one, never live. Use “Apply” or the button below."
-msgstr "O controlador guarda o comportamento do botão, inclusive dormindo e carregando. Para não gravar repetidas vezes, as cores só são enviadas quando mudam e o perfil é o ativo, nunca ao vivo. Use “Aplicar” ou o botão abaixo."
+msgid ""
+"The controller stores how the button behaves, asleep and charging included. "
+"To avoid writing it over and over, the colors only go out when they change "
+"and the profile is the active one, never live. Use “Apply” or the button "
+"below."
+msgstr ""
+"O controlador guarda o comportamento do botão, inclusive dormindo e "
+"carregando. Para não gravar repetidas vezes, as cores só são enviadas quando "
+"mudam e o perfil é o ativo, nunca ao vivo. Use “Aplicar” ou o botão abaixo."
 
 #: alien_thunder/gui.py:605
 msgid "Write the button colors now"
@@ -442,12 +516,24 @@ msgid "Devices"
 msgstr "Dispositivos"
 
 #: alien_thunder/gui.py:648
-msgid "Tips: click selects; Ctrl+click toggles; Shift+click adds; drag to select an area; double click opens the color picker; Ctrl+A selects everything; Ctrl+I inverts; Esc clears.\nCLI: alien-thunder list | set <profile> | apply [profile] | status"
-msgstr "Dicas: clique seleciona; Ctrl+clique alterna; Shift+clique adiciona; arraste para selecionar uma área; duplo clique abre o seletor de cor; Ctrl+A seleciona tudo; Ctrl+I inverte; Esc limpa.\nCLI: alien-thunder list | set <perfil> | apply [perfil] | status"
+msgid ""
+"Tips: click selects; Ctrl+click toggles; Shift+click adds; drag to select an "
+"area; double click opens the color picker; Ctrl+A selects everything; Ctrl+I "
+"inverts; Esc clears.\n"
+"CLI: alien-thunder list | set <profile> | apply [profile] | status"
+msgstr ""
+"Dicas: clique seleciona; Ctrl+clique alterna; Shift+clique adiciona; arraste "
+"para selecionar uma área; duplo clique abre o seletor de cor; Ctrl+A "
+"seleciona tudo; Ctrl+I inverte; Esc limpa.\n"
+"CLI: alien-thunder list | set <perfil> | apply [perfil] | status"
 
 #: alien_thunder/gui.py:717
-msgid "You're editing a profile that isn't the active one: the LEDs show it only while this window is open. Use “Make active” to keep it."
-msgstr "Você está editando um perfil que não é o ativo: ele aparece nos LEDs só enquanto esta janela estiver aberta. Use “Tornar ativo” para mantê-lo."
+msgid ""
+"You're editing a profile that isn't the active one: the LEDs show it only "
+"while this window is open. Use “Make active” to keep it."
+msgstr ""
+"Você está editando um perfil que não é o ativo: ele aparece nos LEDs só "
+"enquanto esta janela estiver aberta. Use “Tornar ativo” para mantê-lo."
 
 #: alien_thunder/gui.py:722
 msgid "Profile name:"
@@ -487,16 +573,24 @@ msgstr "“%s” agora é o perfil ativo"
 #. noqa: BLE001
 #: alien_thunder/gui.py:783
 #, python-format
-msgid "Couldn't read the AWCC presets:\n%s"
-msgstr "Não foi possível ler as predefinições do AWCC:\n%s"
+msgid ""
+"Couldn't read the AWCC presets:\n"
+"%s"
+msgstr ""
+"Não foi possível ler as predefinições do AWCC:\n"
+"%s"
 
 #: alien_thunder/gui.py:788
 msgid "Import from Windows (Alienware Command Center)"
 msgstr "Importar do Windows (Alienware Command Center)"
 
 #: alien_thunder/gui.py:790
-msgid "Check the presets to import as new profiles (the Windows partition is only read):"
-msgstr "Marque as predefinições para importar como perfis novos (a partição do Windows é só lida):"
+msgid ""
+"Check the presets to import as new profiles (the Windows partition is only "
+"read):"
+msgstr ""
+"Marque as predefinições para importar como perfis novos (a partição do "
+"Windows é só lida):"
 
 #: alien_thunder/gui.py:802
 msgid "Import"
@@ -511,7 +605,9 @@ msgstr[1] "%d perfis importados"
 
 #: alien_thunder/gui.py:830
 msgid "No keys selected: click, Ctrl/Shift+click or drag to select"
-msgstr "Nenhuma tecla selecionada: clique, Ctrl/Shift+clique ou arraste para selecionar"
+msgstr ""
+"Nenhuma tecla selecionada: clique, Ctrl/Shift+clique ou arraste para "
+"selecionar"
 
 #: alien_thunder/gui.py:833
 #, python-format
@@ -551,8 +647,12 @@ msgid "Group name:"
 msgstr "Nome do grupo:"
 
 #: alien_thunder/gui.py:1000
-msgid "The power button colors are written on Apply (active profile) or with “Write the button colors now”"
-msgstr "As cores do botão de energia são gravadas em Aplicar (perfil ativo) ou em “Gravar cores do botão agora”"
+msgid ""
+"The power button colors are written on Apply (active profile) or with “Write "
+"the button colors now”"
+msgstr ""
+"As cores do botão de energia são gravadas em Aplicar (perfil ativo) ou em "
+"“Gravar cores do botão agora”"
 
 #: alien_thunder/gui.py:1013
 msgid "Power button written"
@@ -603,8 +703,10 @@ msgid "● service stopped"
 msgstr "● serviço parado"
 
 #: alien_thunder/gui.py:1073
-msgid "Without the service the editor applies directly; software effects don't run"
-msgstr "Sem o serviço, o editor aplica diretamente; efeitos de software não rodam"
+msgid ""
+"Without the service the editor applies directly; software effects don't run"
+msgstr ""
+"Sem o serviço, o editor aplica diretamente; efeitos de software não rodam"
 
 #: alien_thunder/gui.py:1074
 msgid "Stopped. Start it with: systemctl --user enable --now alien-thunder"
@@ -722,7 +824,8 @@ msgstr "chassi: resposta inesperada %s"
 
 #: alien_thunder/hw.py:250
 msgid "alienrgb not found (~/.local/src/alienrgb/target/release/alienrgb)"
-msgstr "alienrgb não encontrado (~/.local/src/alienrgb/target/release/alienrgb)"
+msgstr ""
+"alienrgb não encontrado (~/.local/src/alienrgb/target/release/alienrgb)"
 
 #: alien_thunder/layout.py:192
 msgid "All"
@@ -777,10 +880,18 @@ msgid "CPU"
 msgstr "CPU"
 
 #: alien_thunder/overlay.py:54
+msgid "CPU load"
+msgstr "Uso CPU"
+
+#: alien_thunder/overlay.py:54
 msgid "GPU"
 msgstr "GPU"
 
 #: alien_thunder/overlay.py:54
+msgid "VRAM"
+msgstr "VRAM"
+
+#: alien_thunder/overlay.py:55
 msgid "CPU fan"
 msgstr "Fan CPU"
 
@@ -792,11 +903,15 @@ msgstr "Fan GPU"
 msgid "RAM"
 msgstr "RAM"
 
-#: alien_thunder/overlay.py:204
-msgid "usage: alien-thunder overlay [run|on|off|show ITEM|hide ITEM|status]"
-msgstr "uso: alien-thunder overlay [run|on|off|show ITEM|hide ITEM|status]"
+#: alien_thunder/overlay.py:227
+msgid ""
+"usage: alien-thunder overlay [run|on|off|show ITEM|hide ITEM|items "
+"ITEM,ITEM,...|status]"
+msgstr ""
+"uso: alien-thunder overlay [run|on|off|show ITEM|hide ITEM|items "
+"ITEM,ITEM,...|status]"
 
-#: alien_thunder/overlay.py:205
+#: alien_thunder/overlay.py:228
 #, python-format
 msgid "items: %s"
 msgstr "itens: %s"
@@ -939,3 +1054,6 @@ msgstr ", touchpad %s, logo %s"
 #, python-format
 msgid " (Windows user: %s)"
 msgstr " (usuário Windows: %s)"
+
+#~ msgid "usage: alien-thunder overlay [run|on|off|show ITEM|hide ITEM|status]"
+#~ msgstr "uso: alien-thunder overlay [run|on|off|show ITEM|hide ITEM|status]"

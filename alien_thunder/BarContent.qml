@@ -11,11 +11,18 @@ Item {
     implicitWidth: row.implicitWidth
     implicitHeight: 56
 
+    function unit(key) {
+        if (key.endsWith("_temp")) return "°C"
+        if (key.endsWith("_fan")) return "rpm"
+        if (key === "ram_gb") return "GB / " + (backend.values.ram_total_gb || "?")
+        return "%"
+    }
+
     function severity(key) {
         const v = backend.values[key]
         if (v === undefined || v === null) return 0
         if (key.endsWith("_temp")) return v >= 90 ? 2 : v >= 75 ? 1 : 0
-        if (key === "ram") return v >= 95 ? 2 : v >= 85 ? 1 : 0
+        if (key === "ram" || key === "gpu_mem") return v >= 95 ? 2 : v >= 85 ? 1 : 0
         return 0
     }
 
@@ -77,7 +84,7 @@ Item {
                                 font.letterSpacing: 1
                             }
                             Text {
-                                text: modelData.endsWith("_temp") ? "°C" : modelData.endsWith("_fan") ? "rpm" : "%"
+                                text: content.unit(modelData)
                                 color: "#5c6b77"
                                 font.pixelSize: 10
                             }
@@ -94,7 +101,7 @@ Item {
                                 font.family: "monospace"
                                 font.pixelSize: 28
                                 font.bold: true
-                                text: modelData.endsWith("_fan") ? "8888" : "888"
+                                text: modelData.endsWith("_fan") ? "8888" : modelData === "ram_gb" ? "88.8" : "888"
                             }
                             text: {
                                 const v = content.backend.values[modelData]

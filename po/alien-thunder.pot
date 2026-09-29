@@ -8,7 +8,7 @@ msgid ""
 msgstr ""
 "Project-Id-Version: alien-thunder\n"
 "Report-Msgid-Bugs-To: \n"
-"POT-Creation-Date: 2026-09-25 22:10-0300\n"
+"POT-Creation-Date: 2026-09-28 21:20-0300\n"
 "PO-Revision-Date: YEAR-MO-DA HO:MI+ZONE\n"
 "Last-Translator: FULL NAME <EMAIL@ADDRESS>\n"
 "Language-Team: LANGUAGE <LL@li.org>\n"
@@ -830,10 +830,18 @@ msgid "CPU"
 msgstr ""
 
 #: alien_thunder/overlay.py:54
+msgid "CPU load"
+msgstr ""
+
+#: alien_thunder/overlay.py:54
 msgid "GPU"
 msgstr ""
 
 #: alien_thunder/overlay.py:54
+msgid "VRAM"
+msgstr ""
+
+#: alien_thunder/overlay.py:55
 msgid "CPU fan"
 msgstr ""
 
@@ -845,11 +853,13 @@ msgstr ""
 msgid "RAM"
 msgstr ""
 
-#: alien_thunder/overlay.py:204
-msgid "usage: alien-thunder overlay [run|on|off|show ITEM|hide ITEM|status]"
+#: alien_thunder/overlay.py:227
+msgid ""
+"usage: alien-thunder overlay [run|on|off|show ITEM|hide ITEM|items "
+"ITEM,ITEM,...|status]"
 msgstr ""
 
-#: alien_thunder/overlay.py:205
+#: alien_thunder/overlay.py:228
 #, python-format
 msgid "items: %s"
 msgstr ""

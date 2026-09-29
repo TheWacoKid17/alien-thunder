@@ -8,7 +8,7 @@ msgid ""
 msgstr ""
 "Project-Id-Version: plasma_applet_alien-thunder\n"
 "Report-Msgid-Bugs-To: \n"
-"POT-Creation-Date: 2026-09-25 22:02-0300\n"
+"POT-Creation-Date: 2026-09-28 21:20-0300\n"
 "PO-Revision-Date: YEAR-MO-DA HO:MI+ZONE\n"
 "Last-Translator: FULL NAME <EMAIL@ADDRESS>\n"
 "Language-Team: LANGUAGE <LL@li.org>\n"
@@ -17,46 +17,71 @@ msgstr ""
 "Content-Type: text/plain; charset=UTF-8\n"
 "Content-Transfer-Encoding: 8bit\n"
 
-#: plasma/alien-thunder/contents/ui/configGeneral.qml:19
+#: plasma/alien-thunder/contents/ui/configGeneral.qml:41
 msgid "Show on the panel:"
 msgstr ""
 
-#: plasma/alien-thunder/contents/ui/configGeneral.qml:19
+#: plasma/alien-thunder/contents/ui/configGeneral.qml:41
+#: plasma/alien-thunder/contents/ui/configGeneral.qml:52
 msgid "CPU temperature"
 msgstr ""
 
-#: plasma/alien-thunder/contents/ui/configGeneral.qml:20
+#: plasma/alien-thunder/contents/ui/configGeneral.qml:42
+#: plasma/alien-thunder/contents/ui/configGeneral.qml:53
+#: plasma/alien-thunder/contents/ui/main.qml:25
+msgid "CPU load"
+msgstr ""
+
+#: plasma/alien-thunder/contents/ui/configGeneral.qml:43
+#: plasma/alien-thunder/contents/ui/configGeneral.qml:54
 msgid "GPU temperature"
 msgstr ""
 
-#: plasma/alien-thunder/contents/ui/configGeneral.qml:21
+#: plasma/alien-thunder/contents/ui/configGeneral.qml:44
+#: plasma/alien-thunder/contents/ui/configGeneral.qml:55
+msgid "GPU memory (VRAM) in use"
+msgstr ""
+
+#: plasma/alien-thunder/contents/ui/configGeneral.qml:45
+#: plasma/alien-thunder/contents/ui/configGeneral.qml:56
 msgid "CPU fan speed"
 msgstr ""
 
-#: plasma/alien-thunder/contents/ui/configGeneral.qml:22
+#: plasma/alien-thunder/contents/ui/configGeneral.qml:46
+#: plasma/alien-thunder/contents/ui/configGeneral.qml:57
 msgid "GPU fan speed"
 msgstr ""
 
-#: plasma/alien-thunder/contents/ui/configGeneral.qml:23
+#: plasma/alien-thunder/contents/ui/configGeneral.qml:47
+#: plasma/alien-thunder/contents/ui/configGeneral.qml:58
 msgid "Memory in use"
 msgstr ""
 
-#: plasma/alien-thunder/contents/ui/configSupport.qml:25
+#: plasma/alien-thunder/contents/ui/configGeneral.qml:48
+#: plasma/alien-thunder/contents/ui/configGeneral.qml:59
+msgid "Memory in use, in GB"
+msgstr ""
+
+#: plasma/alien-thunder/contents/ui/configGeneral.qml:52
+msgid "Show in the overlay:"
+msgstr ""
+
+#: plasma/alien-thunder/contents/ui/configSupport.qml:47
 msgid "EVM networks"
 msgstr ""
 
-#: plasma/alien-thunder/contents/ui/configSupport.qml:41
+#: plasma/alien-thunder/contents/ui/configSupport.qml:63
 msgid ""
 "Alien Thunder is free and stays free. If it saved you from booting into "
 "Windows just to change your keyboard colors, a donation keeps it going."
 msgstr ""
 
-#: plasma/alien-thunder/contents/ui/configSupport.qml:85
-#: plasma/alien-thunder/contents/ui/configSupport.qml:96
+#: plasma/alien-thunder/contents/ui/configSupport.qml:107
+#: plasma/alien-thunder/contents/ui/configSupport.qml:118
 msgid "Copy"
 msgstr ""
 
-#: plasma/alien-thunder/contents/ui/configSupport.qml:90
+#: plasma/alien-thunder/contents/ui/configSupport.qml:112
 msgid "Copied"
 msgstr ""
 
@@ -64,66 +89,76 @@ msgstr ""
 msgid "CPU"
 msgstr ""
 
-#: plasma/alien-thunder/contents/ui/main.qml:25
+#: plasma/alien-thunder/contents/ui/main.qml:26
 msgid "GPU"
 msgstr ""
 
-#: plasma/alien-thunder/contents/ui/main.qml:26
-msgid "CPU fan"
-msgstr ""
-
 #: plasma/alien-thunder/contents/ui/main.qml:27
-msgid "GPU fan"
+msgid "VRAM"
 msgstr ""
 
 #: plasma/alien-thunder/contents/ui/main.qml:28
+#: plasma/alien-thunder/contents/ui/main.qml:31
 msgid "RAM"
 msgstr ""
 
-#: plasma/alien-thunder/contents/ui/main.qml:35
+#: plasma/alien-thunder/contents/ui/main.qml:29
+msgid "CPU fan"
+msgstr ""
+
+#: plasma/alien-thunder/contents/ui/main.qml:30
+msgid "GPU fan"
+msgstr ""
+
+#: plasma/alien-thunder/contents/ui/main.qml:38
 msgctxt "revolutions per minute"
 msgid "rpm"
 msgstr ""
 
-#: plasma/alien-thunder/contents/ui/main.qml:120
+#: plasma/alien-thunder/contents/ui/main.qml:39
+msgctxt "gigabytes of memory"
+msgid "GB / %1"
+msgstr ""
+
+#: plasma/alien-thunder/contents/ui/main.qml:144
 msgid "The alien-thunder service isn't running"
 msgstr ""
 
-#: plasma/alien-thunder/contents/ui/main.qml:122
+#: plasma/alien-thunder/contents/ui/main.qml:146
 msgid "G-Mode is on"
 msgstr ""
 
-#: plasma/alien-thunder/contents/ui/main.qml:122
+#: plasma/alien-thunder/contents/ui/main.qml:146
 msgid "G-Mode is off"
 msgstr ""
 
-#: plasma/alien-thunder/contents/ui/main.qml:216
+#: plasma/alien-thunder/contents/ui/main.qml:240
 msgid "Lighting"
 msgstr ""
 
-#: plasma/alien-thunder/contents/ui/main.qml:221
+#: plasma/alien-thunder/contents/ui/main.qml:245
 msgid "Open the keyboard lighting editor"
 msgstr ""
 
-#: plasma/alien-thunder/contents/ui/main.qml:237
+#: plasma/alien-thunder/contents/ui/main.qml:261
 msgid ""
 "No readings: the alien-thunder service isn't running. Start it with: "
 "systemctl --user start alien-thunder"
 msgstr ""
 
-#: plasma/alien-thunder/contents/ui/main.qml:274
+#: plasma/alien-thunder/contents/ui/main.qml:298
 msgid "G-Mode"
 msgstr ""
 
-#: plasma/alien-thunder/contents/ui/main.qml:276
+#: plasma/alien-thunder/contents/ui/main.qml:300
 msgid "Fans at full speed and the performance power profile. Same as Fn+F1."
 msgstr ""
 
-#: plasma/alien-thunder/contents/ui/main.qml:294
+#: plasma/alien-thunder/contents/ui/main.qml:318
 msgid "Overlay"
 msgstr ""
 
-#: plasma/alien-thunder/contents/ui/main.qml:296
+#: plasma/alien-thunder/contents/ui/main.qml:320
 msgid ""
 "A bar of readouts above every window, games included. Drag it anywhere, on "
 "any screen; its ✕ turns it off."

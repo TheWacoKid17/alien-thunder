@@ -9,15 +9,37 @@ KCM.SimpleKCM {
 
     // The dialog hands every page every setting; this one only shows addresses.
     property bool cfg_panel_cpu_temp
+    property bool cfg_panel_cpu_load
     property bool cfg_panel_gpu_temp
+    property bool cfg_panel_gpu_mem
     property bool cfg_panel_cpu_fan
     property bool cfg_panel_gpu_fan
     property bool cfg_panel_ram
+    property bool cfg_panel_ram_gb
+    property bool cfg_overlay_cpu_temp
+    property bool cfg_overlay_cpu_load
+    property bool cfg_overlay_gpu_temp
+    property bool cfg_overlay_gpu_mem
+    property bool cfg_overlay_cpu_fan
+    property bool cfg_overlay_gpu_fan
+    property bool cfg_overlay_ram
+    property bool cfg_overlay_ram_gb
     property bool cfg_panel_cpu_tempDefault
+    property bool cfg_panel_cpu_loadDefault
     property bool cfg_panel_gpu_tempDefault
+    property bool cfg_panel_gpu_memDefault
     property bool cfg_panel_cpu_fanDefault
     property bool cfg_panel_gpu_fanDefault
     property bool cfg_panel_ramDefault
+    property bool cfg_panel_ram_gbDefault
+    property bool cfg_overlay_cpu_tempDefault
+    property bool cfg_overlay_cpu_loadDefault
+    property bool cfg_overlay_gpu_tempDefault
+    property bool cfg_overlay_gpu_memDefault
+    property bool cfg_overlay_cpu_fanDefault
+    property bool cfg_overlay_gpu_fanDefault
+    property bool cfg_overlay_ramDefault
+    property bool cfg_overlay_ram_gbDefault
 
     readonly property var wallets: [
         { name: "Bitcoin", address: "bc1q2nqp9d8lc0u6z7v9ag4u52sv9g9afepgyyrwu4", qr: "../images/donate-btc.png", networks: "" },

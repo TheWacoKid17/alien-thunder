@@ -17,12 +17,15 @@ PlasmoidItem {
     property bool serviceDown: false
 
     readonly property url icon: Qt.resolvedUrl("../images/alien-thunder.png")
-    readonly property var metrics: ["cpu_temp", "gpu_temp", "cpu_fan", "gpu_fan", "ram"]
+    readonly property var metrics: ["cpu_temp", "cpu_load", "gpu_temp", "gpu_mem", "cpu_fan", "gpu_fan", "ram", "ram_gb"]
 
     function label(key) {
         switch (key) {
         case "cpu_temp": return i18n("CPU")
+        case "cpu_load": return i18n("CPU load")
         case "gpu_temp": return i18n("GPU")
+        case "gpu_mem": return i18n("VRAM")
+        case "ram_gb": return i18n("RAM")
         case "cpu_fan": return i18n("CPU fan")
         case "gpu_fan": return i18n("GPU fan")
         case "ram": return i18n("RAM")
@@ -33,6 +36,7 @@ PlasmoidItem {
     function unit(key) {
         if (key.endsWith("_temp")) return "°C"
         if (key.endsWith("_fan")) return i18nc("revolutions per minute", "rpm")
+        if (key === "ram_gb") return i18nc("gigabytes of memory", "GB / %1", sensors.ram_total_gb || "?")
         return "%"
     }
 
@@ -48,7 +52,7 @@ PlasmoidItem {
             if (v >= 90) return Kirigami.Theme.negativeTextColor
             if (v >= 75) return Kirigami.Theme.neutralTextColor
         }
-        if (key === "ram") {
+        if (key === "ram" || key === "gpu_mem") {
             if (v >= 95) return Kirigami.Theme.negativeTextColor
             if (v >= 85) return Kirigami.Theme.neutralTextColor
         }
@@ -112,7 +116,27 @@ PlasmoidItem {
     }
 
     onExpandedChanged: () => { if (root.expanded) overlaySource.refresh() }
-    Component.onCompleted: overlaySource.refresh()
+    Component.onCompleted: {
+        overlaySource.refresh()
+        overlaySync.restart()
+    }
+
+    // The overlay's readings are chosen here (settings or popup) and handed to the bar in
+    // one go, after a short pause so ticking several boxes restarts it once.
+    Timer {
+        id: overlaySync
+        interval: 400
+        onTriggered: commands.run("alien-thunder overlay items "
+                                  + root.metrics.filter(k => Plasmoid.configuration["overlay_" + k]).join(","))
+    }
+
+    Connections {
+        target: Plasmoid.configuration
+        function onValueChanged(key) {
+            if (key.startsWith("overlay_"))
+                overlaySync.restart()
+        }
+    }
 
     Plasmoid.icon: icon
     toolTipMainText: "Alien Thunder"
@@ -319,9 +343,9 @@ PlasmoidItem {
                         model: root.metrics
                         delegate: PlasmaComponents3.CheckBox {
                             required property string modelData
-                            text: root.label(modelData)
-                            checked: !!(root.overlay.items && root.overlay.items[modelData])
-                            onToggled: commands.run("alien-thunder overlay " + (checked ? "show " : "hide ") + modelData)
+                            text: root.label(modelData) + " " + root.unit(modelData).split(" ")[0]
+                            checked: !!Plasmoid.configuration["overlay_" + modelData]
+                            onToggled: Plasmoid.configuration["overlay_" + modelData] = checked
                         }
                     }
                 }
