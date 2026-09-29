@@ -1,0 +1,81 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!-- Lets GNOME Software, KDE Discover and other app stores list Alien Thunder. -->
+<component type="desktop-application">
+  <id>io.github.cryptoconspiracy.AlienThunder</id>
+  <metadata_license>CC0-1.0</metadata_license>
+  <project_license>MIT</project_license>
+  <name>Alien Thunder</name>
+  <summary>Keyboard lighting, G-Mode and temperatures for Alienware laptops</summary>
+  <summary xml:lang="pt-BR">Iluminação do teclado, G-Mode e temperaturas para notebooks Alienware</summary>
+  <developer id="io.github.cryptoconspiracy">
+    <name>Dan B</name>
+  </developer>
+  <description>
+    <p>
+      Alien Thunder brings the Alienware Command Center features Linux lacks: per-key
+      keyboard lighting, the touchpad, alien head and power button lights, G-Mode on
+      Fn+F1, and live temperature, fan, CPU load and memory readouts.
+    </p>
+    <ul>
+      <li>Color every key, save profiles, and import your presets from Windows</li>
+      <li>Effects for the keyboard, touchpad and alien head that never change your colors</li>
+      <li>G-Mode on Fn+F1: fans at full speed and the performance power profile</li>
+      <li>CPU and GPU temperature, fan speeds, CPU load, VRAM and RAM on the KDE Plasma panel and in an overlay above games</li>
+    </ul>
+    <p>
+      Tested on the Alienware m16 R2. The panel widget and the overlay need KDE Plasma 6;
+      the lighting editor and G-Mode work on other desktops too.
+    </p>
+  </description>
+  <launchable type="desktop-id">alien-thunder.desktop</launchable>
+  <url type="homepage">https://github.com/cryptoconspiracy/alien-thunder</url>
+  <url type="bugtracker">https://github.com/cryptoconspiracy/alien-thunder/issues</url>
+  <url type="donation">https://github.com/cryptoconspiracy/alien-thunder#support-the-project</url>
+  <url type="vcs-browser">https://github.com/cryptoconspiracy/alien-thunder</url>
+  <categories>
+    <category>Settings</category>
+    <category>HardwareSettings</category>
+  </categories>
+  <keywords>
+    <keyword>Alienware</keyword>
+    <keyword>RGB</keyword>
+    <keyword>keyboard</keyword>
+    <keyword>G-Mode</keyword>
+    <keyword>fan</keyword>
+    <keyword>temperature</keyword>
+  </keywords>
+  <screenshots>
+    <screenshot type="default">
+      <caption>The lighting editor</caption>
+      <image>https://raw.githubusercontent.com/cryptoconspiracy/alien-thunder/main/assets/screenshots/editor.png</image>
+    </screenshot>
+    <screenshot>
+      <caption>Readouts that float above every window</caption>
+      <image>https://raw.githubusercontent.com/cryptoconspiracy/alien-thunder/main/assets/screenshots/overlay.png</image>
+    </screenshot>
+    <screenshot>
+      <caption>The panel widget</caption>
+      <image>https://raw.githubusercontent.com/cryptoconspiracy/alien-thunder/main/assets/screenshots/popup.png</image>
+    </screenshot>
+  </screenshots>
+  <provides>
+    <binary>alien-thunder</binary>
+  </provides>
+  <supports>
+    <control>pointing</control>
+    <control>keyboard</control>
+  </supports>
+  <content_rating type="oars-1.1"/>
+  <releases>
+    <release version="1.2.0" date="2026-09-28">
+      <description>
+        <p>CPU load, VRAM in use and RAM in GB, and a choice of readings for the panel and the overlay.</p>
+      </description>
+    </release>
+    <release version="1.1.2" date="2026-09-26">
+      <description>
+        <p>The overlay no longer closes by itself. First Debian and Ubuntu package.</p>
+      </description>
+    </release>
+  </releases>
+</component>

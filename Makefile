@@ -32,6 +32,7 @@ install: locales
 	done
 	install -Dm644 data/70-alien-thunder.rules $(DESTDIR)$(PREFIX)/lib/udev/rules.d/70-alien-thunder.rules
 	install -Dm644 data/alien-thunder.desktop $(SHARE)/applications/alien-thunder.desktop
+	install -Dm644 data/io.github.cryptoconspiracy.AlienThunder.metainfo.xml $(SHARE)/metainfo/io.github.cryptoconspiracy.AlienThunder.metainfo.xml
 	for size in 16 22 24 32 48 64 128 256; do \
 	  install -Dm644 assets/icon-$$size.png $(SHARE)/icons/hicolor/$${size}x$${size}/apps/alien-thunder.png; \
 	done

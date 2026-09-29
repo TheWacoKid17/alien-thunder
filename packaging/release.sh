@@ -65,6 +65,18 @@ sed -i "/^%changelog$/r $work/rpmlog" packaging/rpm/alien-thunder.spec
 } > "$work/deblog"
 cp "$work/deblog" packaging/debian/changelog
 sed -i "s/^pkgver=.*/pkgver=$version/; s/^pkgrel=.*/pkgrel=1/" packaging/aur/PKGBUILD
+# GNOME Software and Discover show the latest <release> as the version and its notes.
+metainfo=data/io.github.cryptoconspiracy.AlienThunder.metainfo.xml
+{
+  printf '    <release version="%s" date="%s">\n      <description>\n        <ul>\n' "$version" "$(date +%F)"
+  for c in "${changes[@]}"; do
+    c=${c//&/&amp;}; c=${c//</&lt;}; c=${c//>/&gt;}
+    printf '          <li>%s</li>\n' "$c"
+  done
+  printf '        </ul>\n      </description>\n    </release>\n'
+} > "$work/release.xml"
+sed -i "/<releases>/r $work/release.xml" "$metainfo"
+appstreamcli validate --no-net "$metainfo" >/dev/null || fail "the AppStream file doesn't validate after adding the release"
 git add -A
 git commit -q -m "$version"
 git tag -a "v$version" -m "Alien Thunder $version"

@@ -67,6 +67,7 @@ rm -f %{buildroot}%{_datadir}/licenses/%{name}/LICENSE
 %{_userunitdir}/alien-thunder-overlay.service
 %{_udevrulesdir}/70-alien-thunder.rules
 %{_datadir}/applications/alien-thunder.desktop
+%{_datadir}/metainfo/io.github.cryptoconspiracy.AlienThunder.metainfo.xml
 %{_datadir}/icons/hicolor/*/apps/alien-thunder.png
 %dir %{_datadir}/plasma
 %dir %{_datadir}/plasma/plasmoids
