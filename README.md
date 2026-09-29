@@ -23,8 +23,9 @@ how fast the fans are spinning.
   their own effect and speed.
 - **G-Mode.** Fn+F1 works again: fans at full speed and the performance power profile,
   and the F1 key turns white while it's on, like on Windows.
-- **Readouts on the panel.** CPU and GPU temperature, both fan speeds and memory in use,
-  right next to the system tray and the clock.
+- **Readouts on the panel.** CPU and GPU temperature, CPU load, GPU memory (VRAM) in use,
+  both fan speeds and memory in use (in % and in GB), right next to the system tray and
+  the clock. You pick which ones in the widget's settings.
 - **Overlay.** The same readouts in a small bar that floats above every window, games
   in fullscreen included. Drag it anywhere, on any screen; its ✕ puts it away.
 
@@ -182,6 +183,14 @@ alien-thunder overlay [on|off|show ITEM|hide ITEM|status]
 `ITEM` is one of `cpu_temp`, `gpu_temp`, `cpu_fan`, `gpu_fan`, `ram`.
 
 ## What's new
+
+### 1.2
+
+- CPU load, GPU memory (VRAM) in use and RAM in GB, on the panel and in the overlay.
+  VRAM is only read while the NVIDIA GPU is already awake, so it never wakes one that
+  is sleeping.
+- The widget's settings choose the readings for the panel and for the overlay.
+- The overlay no longer closes by itself (1.1.2).
 
 ### 1.1
 
