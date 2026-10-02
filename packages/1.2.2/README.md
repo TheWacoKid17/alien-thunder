@@ -70,7 +70,8 @@ sudo apt install ./alien-thunder-1.2.2-ubuntu25.10.all.deb
 ## Arch Linux, Garuda, Manjaro, EndeavourOS, CachyOS
 
 ```sh
-sudo pacman -U https://github.com/cryptoconspiracy/alien-thunder/raw/main/packages/1.2.2/alien-thunder-1.2.2-arch.any.pkg.tar.zst
+cd /tmp && curl -fLO https://github.com/cryptoconspiracy/alien-thunder/raw/main/packages/1.2.2/alien-thunder-1.2.2-arch.any.pkg.tar.zst
+sudo pacman -U ./alien-thunder-1.2.2-arch.any.pkg.tar.zst
 ```
 
 ## Then
