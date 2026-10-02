@@ -1,6 +1,6 @@
 pkgbase = alien-thunder
 	pkgdesc = Per-key RGB, G-Mode on Fn+F1, and temperature and fan readouts (panel widget and floating overlay) for Alienware laptops on KDE Plasma
-	pkgver = 1.2.1
+	pkgver = 1.2.2
 	pkgrel = 1
 	url = https://github.com/cryptoconspiracy/alien-thunder
 	install = alien-thunder.install
@@ -15,7 +15,7 @@ pkgbase = alien-thunder
 	depends = layer-shell-qt
 	depends = power-profiles-daemon
 	optdepends = plasma-workspace: the panel widget
-	source = alien-thunder-1.2.1.tar.gz::https://github.com/cryptoconspiracy/alien-thunder/archive/refs/tags/v1.2.1.tar.gz
-	sha256sums = e9f0fcc085ef6fcf355522f5c268b5a77c71aa51ee88becc68529665071dbb34
+	source = alien-thunder-1.2.2.tar.gz::https://github.com/cryptoconspiracy/alien-thunder/archive/refs/tags/v1.2.2.tar.gz
+	sha256sums = e2798874872413134fc4f0b92f96468d54a5db8eab8e841c64a272db20886fa2
 
 pkgname = alien-thunder

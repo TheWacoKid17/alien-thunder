@@ -11,7 +11,7 @@ makedepends=('gettext')
 optdepends=('plasma-workspace: the panel widget')
 install=alien-thunder.install
 source=("$pkgname-$pkgver.tar.gz::$url/archive/refs/tags/v$pkgver.tar.gz")
-sha256sums=('e9f0fcc085ef6fcf355522f5c268b5a77c71aa51ee88becc68529665071dbb34')
+sha256sums=('e2798874872413134fc4f0b92f96468d54a5db8eab8e841c64a272db20886fa2')
 
 build() {
   cd "$pkgname-$pkgver"
