@@ -1,5 +1,5 @@
 Name:           alien-thunder
-Version:        1.2.1
+Version:        1.2.2
 Release:        1%{?dist}
 Summary:        Per-key RGB, G-Mode and fan and temperature readouts for Alienware laptops
 License:        MIT
@@ -75,6 +75,10 @@ rm -f %{buildroot}%{_datadir}/licenses/%{name}/LICENSE
 %{_datadir}/plasma/plasmoids/alien-thunder/
 
 %changelog
+* Fri Oct 02 2026 Dan B <unknown@cryptoconspiracy.io> - 1.2.2-1
+- packages/: a package to download for each distribution, versioned, and openSUSE Leap 16.0
+- Debian policy: lintian-clean package, a man page, and the app in /usr/share
+
 * Mon Sep 28 2026 Dan B <unknown@cryptoconspiracy.io> - 1.2.1-1
 - AppStream metadata, so GNOME Software and KDE Discover list the app
 - make release: publish a version to GitHub, OBS and the AUR from this machine

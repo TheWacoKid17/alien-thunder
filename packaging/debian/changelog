@@ -1,3 +1,10 @@
+alien-thunder (1.2.2-1) unstable; urgency=medium
+
+  * packages/: a package to download for each distribution, versioned, and openSUSE Leap 16.0
+  * Debian policy: lintian-clean package, a man page, and the app in /usr/share
+
+ -- Dan B <unknown@cryptoconspiracy.io>  Fri, 02 Oct 2026 02:16:11 -0300
+
 alien-thunder (1.2.1-1) unstable; urgency=medium
 
   * AppStream metadata, so GNOME Software and KDE Discover list the app
