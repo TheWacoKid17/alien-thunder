@@ -69,11 +69,22 @@ mounted at `/mnt/windows`; it only reads, it never writes there.
 
 ## Install
 
-### From packages
+### Download a package
 
-Signed repositories on the openSUSE Build Service. After installing, run
-`alien-thunder setup` once as your own user (not root): it turns the service on,
-puts the widget next to the system tray and tells you if anything is missing.
+Open the [**packages**](packages/) folder, find your Linux, download the file and open
+it with your software center, or paste the line under it into a terminal. There are
+packages for Fedora 43 and 44, openSUSE Tumbleweed and Leap 16.0, Debian 13, Ubuntu
+25.10 and 26.04, and Arch with the systems built on it. Older Ubuntu and Debian releases
+lack PySide6 and the Plasma 6 pieces Alien Thunder needs.
+
+After installing, run `alien-thunder setup` once as your own user (not root): it turns
+the service on, puts the widget next to the system tray and tells you if anything is
+missing.
+
+### From the repository, with updates
+
+A downloaded package stays at its version. The signed repository on the openSUSE Build
+Service brings new versions with your system updates.
 
 **Fedora 43 and 44**
 
@@ -82,10 +93,11 @@ sudo dnf config-manager addrepo --from-repofile=https://download.opensuse.org/re
 sudo dnf install alien-thunder
 ```
 
-**openSUSE Tumbleweed**
+**openSUSE Tumbleweed and Leap 16.0**: set `repo` to `openSUSE_Tumbleweed` or `openSUSE_Leap_16.0`.
 
 ```bash
-sudo zypper addrepo -f https://download.opensuse.org/repositories/home:/cryptoconspiracy/openSUSE_Tumbleweed/home:cryptoconspiracy.repo
+repo=openSUSE_Tumbleweed
+sudo zypper addrepo -f https://download.opensuse.org/repositories/home:/cryptoconspiracy/$repo/home:cryptoconspiracy.repo
 sudo zypper install alien-thunder
 ```
 
@@ -136,7 +148,8 @@ widget, the user services, the udev rule and the icons. Each user then runs
 
 `make release VERSION=1.2.3` bumps the version everywhere, tags it, publishes the GitHub
 release with the widget, updates the AUR recipe and the openSUSE Build Service packages,
-and waits for the builds. `DRY_RUN=1` does it all in a throwaway clone without publishing.
+waits for the builds, and copies them into `packages/VERSION` for the download page.
+`DRY_RUN=1` does it all in a throwaway clone without publishing.
 
 ### Updating
 
