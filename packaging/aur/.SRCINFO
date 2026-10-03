@@ -16,6 +16,6 @@ pkgbase = alien-thunder
 	depends = power-profiles-daemon
 	optdepends = plasma-workspace: the panel widget
 	source = alien-thunder-1.2.2.tar.gz::https://github.com/cryptoconspiracy/alien-thunder/archive/refs/tags/v1.2.2.tar.gz
-	sha256sums = e2798874872413134fc4f0b92f96468d54a5db8eab8e841c64a272db20886fa2
+	sha256sums = 3ac09e1f6eb385beecd8344742d6e329adc0c8965cd9c7a75213250b985d7076
 
 pkgname = alien-thunder
