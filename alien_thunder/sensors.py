@@ -76,6 +76,11 @@ def gpu_memory_percent(gpu: str | None) -> int | None:
     """
     if gpu is None:
         return None
+    # LOCAL PATCH: querying NVML every 2 s keeps an awake GPU from ever going back to
+    # sleep (each call resets its idle timer), which costs battery. Off unless opted in
+    # with ALIEN_THUNDER_VRAM=1 in the service environment.
+    if os.environ.get("ALIEN_THUNDER_VRAM") != "1":
+        return None
     try:
         with open(os.path.join(gpu, "power", "runtime_status")) as f:
             if f.read().strip() != "active":
