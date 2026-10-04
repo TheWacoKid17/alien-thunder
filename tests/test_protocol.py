@@ -132,7 +132,7 @@ class Layout(unittest.TestCase):
 
     def test_92_awcc_ids(self):
         self.assertEqual(set(layout.AWCC_IDS), self.AWCC)
-        self.assertEqual(len([k for k in layout.KEYS if not k.extra]), 86)
+        self.assertEqual(len([k for k in layout.KEYS if not k.extra]), 85)  # US layout
         self.assertIn(106, layout.KEY_BY_ID[107].leds)
 
     def test_groups_are_valid(self):

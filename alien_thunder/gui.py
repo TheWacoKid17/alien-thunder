@@ -86,6 +86,13 @@ class Swatch(QToolButton):
                            f"QToolButton:hover {{ border:2px solid {ACCENT.name()}; }}")
 
 
+# LOCAL PATCH (US layout): the JP/UK extra LEDs and the donation header are hidden.
+# Undo with: git checkout alien_thunder/gui.py
+VISIBLE_KEYS = [k for k in layout.KEYS if not k.extra]
+BANNER_H = 22.0
+VIEW_H = layout.KEYS_H + 10 + BANNER_H
+
+
 class KeyboardView(QWidget):
     selectionChanged = Signal()
     keyActivated = Signal(int)  # double click
@@ -114,9 +121,9 @@ class KeyboardView(QWidget):
     def _xf(self):
         w = self.width() - 2 * self.MARGIN
         h = self.height() - 2 * self.MARGIN
-        s = min(w / layout.CANVAS_W, h / layout.CANVAS_H)
+        s = min(w / layout.CANVAS_W, h / VIEW_H)
         ox = self.MARGIN + (w - layout.CANVAS_W * s) / 2
-        oy = self.MARGIN + (h - layout.CANVAS_H * s) / 2
+        oy = self.MARGIN + (h - VIEW_H * s) / 2
         return s, ox, oy
 
     def key_rect(self, k: layout.Key) -> QRectF:
@@ -126,7 +133,7 @@ class KeyboardView(QWidget):
         return QRectF(ox + (x + pad) * s, oy + (y + pad) * s, (w - 2 * pad) * s, (h - 2 * pad) * s)
 
     def key_at(self, pos) -> int | None:
-        for k in layout.KEYS:
+        for k in VISIBLE_KEYS:
             if self.key_rect(k).contains(QPointF(pos)):
                 return k.id
         return None
@@ -138,7 +145,7 @@ class KeyboardView(QWidget):
         return True
 
     def heightForWidth(self, w):
-        return int(w * layout.CANVAS_H / layout.CANVAS_W) + 2 * self.MARGIN
+        return int(w * VIEW_H / layout.CANVAS_W) + 2 * self.MARGIN
 
     # --------------------------------------------------------- drawing
     def paintEvent(self, _ev):
@@ -151,12 +158,12 @@ class KeyboardView(QWidget):
         p.drawRoundedRect(deck, 10, 10)
         font = QFont(self.font())
         src = self.preview if self.preview is not None else self.colors
-        for k in layout.KEYS:
+        for k in VISIBLE_KEYS:
             r = self.key_rect(k)
             c = src.get(k.id)
             path = QPainterPath()
             rad = 5 * s
-            if k.id == 55:  # ISO Enter, an upside-down "L"
+            if False:  # US layout: Enter is a plain rectangle (was: ISO Enter, id 55)
                 s_ = s
                 x, y, w, h = k.rect
                 top_h = 52.7
@@ -195,13 +202,9 @@ class KeyboardView(QWidget):
         font.setPointSizeF(max(7.0, 9 * s * 1.2) * 0.75)
         p.setFont(font)
         p.setPen(QColor("#8a9099"))
-        lx = ox + 6 * 68.0 * s + 6 * s
-        p.drawText(QRectF(lx, oy + layout.EXTRA_Y * s, 600 * s, layout.EXTRA_H * s),
-                   Qt.AlignVCenter | Qt.AlignLeft,
-                   _("← AWCC LEDs with no key on ABNT2 (JP/UK keyboards)"))
         if self.banner:
             p.setPen(QColor("#ffd27a"))
-            p.drawText(QRectF(lx, oy + layout.EXTRA_Y * s + layout.EXTRA_H * s * 0.0, 590 * s, layout.EXTRA_H * s),
+            p.drawText(QRectF(ox, oy + (layout.KEYS_H + 10) * s, layout.CANVAS_W * s, BANNER_H * s),
                        Qt.AlignVCenter | Qt.AlignRight, self.banner)
         p.end()
 
@@ -228,7 +231,7 @@ class KeyboardView(QWidget):
         if self._dragging:
             rect = QRect(self._press, pos).normalized()
             self._band.setGeometry(rect)
-            hit = {k.id for k in layout.KEYS if self.key_rect(k).intersects(QRectF(rect))}
+            hit = {k.id for k in VISIBLE_KEYS if self.key_rect(k).intersects(QRectF(rect))}
             self.selection = self._base_sel | hit
             self.update()
             self.selectionChanged.emit()
@@ -401,7 +404,6 @@ class MainWindow(QMainWindow):
 
         mid = QHBoxLayout()
         left = QVBoxLayout()
-        left.addWidget(DonationStrip())
         self.kb = KeyboardView()
         self.kb.selectionChanged.connect(self.on_selection_changed)
         self.kb.keyActivated.connect(lambda _k: self.pick_color_dialog())
@@ -422,10 +424,6 @@ class MainWindow(QMainWindow):
         bottom = QHBoxLayout()
         self.lbl_sel = QLabel(_("No keys selected"))
         bottom.addWidget(self.lbl_sel)
-        bottom.addStretch(1)
-        pitch = QLabel(_("Alien Thunder is free and stays free. If it saved you a trip to Windows, a donation keeps it going."))
-        pitch.setStyleSheet("color:#9aa0a6;")
-        bottom.addWidget(pitch)
         bottom.addStretch(1)
         self.chk_live = QCheckBox(_("Apply live"))
         self.chk_live.setChecked(True)
@@ -841,7 +839,7 @@ class MainWindow(QMainWindow):
         self.set_selection(ids)
 
     def invert_selection(self):
-        self.set_selection({k.id for k in layout.KEYS} - self.kb.selection)
+        self.set_selection({k.id for k in VISIBLE_KEYS} - self.kb.selection)
 
     def choose_color(self, c: str):
         self.btn_color.setColor(c)

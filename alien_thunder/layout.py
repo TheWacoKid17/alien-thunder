@@ -1,4 +1,9 @@
-"""LED table for the Alienware m16 R2 ABNT2 (Brazilian) keyboard, 0d62:d2b1.
+"""LED table for the Alienware m16 R2 keyboard, 0d62:d2b1.
+
+LOCAL PATCH: labels and shapes changed from ABNT2 to the US (ANSI) layout; LED IDs
+are unchanged. Undo with: git checkout alien_thunder/layout.py alien_thunder/gui.py tests/test_protocol.py
+
+Original description (ABNT2):
 
 IDs and names come from the Alienware Command Center metadata (FXMetadata/0x1102_AdvKB,
 92 LEDs). The rectangles (x, y, width, height) come from AWCC's own drawing of the
@@ -32,7 +37,7 @@ _K = {
     13: ("Home", "Home", "Home", (826.0, 0.0, 52.2, 31.0)),
     14: ("End", "End", "End", (889.7, 0.0, 52.2, 31.0)),
     15: ("Del", "Delete", "Delete", (953.1, 0.0, 52.2, 31.0)),
-    20: ("'", "Apostrophe / quote", "`", (0.1, 44.5, 52.7, 52.7)),
+    20: ("`", "Backtick / tilde", "`", (0.1, 44.5, 52.7, 52.7)),
     21: ("1", "1", "1", (63.9, 44.5, 52.7, 52.7)),
     22: ("2", "2", "2", (127.2, 44.5, 52.7, 52.7)),
     23: ("3", "3", "3", (190.5, 44.5, 52.7, 52.7)),
@@ -58,9 +63,9 @@ _K = {
     49: ("I", "I", "I", (540.2, 110.0, 52.6, 52.7)),
     50: ("O", "O", "O", (603.7, 110.0, 52.6, 52.7)),
     51: ("P", "P", "P", (667.2, 110.0, 52.6, 52.7)),
-    52: ("´", "Acute accent", "[", (729.8, 110.0, 52.6, 52.7)),
-    53: ("[", "Bracket [", "]", (793.4, 110.0, 52.6, 52.7)),
-    55: ("Enter", "Enter", "\\", (857.6, 110.0, 83.9, 117.1)),
+    52: ("[", "Bracket [", "[", (729.8, 110.0, 52.6, 52.7)),
+    53: ("]", "Bracket ]", "]", (793.4, 110.0, 52.6, 52.7)),
+    55: ("\\", "Backslash", "\\", (857.6, 110.0, 83.9, 52.7)),
     16: ("Mute", "Speaker mute", "Speaker Mute", (953.1, 110.0, 52.0, 52.7)),
     61: ("Caps", "Caps Lock", "Caps Lock", (0.1, 175.0, 100.2, 52.7)),
     62: ("A", "A", "A", (111.9, 175.0, 52.6, 52.7)),
@@ -72,12 +77,11 @@ _K = {
     68: ("J", "J", "J", (492.1, 175.0, 52.6, 52.7)),
     69: ("K", "K", "K", (555.3, 175.0, 52.6, 52.7)),
     70: ("L", "L", "L", (618.9, 175.0, 52.6, 52.7)),
-    71: ("Ç", "Ç", ";", (682.3, 175.0, 52.6, 52.7)),
-    72: ("~", "Tilde", "'", (745.9, 175.0, 52.6, 52.7)),
-    74: ("]", "Bracket ]", "Enter", (809.7, 175.0, 52.6, 52.7)),
+    71: (";", "Semicolon", ";", (682.3, 175.0, 52.6, 52.7)),
+    72: ("'", "Apostrophe / quote", "'", (745.9, 175.0, 52.6, 52.7)),
+    74: ("Enter", "Enter", "Enter", (809.7, 175.0, 131.8, 52.7)),
     18: ("Vol+", "Volume +", "Volume Up", (953.1, 175.0, 52.0, 52.7)),
-    81: ("Shift", "Left Shift", "Left Shift", (0.1, 240.5, 67.7, 52.7)),
-    82: ("\\", "Backslash", "UK2", (79.2, 240.5, 52.6, 52.7)),
+    81: ("Shift", "Left Shift", "Left Shift", (0.1, 240.5, 131.7, 52.7)),
     83: ("Z", "Z", "Z", (143.3, 240.5, 52.6, 52.7)),
     84: ("X", "X", "X", (206.6, 240.5, 52.6, 52.7)),
     85: ("C", "C", "C", (270.6, 240.5, 52.6, 52.7)),
@@ -87,7 +91,7 @@ _K = {
     89: ("M", "M", "M", (524.5, 240.5, 52.6, 52.7)),
     90: (",", "Comma", ",", (586.5, 240.5, 52.6, 52.7)),
     91: (".", "Period", ".", (651.3, 240.5, 52.6, 52.7)),
-    92: (";", "Semicolon", "/", (714.7, 240.5, 52.6, 52.7)),
+    92: ("/", "Slash", "/", (714.7, 240.5, 52.6, 52.7)),
     94: ("Shift", "Right Shift", "Right Shift", (778.2, 240.5, 99.7, 52.7)),
     114: ("↑", "Up arrow (PgUp)", "Page Up", (889.5, 240.5, 52.0, 52.7)),
     17: ("Vol−", "Volume −", "Volume Down", (953.1, 240.5, 52.0, 52.7)),
@@ -110,6 +114,7 @@ _EXTRA = {
     54: ("JP2", "LED JP2 (ろ on the Japanese keyboard)", "JP2"),
     59: ("JP3", "LED JP3 (Japanese keyboard)", "JP3"),
     73: ("UK1", "LED UK1 (# on the UK keyboard)", "UK1"),
+    82: ("UK2", "LED UK2 (\\ next to Z on UK/ABNT2 keyboards)", "UK2"),
     105: ("JP4", "LED JP4 (無変換 on the Japanese keyboard)", "JP4"),
     110: ("JP5", "LED JP5 (変換 on the Japanese keyboard)", "JP5"),
 }
@@ -184,12 +189,12 @@ def rel_y(led: int) -> float:
     return min(1.0, k.center[1] / KEYS_H)
 
 
-_letters = [42, 43, 44, 45, 46, 47, 48, 49, 50, 51, 62, 63, 64, 65, 66, 67, 68, 69, 70, 71,
+_letters = [42, 43, 44, 45, 46, 47, 48, 49, 50, 51, 62, 63, 64, 65, 66, 67, 68, 69, 70,
             83, 84, 85, 86, 87, 88, 89]
 
 # Keyed by the English name; the GUI shows the translation.
 GROUPS: dict[str, list[int]] = {
-    N_("All"): [k.id for k in KEYS],
+    N_("All"): [k.id for k in KEYS if not k.extra],
     N_("Letters"): _letters,
     N_("Numbers"): list(range(21, 31)),
     N_("F1–F12"): list(range(1, 13)),
@@ -197,8 +202,7 @@ GROUPS: dict[str, list[int]] = {
     N_("WASD"): [43, 62, 63, 64],
     N_("Modifiers"): [61, 81, 94, 100, 101, 103, 104, 109, 111, 112],
     N_("Media/volume"): [16, 17, 18, 19],
-    N_("Editing block"): [13, 14, 15, 35, 40, 55],
-    N_("Symbols"): [20, 31, 32, 52, 53, 72, 74, 82, 90, 91, 92],
+    N_("Editing block"): [13, 14, 15, 35, 40, 74],
+    N_("Symbols"): [20, 31, 32, 52, 53, 55, 71, 72, 90, 91, 92],
     N_("Function row (Esc…Del)"): list(range(0, 16)),
-    N_("Extra LEDs (JP/UK)"): list(_EXTRA),
 }
